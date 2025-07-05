@@ -102,6 +102,7 @@
             lblAddEditLocalDrivingLicenseApplication.Name = "lblAddEditLocalDrivingLicenseApplication";
             lblAddEditLocalDrivingLicenseApplication.Size = new Size(660, 37);
             lblAddEditLocalDrivingLicenseApplication.TabIndex = 10;
+            lblAddEditLocalDrivingLicenseApplication.Tag = "MainTitle";
             lblAddEditLocalDrivingLicenseApplication.Text = "Add Edit Local Driving License Application";
             // 
             // tcAddNewUser

@@ -1,5 +1,4 @@
-﻿using BusinessLayer;
-using PresentationLayer.Global;
+﻿using PresentationLayer.Global;
 using PresentationLayer.Licenses;
 using PresentationLayer.Licenses.LocalLicenses;
 using System;
@@ -7,14 +6,21 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using static PresentationLayer.Global.clsGlobalData;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using BusinessLayer.Core;
+using static BusinessLayer.Core.clsUsersPermissions;
+using DataAccessLayer.Core;
+using static PresentationLayer.Global.clsFormat;
+using static BusinessLayer.Core.clsApplication;
+using PresentationLayer.Helpers.BaseUI;
 
 namespace PresentationLayer.Applications.RenewLocalLicense
 {
-    public partial class frmRenewLocalLicense : Form
+    public partial class frmRenewLocalLicense : clsBaseForm
     {
  
         clsLicense _OldLicense = new clsLicense();
@@ -23,7 +29,7 @@ namespace PresentationLayer.Applications.RenewLocalLicense
             => clsApplicationType.GetApplicationTypeFees((int)clsApplication.enApplicationType.RenewDrivingLicenseService);
         decimal _LicenseFees
             => clsLicenseClass.GetByID(_OldLicense.LicenseID.Value).ClassFees;
-        int? _DefaultValidityLength
+        int _DefaultValidityLength
             => (int)clsLicenseClass.GetByID((int)_OldLicense.LicenseClass).DefaultValidityLength;
 
 
@@ -31,6 +37,7 @@ namespace PresentationLayer.Applications.RenewLocalLicense
         public frmRenewLocalLicense()
         {
             InitializeComponent();
+            SetTheme(this);
 
         }
 
@@ -38,29 +45,29 @@ namespace PresentationLayer.Applications.RenewLocalLicense
 
         private void btnClose_Click(object sender, EventArgs e)
             => this.Close();
-        void _EnableBtnLLs(bool Enable)
+        void EnableBtnLLs(bool Enable)
         {
             llShowLicenseHistory.Enabled = Enable;
             btnRenewLicense.Enabled = Enable;
         }
 
-        void _SetTitle()
+        void SetTitle()
         {
-            this.Text = "Renew Old OldLicense";
+            base.SetTitle("Renew Old OldLicense");
             lblTitle.Text = "Renew Old OldLicense";
         }
-        void _ResetGeneralValues()
+        void ResetGeneralValues()
         {
-            _SetTitle();
+            SetTitle();
             llShowLicenseHistory.Enabled = false;
             llShowLicenseInfo.Enabled = false;
-            _EnableBtnLLs(false);//will diable when Selecting in (Known Mode or Find Mode)
+            EnableBtnLLs(false);//will diable when Selecting in (Known Mode or Find Mode)
             ctrlDriverLicenseInfoWithFilter1.ResetCTRL();
             //Renew (ApplicationID,LicenseID)
             lblRenewLicenseID.Text = "[????]";
             lblApplicationID.Text = "[????]";
             lblApplicationDate.Text = clsFormat.DateToShortString(DateTime.Now);
-            lblCreatedByUser.Text = clsGlobal.CurrentUser.UserName;
+            lblCreatedByUser.Text = clsGlobalData.CurrentUser.UserName;
             lblExpirationDate.Text = "[????]";
             lblIssueDate.Text = lblApplicationDate.Text;
             lblOldLicenseID.Text = "[????]";
@@ -69,14 +76,14 @@ namespace PresentationLayer.Applications.RenewLocalLicense
             lblTotalFees.Text = "[$$$$]";
             this.AcceptButton = ctrlDriverLicenseInfoWithFilter1.FindButton;
         }
-        void _LoadOldLicense(int LicenseID)
+        void LoadOldLicense(int LicenseID)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.RenewLocalLicense))
+            if (!CheckUserAccess(GetByAccessType("AddEdit").Permissions.Value))
                 return;
             _OldLicense = clsLicense.GetByID(LicenseID);
-            _EnableBtnLLs(true);
+            EnableBtnLLs(true);
             ctrlDriverLicenseInfoWithFilter1.Enabled = true;
-            lblExpirationDate.Text = clsFormat.DateToShortString(DateTime.Now.AddYears((int)_DefaultValidityLength));
+            lblExpirationDate.Text = DateToShortString(DateTime.Now.AddYears((int)_DefaultValidityLength));
             lblOldLicenseID.Text = _OldLicense.LicenseID.ToString();
             lblLicenseFees.Text = _LicenseFees.ToString("F2");
             lblTotalFees.Text = (_LicenseFees + _ApplicationTypeFees).ToString("F2");
@@ -85,18 +92,19 @@ namespace PresentationLayer.Applications.RenewLocalLicense
         {
             ctrlDriverLicenseInfoWithFilter1.LicenseService = Licenses.LocalLicenses.Controls
                 .ctrlDriverLicenseInfoWithFilter.enLicenseService.Renew;
-            _ResetGeneralValues();
-            _SetFocusOntxtFilter();
+            ResetGeneralValues();
+            SetFocusOntxtFilter();
         }
 
-        void _SetFocusOntxtFilter()
+        void SetFocusOntxtFilter()
         {
             this.AcceptButton = ctrlDriverLicenseInfoWithFilter1.FindButton;
             this.BeginInvoke(new Action(() => ctrlDriverLicenseInfoWithFilter1.FilterFocus()));
         }
         private void btnRenewLicense_Click(object sender, EventArgs e)
         {
-            int? NewLicenseID = _OldLicense.RenewOldLicense(clsGlobal.CurrentUser.UserID.Value);
+            int PenaltyPoints = clsDriverPenaltyPoints.GetPenaltyPointsByApplicationTypeID((int)enApplicationType.RenewDrivingLicenseService);
+            int? NewLicenseID = _OldLicense.Renew(CurrentUser.UserID.Value,PenaltyPoints);
             clsLicense NewLicense = clsLicense.GetByID(NewLicenseID.Value);
             try
             {
@@ -117,34 +125,39 @@ namespace PresentationLayer.Applications.RenewLocalLicense
                 MessageBox.Show("Error:Renewing Old License Failed", "Error",
                    MessageBoxButtons.OK
                    , MessageBoxIcon.Error);
-                clsGlobal.LogError(ex);
+                WindownsEventLog?.Log(ex);
             }
 
         }
 
         private void llShowLicenseInfo_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ShowLicenseInfo))
+            if (!CheckUserAccess(GetPermissions("View")))
                 return;
             frmShowLicenseInfo frm = new frmShowLicenseInfo(_OldLicense.LicenseID.Value);
             frm.ShowDialog();
         }
-        void _RefreshForm()
-            => frmRenewLocalLicense_Load(null, null);
+
 
         private void llShowLicenseHistory_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ShowLicenseHistory))
+            if (!CheckUserAccess(GetPermissions("View")))
                 return;
-            frmShowLicenseHistory frm = new frmShowLicenseHistory(_NewLicenseID.Value);
+            int? PersonID = _OldLicense.Driver.PersonID;
+            if(!PersonID.HasValue)
+            {
+                MessageBox.Show("Error:Person is not Existed !","Error",
+                    MessageBoxButtons.OK,MessageBoxIcon.Error);
+                return;
+            }
+            frmShowLicenseHistory frm = new frmShowLicenseHistory(PersonID.Value);
             frm.ShowDialog();
-            _RefreshForm();
         }
 
        
         private void ctrlDriverLicenseInfoWithFilter1_OnLicenseSelected(int LicenseID)
         {
-            _LoadOldLicense(LicenseID);
+            LoadOldLicense(LicenseID);
             this.AcceptButton = this.btnRenewLicense;
         }
     }

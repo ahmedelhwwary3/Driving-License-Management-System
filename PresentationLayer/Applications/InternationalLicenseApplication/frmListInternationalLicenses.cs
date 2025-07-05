@@ -1,29 +1,35 @@
-﻿using BusinessLayer;
+﻿using BusinessLayer.Core;
 using PresentationLayer.Applications.InternationalLicenseApplication;
 using PresentationLayer.Global;
+using PresentationLayer.Helpers.BaseUI;
 using PresentationLayer.People;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static BusinessLayer.Core.clsUsersPermissions;
 
 namespace PresentationLayer.Licenses.InternationalLicenses
 {
-    public partial class frmListInternationalLicenses : Form
+    public partial class frmListInternationalLicenses : clsBaseForm
     {
         private DataTable _dtInternationalLicenseApplications=new DataTable();
+        Task _task;
         public frmListInternationalLicenses()
         {
             InitializeComponent();
+            SetTheme(this);
             dgvInternationalLicenses.DataBindingComplete += (sender, e)
-                => _FormatDGVColumns();
+                => FormatDGVColumns();
         }
-        void _FormatDGVColumns()
+        void FormatDGVColumns()
         {
             if(dgvInternationalLicenses.Columns.Count==8)
             {
@@ -53,14 +59,16 @@ namespace PresentationLayer.Licenses.InternationalLicenses
 
             }
         }
-        void _RefreshTotalCount()
+        void RefreshTotalCount()
             => lblInternationalLicensesRecords.Text = dgvInternationalLicenses.Rows.Count.ToString();
         private void frmListInternationalLicenses_Load(object sender, EventArgs e)
         {
-            _dtInternationalLicenseApplications = clsInternationalLicense.GetAllInternationalLicenses();
+            _task= Task.Run(()=> _dtInternationalLicenseApplications = clsInternationalLicense.GetAllInternationalLicenses());
             cbFilterBy.SelectedIndex = 0;
+            Task.WaitAll(_task);
             dgvInternationalLicenses.DataSource = _dtInternationalLicenseApplications;
-            _RefreshTotalCount();   
+            RefreshTotalCount();
+            SetTitle("List International Licenses");
         }
 
         private void txtFilterValue_TextChanged(object sender, EventArgs e)
@@ -119,13 +127,13 @@ namespace PresentationLayer.Licenses.InternationalLicenses
             if (txtFilterValue.Text.Trim() == "" || FilterColumn == "None")
             {
                 _dtInternationalLicenseApplications.DefaultView.RowFilter = "";
-                _RefreshTotalCount();
+                RefreshTotalCount();
                 return;
             }
 
             if(dgvInternationalLicenses.Rows.Count>0)
                 _dtInternationalLicenseApplications.DefaultView.RowFilter = string.Format("[{0}] = {1}", FilterColumn, txtFilterValue.Text.Trim());
-            _RefreshTotalCount();
+            RefreshTotalCount();
         }
 
         private void cbIsReleased_SelectedIndexChanged(object sender, EventArgs e)
@@ -149,12 +157,12 @@ namespace PresentationLayer.Licenses.InternationalLicenses
             if (FilterValue == "All")
             {
                 _dtInternationalLicenseApplications.DefaultView.RowFilter = "";
-                _RefreshTotalCount();
+                RefreshTotalCount();
                 return;
             }
             if (dgvInternationalLicenses.Rows.Count > 0)
                 _dtInternationalLicenseApplications.DefaultView.RowFilter = string.Format("[{0}] = {1}", FilterColumn, FilterValue);
-            _RefreshTotalCount();
+            RefreshTotalCount();
 
         }
 
@@ -177,10 +185,9 @@ namespace PresentationLayer.Licenses.InternationalLicenses
 
         private void btnIssueInternationalLicense_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.IssueInternationalLicense))
-                return;
+             
             frmIssueInternationalLicense frm= new frmIssueInternationalLicense();
-            frm.ShowDialog();
+            frm.ShowDialogIfAuthorized(GetPermissions("AddEdit"), frm);
             _RefreshForm();
         }
         void _RefreshForm()=> frmListInternationalLicenses_Load(null, null);
@@ -190,45 +197,42 @@ namespace PresentationLayer.Licenses.InternationalLicenses
 
         private void PesonDetailsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ShowPersonCard))
-                return;
+           
             if (!(dgvInternationalLicenses.CurrentRow.Cells[2].Value is int DriverID))
             {
                 MessageBox.Show("Error:An unexpected error happened !","Error",
                     MessageBoxButtons.OK,MessageBoxIcon.Error);
-                clsGlobal.LogError(new FormatException("An unexpected error happened" +
+                   clsGlobalData.WindownsEventLog.Log(new FormatException("An unexpected error happened" +
                     " while parsing DriverID from DGV Cell 2 to int."));
                 return;
             }
 
-            int PersonID = clsDriver.GetByDriverID(DriverID).PersonID.Value;
+            int PersonID = clsDriver.GetByDriverID(DriverID).PersonID;
             frmShowPersonCard frm=new frmShowPersonCard(PersonID);
-            frm.ShowDialog();
+            frm.ShowDialogIfAuthorized(GetPermissions("View"), frm);
             _RefreshForm();
         }
 
         private void showPersonLicenseHistoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ShowLicenseHistory))
-                return;
+         
             if (!(dgvInternationalLicenses.CurrentRow.Cells[2].Value is int DriverID))
             {
                 MessageBox.Show("Error:An unexpected error happened !", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new FormatException("An unexpected error happened" +
+                   clsGlobalData.WindownsEventLog.Log(new FormatException("An unexpected error happened" +
                     " while parsing DriverID from DGV Cell 2 to int."));
                 return;
             }
-            int PersonID = clsDriver.GetByDriverID(DriverID).PersonID.Value;
+            int PersonID = clsDriver.GetByDriverID(DriverID).PersonID;
             frmShowLicenseHistory frm = new frmShowLicenseHistory(PersonID);
-            frm.ShowDialog();
+            frm.ShowDialogIfAuthorized(GetPermissions("View"), frm);
             _RefreshForm();
         }
 
         private void showDetailsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ShowLicenseInfo))
-                return;
+            
             if (dgvInternationalLicenses.CurrentRow == null)
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
@@ -240,7 +244,7 @@ namespace PresentationLayer.Licenses.InternationalLicenses
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
               MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Loading Parsing InternationalLicenseID from DGV Row."));
+                   clsGlobalData.WindownsEventLog.Log(new Exception($"Error when Loading Parsing InternationalLicenseID from DGV Row."));
                 return;
             }
             clsInternationalLicense InternationalLicense = clsInternationalLicense.GetInternationalLicenseByID(InternationalLicenseID);
@@ -253,7 +257,7 @@ namespace PresentationLayer.Licenses.InternationalLicenses
 
 
             frmShowInternationaLicenseInfo frm = new frmShowInternationaLicenseInfo(InternationalLicenseID);
-            frm.ShowDialog();
+            frm.ShowDialogIfAuthorized(GetPermissions("View"), frm);
         }
 
          

@@ -1,4 +1,6 @@
-﻿namespace PresentationLayer.Tests
+﻿using BusinessLayer.Core;
+
+namespace PresentationLayer.Tests
 {
     partial class frmScheduleTest
     {
@@ -51,7 +53,7 @@
             ctrlScheduleTest1.Name = "ctrlScheduleTest1";
             ctrlScheduleTest1.Size = new Size(666, 907);
             ctrlScheduleTest1.TabIndex = 0;
-            ctrlScheduleTest1.TestTypeID = BusinessLayer.clsTestType.enTestType.Vision;
+            ctrlScheduleTest1.TestTypeID = clsTestType.enTestType.Vision;
             // 
             // frmScheduleTest
             // 

@@ -528,6 +528,7 @@
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(1021, 45);
             lblTitle.TabIndex = 183;
+            lblTitle.Tag = "MainTitle";
             lblTitle.Text = "Renew Old License ";
             lblTitle.TextAlign = ContentAlignment.MiddleCenter;
             // 

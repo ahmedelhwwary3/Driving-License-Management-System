@@ -54,7 +54,7 @@
             btnClose.Text = "Close";
             btnClose.TextImageRelation = TextImageRelation.ImageBeforeText;
             btnClose.UseVisualStyleBackColor = true;
-            btnClose.Click += this.button1_Click;
+            btnClose.Click += btnClose_Click;
             // 
             // ctrlInternationalLicenseInfo2
             // 
@@ -76,6 +76,7 @@
             Controls.Add(ctrlInternationalLicenseInfo2);
             FormBorderStyle = FormBorderStyle.SizableToolWindow;
             Name = "frmShowInternationaLicenseInfo";
+            Tag = "MainTitle";
             Load += frmShowInternationaLicenseInfo_Load;
             ResumeLayout(false);
             PerformLayout();

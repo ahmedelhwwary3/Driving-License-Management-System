@@ -1,149 +1,153 @@
-﻿using BusinessLayer;
+﻿using BusinessLayer.Core;
 using PresentationLayer.Global;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Data.SqlClient;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Net.Mime.MediaTypeNames;
-
+using static PresentationLayer.Global.clsGlobalData;
+using static BusinessLayer.Core.clsUsersPermissions;
+using static BusinessLayer.Core.clsTestType;
+using PresentationLayer.Helpers.BaseUI;
 namespace PresentationLayer.Tests
 {
-    public partial class frmTakeScheduledTest : Form
+    public partial class frmTakeScheduledTest : clsBaseForm
     {
-        private clsTestType.enTestType? _TestTypeID = clsTestType.enTestType.Vision;
+        private enTestType _TestTypeID = enTestType.Vision;
         private int? _TestAppointmentID = null;
-        private int? _TestID = null;
-        private clsTest _Test=new clsTest();
-        enum enMode
-        { AddNew,Update}
+        private int _TestID = default;
+        private clsTest _Test = new clsTest();
+
+        enum enMode { AddNew, Update }
         enMode _Mode = enMode.AddNew;
-        public frmTakeScheduledTest(clsTestType.enTestType TestTypeID,int TestAppointmentID, int? TestID=null)
+
+        public frmTakeScheduledTest(enTestType TestTypeID, int TestAppointmentID, int TestID = default)
         {
             InitializeComponent();
+            SetTheme(this);
 
             _TestTypeID = TestTypeID;
             _TestAppointmentID = TestAppointmentID;
-            _TestID = TestID;
-            _Mode=_TestID==null ? enMode.AddNew : enMode.Update;
-            this.Load += (sender, e) => 
+            _TestID =TestID;
+            _Mode = _TestID == default ? enMode.AddNew : enMode.Update;
+
+            this.Load += (sender, e) =>
             {
-                if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.TakeScheduledTest))
+                if (!CheckUserAccess(GetPermissions("AddEdit")))
                     return;
-                _LoadWithAllModes();
-                if(_Mode==enMode.Update)
-                    _LoadInUpdateMode();
+
+                LoadWithAllModes();
+
+                if (_Mode == enMode.Update)
+                    LoadInUpdateMode();
             };
         }
 
-        private void btnClose_Click(object sender, EventArgs e) 
+        private void btnClose_Click(object sender, EventArgs e)
             => this.Close();
-        //Load is implemented in ctor
-        void _LoadInUpdateMode()
+
+        private void LoadInUpdateMode()
         {
-            _Test = clsTest.GetByID(_TestID.Value);
+            _Test = clsTest.GetByID(_TestID);
+
             if (_Test == null)
             {
-                MessageBox.Show("Error:An unexpected error occurred while Loading Test ."
-                   , "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error: An unexpected error occurred while loading the test.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 btnSave.Enabled = false;
                 ctrlScheduledTest1.Enabled = false;
                 return;
             }
-            if(_Test.TestResult!=true)
+
+            if (_Test.TestResult != true)
             {
-                MessageBox.Show("Error:Test Result is not Passed !"
-                  , "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error: Test result is not marked as passed.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 btnSave.Enabled = false;
                 ctrlScheduledTest1.Enabled = false;
                 return;
             }
-            rbPass.Checked = _Test.TestResult ? true : false;
+
+            rbPass.Checked = true;
             txtNotes.Text = _Test.Notes;
             lblUserMessage.Visible = true;
-            lblUserMessage.Text = "Note:You can only edit Notes.";
-            rbFail.Enabled = false;
-            rbPass.Enabled = false;
+            lblUserMessage.Text = "Note: You can only edit notes.";
+            EnableModifingTestResult(false);
         }
-        void _LoadWithAllModes()
+
+        private void LoadWithAllModes()
         {
-            if (clsTestAppointment.GetByID((int)_TestAppointmentID).IsLocked)
+            var appointment = clsTestAppointment.GetByID(_TestAppointmentID.Value);
+
+            if (appointment.IsLocked)
             {
-                MessageBox.Show("Error:This Test Appointment is locked", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error: This test appointment is locked.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 btnSave.Enabled = false;
                 return;
             }
+
+            SetTitle("Take Scheduled Test");
             btnSave.Enabled = true;
             lblUserMessage.Visible = false;
-            _LoadTestAppointmentCTRL();
+            LoadTestAppointmentCTRL();
         }
-        void _LoadTestAppointmentCTRL()
+
+        private void LoadTestAppointmentCTRL()
         {
             ctrlScheduledTest1.TestTypeID = _TestTypeID;
-            ctrlScheduledTest1.LoadScheduledTest((int)_TestAppointmentID,(clsTestType.enTestType)_TestTypeID, _TestID);
+            ctrlScheduledTest1.LoadScheduledTest(_TestAppointmentID.Value,_TestTypeID, _TestID);
         }
+
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (_Mode == enMode.AddNew)//If User wants to update Test Result (Important to ask)
+            if (_Mode == enMode.AddNew)
             {
-                if (MessageBox.Show("Are you sure you want to Save Test?", "Confirm"
-                , MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
-                != DialogResult.Yes)
+                if (MessageBox.Show("Are you sure you want to save the test?",
+                    "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button1) != DialogResult.Yes)
                     return;
             }
+
             try
             {
-                clsTestAppointment Appointment = clsTestAppointment.GetByID(_TestAppointmentID);
-                //If Edit Mode Notes only can be changed And TestID !=null
+                var appointment = clsTestAppointment.GetByID(_TestAppointmentID.Value);
 
-                //if (DateTime.Now!= Appointment.AppointmentDate)
-                //{
-                //    MessageBox.Show($"Error:Appoitment date is still on {Appointment.AppointmentDate}" +
-                //        $" !", "Error",MessageBoxButtons.OK, MessageBoxIcon.Error);
-                //    return;
-                //}
+                _Test.LoggedUserID = CurrentUser.UserID.Value;
+                _Test.TestResult = rbPass.Checked;
+                _Test.Notes = txtNotes?.Text?.Trim();
+                _Test.CreatedByUserID = CurrentUser.UserID.Value;
+                _Test.TestAppointmentID = _TestAppointmentID.Value;
 
-                _Test.LoggedUserID=clsGlobal.CurrentUser.UserID;
-                _Test.TestResult = rbPass.Checked ? true : false;
-                _Test.Notes = txtNotes.Text.Trim();
-                _Test.CreatedByUserID = clsGlobal.CurrentUser.UserID;
-                _Test.TestAppointmentID = _TestAppointmentID;
-                if (_Test.CreatedByUserID == null || (_Test==null&&_Mode==enMode.Update))
+                if (_Test == null && _Mode == enMode.Update)
                 {
-                    MessageBox.Show("Error:An unexpected error occurred while saving. " +
-                     "Please try again later.", "Save failed",
-                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Error: An unexpected error occurred while saving.",
+                        "Save failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-                if (!_Test.Save())
-                    throw new Exception($"Test Failed with TestAppointmentID");
 
-                //to prevent from editing Result
-                ctrlScheduledTest1.TestID =_Test.TestID.Value;
-                _EnableModifingTestResult(false);
+                
+                if (!_Test.Save())
+                    throw new Exception($"Saving test failed (TestAppointmentID: {_TestAppointmentID})");
+
+                ctrlScheduledTest1.TestID = _Test.TestID.Value;
+                EnableModifingTestResult(false);
                 _Mode = enMode.Update;
-                MessageBox.Show("Test was saved successfully", "Save succeeded",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                MessageBox.Show("Test was saved successfully.",
+                    "Save succeeded", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                MessageBox.Show("Error:An unexpected error occurred while saving. " +
-                   "Please try again later.", "Save failed",
-                   MessageBoxButtons.OK, MessageBoxIcon.Error);
-               clsGlobal.LogError(ex);
+                MessageBox.Show("Error: An unexpected error occurred while saving.",
+                    "Save failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                WindownsEventLog?.Log(ex);
             }
         }
 
-        void _EnableModifingTestResult(bool Enable)
+        private void EnableModifingTestResult(bool enable)
         {
-            rbFail.Enabled = Enable;
-            rbPass.Enabled = Enable;
+            rbFail.Enabled = enable;
+            rbPass.Enabled = enable;
         }
     }
 }

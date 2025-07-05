@@ -90,6 +90,7 @@
             label1.Name = "label1";
             label1.Size = new Size(448, 39);
             label1.TabIndex = 8;
+            label1.Tag = "MainTitle";
             label1.Text = "Manage Application Types";
             // 
             // dgvApplicationTypes

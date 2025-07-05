@@ -1,30 +1,34 @@
-﻿using BusinessLayer;
-using PresentationLayer.Global;
-using PresentationLayer.Licenses;
+﻿using PresentationLayer.Licenses;
 using PresentationLayer.Licenses.LocalLicenses;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using static PresentationLayer.Global.clsGlobalData;
 using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using BusinessLayer.Core;
+using static BusinessLayer.Core.clsUsersPermissions;
+using static BusinessLayer.Core.clsApplication;
+using static PresentationLayer.Global.clsFormat;
+using PresentationLayer.Helpers.BaseUI;
 namespace PresentationLayer.Applications.ReleaseDetainedLicense
 {
-    public partial class frmReleaseDetainedLicense : Form
+    public partial class frmReleaseDetainedLicense : clsBaseForm
     {
         private int? _DetainID = null;
         public clsDetainedLicense _DetainedLicense = new clsDetainedLicense();
-        int? _LicenseID = null;
+        int _LicenseID = default;
         enum enMode { Known,unKnown}
         enMode _Mode = enMode.unKnown;
         public frmReleaseDetainedLicense()
         {
             InitializeComponent();
-            _Mode= enMode.unKnown;
+            SetTheme(this);
+            _Mode = enMode.unKnown;
         }
         public frmReleaseDetainedLicense(int DetainID)
         {
@@ -35,57 +39,55 @@ namespace PresentationLayer.Applications.ReleaseDetainedLicense
 
         private void llShowLicenseInfo_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ShowLicenseInfo))
-                return;
+             
             frmShowLicenseInfo frm = new frmShowLicenseInfo
-                ((int)clsDetainedLicense.GetByID(_DetainID).LicenseID);
-            frm.ShowDialog();
+                ((int)clsDetainedLicense.GetByDetainID(_DetainID.Value).LicenseID);
+            frm.ShowDialogIfAuthorized(GetPermissions("View"), frm);
         }
 
         private void llShowLicenseHistory_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ShowLicenseHistory))
-                return;
+        
             frmShowLicenseHistory frm = new frmShowLicenseHistory
-                (clsDetainedLicense.GetByID(_DetainID).License.Driver.PersonID.Value);
-            frm.ShowDialog();
-            
+                (clsDetainedLicense.GetByDetainID(_DetainID.Value).License.Driver.PersonID);
+            frm.ShowDialogIfAuthorized(GetPermissions("View"), frm);
+
         }
 
         private void btnClose_Click(object sender, EventArgs e)
             => this.Close();
-        void _SetTitle()
+        void SetTitle()
         {
             lblTitle.Text = "Release Detained License";
-            this.Text = "Release Detained License";
+            base.SetTitle("Release Detained License");
         }
-        void _SetFocusOntxtFilter()
+        void SetFocusOntxtFilter()
         {
             this.AcceptButton = ctrlDriverLicenseInfoWithFilter1.FindButton;
             this.BeginInvoke(new Action(() => ctrlDriverLicenseInfoWithFilter1.FilterFocus()));
         }
         private void frmReleaseDetainedLicense_Load(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ReleaseDetainedLicense))
+            if (!CheckUserAccess(GetPermissions("AddEdit")))
                 return;
-            _SetFocusOntxtFilter();
+            SetFocusOntxtFilter();
             ctrlDriverLicenseInfoWithFilter1.LicenseService = Licenses.LocalLicenses.Controls.
                 ctrlDriverLicenseInfoWithFilter.enLicenseService.Release;
-            _ResetDefaultValues();
+            ResetDefaultValues();
             if (_Mode == enMode.Known)
-                _LoadDetainedLicenseInKnownMode();
+                LoadDetainedLicenseInKnownMode();
                 
 
         }
-       void _LoadDetainedLicenseInKnownMode()
+       void LoadDetainedLicenseInKnownMode()
         {
-            _DetainedLicense = clsDetainedLicense.GetByID(_DetainID.Value);
-            ctrlDriverLicenseInfoWithFilter1.PerformClickBtnFindLicense(_DetainedLicense.LicenseID.Value);
+            _DetainedLicense = clsDetainedLicense.GetByDetainID(_DetainID.Value);
+            ctrlDriverLicenseInfoWithFilter1.PerformClickBtnFindLicense(_DetainedLicense.LicenseID);
             ctrlDriverLicenseInfoWithFilter1.FilterEnabled = false;
         }
-        void _ResetDefaultValues()
+        void ResetDefaultValues()
         {
-            _SetTitle();
+            SetTitle();
             ctrlDriverLicenseInfoWithFilter1.ResetCTRL();
             lblApplicationFees.Text = "[$$$$]";
             lblTotalFees.Text = "[$$$$]";
@@ -105,13 +107,14 @@ namespace PresentationLayer.Applications.ReleaseDetainedLicense
        
         private void btnRelease_Click(object sender, EventArgs e)
         {
-            int? ApplicationID = null;
+            int? ApplicationID = default;
             bool IsReleased = false;
-            clsDetainedLicense DetainedLicense = clsDetainedLicense.GetByID(_DetainID.Value);
+            clsDetainedLicense DetainedLicense = clsDetainedLicense.GetByDetainID(_DetainID.Value);
             try
             {
-                IsReleased = DetainedLicense.Release_BizLogic(DetainedLicense.FineFees, clsGlobal.CurrentUser.UserID, ref ApplicationID);
-                if (!IsReleased || _LicenseID == null || clsGlobal.CurrentUser.UserID == null || ApplicationID == null)
+                IsReleased = DetainedLicense.Release(DetainedLicense.FineFees,
+                    CurrentUser.UserID.Value, out ApplicationID);
+                if (!IsReleased ||!CurrentUser.UserID.HasValue)
                     throw new Exception($"Release License Failed.");
 
                 lblApplicationID.Text = ApplicationID.ToString();
@@ -125,9 +128,9 @@ namespace PresentationLayer.Applications.ReleaseDetainedLicense
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error:Release Failed because some data is missing !", "Error",
+                MessageBox.Show("Error:Release Failed !", "Error",
                   MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(ex);
+                  WindownsEventLog?.Log(ex);
             }
         }
          
@@ -141,18 +144,18 @@ namespace PresentationLayer.Applications.ReleaseDetainedLicense
             btnRelease.Enabled = true;
             llShowLicenseHistory.Enabled = true;
             llShowLicenseInfo.Enabled = true;
-            int ApplicationTypeID = (int)clsApplication.enApplicationType.ReleaseDetainedDrivingLicense;
+            int ApplicationTypeID = (int)enApplicationType.ReleaseDetainedDrivingLicense;
             decimal ApplicationFees = clsApplicationType.GetApplicationTypeFees(ApplicationTypeID);
             decimal FineFees = _DetainedLicense.FineFees;//Fine is fixed as the last detain calculated
 
             _DetainID = _DetainedLicense.DetainID;
             lblDetainID.Text = _DetainedLicense.DetainID.ToString();
-            lblDetainDate.Text = clsFormat.DateToShortString(_DetainedLicense.DetainDate);
+            lblDetainDate.Text = DateToShortString(_DetainedLicense.DetainDate);
             lblApplicationFees.Text = ApplicationFees.ToString("F2") + " $";
             lblFineFees.Text = FineFees.ToString("F2") + " $";
             lblTotalFees.Text = (ApplicationFees + FineFees).ToString("F2") + " $";
             lblLicenseID.Text = _DetainedLicense.LicenseID.ToString();
-            lblCreatedByUser.Text = clsGlobal.CurrentUser.UserName;
+            lblCreatedByUser.Text = CurrentUser.UserName;
             lblApplicationID.Text = _DetainedLicense.License.ApplicationID.ToString();
         }
 

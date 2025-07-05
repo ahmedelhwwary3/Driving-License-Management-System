@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmLogin));
             chkRemember = new CheckBox();
             label6 = new Label();
             label5 = new Label();
@@ -41,11 +42,11 @@
             label2 = new Label();
             label1 = new Label();
             splitter1 = new Splitter();
-            pictureBox1 = new PictureBox();
             errorProvider1 = new ErrorProvider(components);
             chkShowPassword = new CheckBox();
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            pictureBox1 = new PictureBox();
             ((System.ComponentModel.ISupportInitialize)errorProvider1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
             // chkRemember
@@ -92,7 +93,6 @@
             txtPassword.Size = new Size(220, 23);
             txtPassword.TabIndex = 1;
             txtPassword.KeyPress += txtPassword_KeyPress;
-   
             // 
             // txtUserName
             // 
@@ -102,7 +102,6 @@
             txtUserName.Size = new Size(220, 23);
             txtUserName.TabIndex = 0;
             txtUserName.KeyPress += txtUserName_KeyPress;
-             
             // 
             // btnLogin
             // 
@@ -135,7 +134,7 @@
             label4.BackColor = Color.Black;
             label4.Font = new Font("Stencil", 26.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
             label4.ForeColor = Color.White;
-            label4.Location = new Point(119, 475);
+            label4.Location = new Point(138, 566);
             label4.Margin = new Padding(4, 0, 4, 0);
             label4.Name = "label4";
             label4.Size = new Size(273, 42);
@@ -148,7 +147,7 @@
             label3.BackColor = Color.Black;
             label3.Font = new Font("Stencil", 26.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
             label3.ForeColor = Color.White;
-            label3.Location = new Point(50, 398);
+            label3.Location = new Point(69, 489);
             label3.Margin = new Padding(4, 0, 4, 0);
             label3.Name = "label3";
             label3.Size = new Size(390, 42);
@@ -161,7 +160,7 @@
             label2.BackColor = Color.Black;
             label2.Font = new Font("Stencil", 26.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
             label2.ForeColor = Color.White;
-            label2.Location = new Point(52, 336);
+            label2.Location = new Point(71, 427);
             label2.Margin = new Padding(4, 0, 4, 0);
             label2.Name = "label2";
             label2.Size = new Size(387, 42);
@@ -174,7 +173,7 @@
             label1.BackColor = Color.Black;
             label1.Font = new Font("Stencil", 26.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
             label1.ForeColor = Color.White;
-            label1.Location = new Point(145, 272);
+            label1.Location = new Point(164, 363);
             label1.Margin = new Padding(4, 0, 4, 0);
             label1.Name = "label1";
             label1.Size = new Size(229, 42);
@@ -191,18 +190,6 @@
             splitter1.TabIndex = 13;
             splitter1.TabStop = false;
             // 
-            // pictureBox1
-            // 
-            pictureBox1.BackColor = Color.Black;
-            pictureBox1.Image = Properties.Resources.IconLogo;
-            pictureBox1.Location = new Point(161, 14);
-            pictureBox1.Margin = new Padding(4, 3, 4, 3);
-            pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(234, 241);
-            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
-            pictureBox1.TabIndex = 15;
-            pictureBox1.TabStop = false;
-            // 
             // errorProvider1
             // 
             errorProvider1.ContainerControl = this;
@@ -218,6 +205,19 @@
             chkShowPassword.Text = "Show Password";
             chkShowPassword.UseVisualStyleBackColor = true;
             chkShowPassword.CheckedChanged += chkShowPassword_CheckedChanged;
+            // 
+            // pictureBox1
+            // 
+            pictureBox1.BackColor = Color.Black;
+            pictureBox1.ErrorImage = null;
+            pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
+            pictureBox1.Location = new Point(160, 86);
+            pictureBox1.Margin = new Padding(4, 3, 4, 3);
+            pictureBox1.Name = "pictureBox1";
+            pictureBox1.Size = new Size(234, 241);
+            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox1.TabIndex = 15;
+            pictureBox1.TabStop = false;
             // 
             // frmLogin
             // 
@@ -245,10 +245,11 @@
             Margin = new Padding(4, 3, 4, 3);
             Name = "frmLogin";
             StartPosition = FormStartPosition.CenterScreen;
+            Tag = "MainTitle";
             Text = "frmLogin";
             Load += frmLogin_Load;
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ((System.ComponentModel.ISupportInitialize)errorProvider1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -266,9 +267,9 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.ErrorProvider errorProvider1;
         private System.Windows.Forms.CheckBox chkShowPassword;
+        private PictureBox pictureBox1;
     }
 }

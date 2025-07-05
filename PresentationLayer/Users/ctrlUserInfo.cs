@@ -1,4 +1,6 @@
-﻿using BusinessLayer;
+﻿using BusinessLayer.Core;
+using PresentationLayer.Helpers;
+using PresentationLayer.Helpers.BaseUI;
 using PresentationLayer.People;
 using System;
 using System.Collections.Generic;
@@ -12,7 +14,7 @@ using System.Windows.Forms;
 
 namespace PresentationLayer.Users
 {
-    public partial class ctrlUserCard : UserControl
+    public partial class ctrlUserCard : clsBaseCtrl
     {
 
         private clsUser _User=new clsUser();
@@ -23,6 +25,7 @@ namespace PresentationLayer.Users
         public ctrlUserCard()
         {
             InitializeComponent();
+            SetTheme(this);
         }
 
         public void LoadUser(int UserID)
@@ -36,7 +39,7 @@ namespace PresentationLayer.Users
                 return;
             }
 
-            _FillUserInfo();
+            FillUserInfo();
         }
         public void LoadUserInfo(clsUser User)
         {
@@ -49,16 +52,18 @@ namespace PresentationLayer.Users
                 return;
             }
 
-            _FillUserInfo();
+            FillUserInfo();
         }
-        private void _FillUserInfo()
+        private void FillUserInfo()
         {
-
-            ctrlPersonCard1.LoadPerson(_User.PersonID.Value);
+            ctrlPersonCard1.LoadPerson(_User.PersonID);
             lblUserID.Text = _User.UserID.ToString();
             lblUserName.Text = _User.UserName.ToString();
             lblIsActive.Text = _User.IsActive? "Yes" : "No";
-            lblPermissions.Text = _User.PermissionsData.Access;
+            lblPermissions.Text = _User.PermissionsAccess;
+            lblHierarchy.Text = clsUsersHierarcky.GetHierarchyNameByID(_User.HierarchyID);
+            string ManagerID = _User.ManagerID?.ToString()??"N/A";
+            lblManagerID.Text = ManagerID;
         }
 
         public void ResetUserCard()

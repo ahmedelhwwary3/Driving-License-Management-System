@@ -1,5 +1,5 @@
-﻿using BusinessLayer;
-using PresentationLayer.Global;
+﻿using BusinessLayer.Core;
+using PresentationLayer.Helpers.BaseUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,17 +9,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static BusinessLayer.Core.clsTestType;
 
 namespace PresentationLayer.Tests
 {
-    public partial class frmScheduleTest : Form
+    public partial class frmScheduleTest : clsBaseForm
     {   
         private int? _TestAppointmentID = null;
-        private int? _LocalDrivingLicenseApplicationID = null;
-        private clsTestType.enTestType? _TestTypeID = clsTestType.enTestType.Vision;
-        public frmScheduleTest(int LocalDrivingLicenseApplicationID, clsTestType.enTestType testTypeID,int? TestAppointmentID=null)
+        private int _LocalDrivingLicenseApplicationID = default;
+        private enTestType? _TestTypeID = enTestType.Vision;
+        public frmScheduleTest(int LocalDrivingLicenseApplicationID, enTestType testTypeID,int? TestAppointmentID=null)
         {
             InitializeComponent();
+            SetTheme(this);
             _LocalDrivingLicenseApplicationID = LocalDrivingLicenseApplicationID;
             _TestTypeID = testTypeID;
             _TestAppointmentID = TestAppointmentID;
@@ -31,11 +33,10 @@ namespace PresentationLayer.Tests
 
         private void frmScheduleTest_Load(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ScheduleTest))
-                return;
+            SetTitle("Schedule Test");
             this.AcceptButton = ctrlScheduleTest1.SaveButton;
-            ctrlScheduleTest1.TestTypeID= _TestTypeID;
-            ctrlScheduleTest1.LoadTestAppointmentFullData(_LocalDrivingLicenseApplicationID.Value,_TestAppointmentID);
+            ctrlScheduleTest1.TestTypeID= _TestTypeID.Value;
+            ctrlScheduleTest1.LoadTestAppointmentFullData(_LocalDrivingLicenseApplicationID,_TestAppointmentID);
         }
     }
 }

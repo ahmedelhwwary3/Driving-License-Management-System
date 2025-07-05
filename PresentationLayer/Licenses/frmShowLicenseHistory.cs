@@ -1,62 +1,56 @@
-﻿using BusinessLayer;
-using PresentationLayer.Global;
-using PresentationLayer.Licenses.InternationalLicenses;
+﻿using PresentationLayer.Licenses.InternationalLicenses;
 using PresentationLayer.Licenses.LocalLicenses;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using BusinessLayer.Core;
+using static PresentationLayer.Global.clsGlobalData;
+using static BusinessLayer.Core.clsUsersPermissions;
+using PresentationLayer.Helpers.BaseUI;
 
 namespace PresentationLayer.Licenses
 {
-    public partial class frmShowLicenseHistory : Form
+    public partial class frmShowLicenseHistory : clsBaseForm
     {
-        private int? _PersonID = null;
+        private int _PersonID = default;
 
         public frmShowLicenseHistory(int PersonID)
         {
             InitializeComponent();
+            SetTheme(this);
             _PersonID = PersonID;
         }
-        void _OpenShowLicenseForm()
-        {
-            int? LicenseID = clsLicense.GetByPersonID(_PersonID).LicenseID;
-            frmShowLicenseInfo frm = new frmShowLicenseInfo(LicenseID.Value);
-            frm.ShowDialog();
-        }
+
         public frmShowLicenseHistory()
         {
             InitializeComponent();
         }
+
         private void frmShowLicenseHistory_Load(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ShowLicenseHistory))
+            if (!CheckUserAccess(GetPermissions("View")))
                 return;
-            if (_PersonID == null)
+
+            if (_PersonID == default)
             {
                 ctrlPersonCardWithFilter1.FilterFocus();
                 ctrlPersonCardWithFilter1.FilterEnabled = true;
-                MessageBox.Show($"Error:Person is not found" +
-                    $" ! Please choose another person.", "Error",
+                MessageBox.Show("Error:Person is not found! Please choose another person.", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            _LoadDriverData(_PersonID.Value);
+
+            SetTitle("Show License History");
+            LoadDriverData(_PersonID);
             ctrlDriverLicenses1.dgvLocalLicenses.ContextMenuStrip = cmsLocalLicenseHistory;
             ctrlDriverLicenses1.dgvInternationalLicenses.ContextMenuStrip = cmsInterenationalLicenseHistory;
-
-
         }
-        void _LoadDriverData(int PersonID)
+
+        private void LoadDriverData(int PersonID)
         {
-            ctrlDriverLicenses1.LoadDriverDataByPersonID(PersonID);
+            ctrlDriverLicenses1?.LoadDriverDataByPersonID(PersonID);
             ctrlPersonCardWithFilter1.FilterEnabled = false;
-            ctrlPersonCardWithFilter1.LoadPerson(PersonID);
+            ctrlPersonCardWithFilter1?.LoadPerson(PersonID);
         }
 
         private void btnExit_Click(object sender, EventArgs e)
@@ -65,49 +59,50 @@ namespace PresentationLayer.Licenses
         private void ctrlPersonCardWithFilter1_OnPersonSelected(int PersonID)
         {
             _PersonID = PersonID;
-            _LoadDriverData((int)_PersonID);
+            LoadDriverData(PersonID);
         }
 
         private void InternationalLicenseHistorytoolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ShowLicenseInfo))
-                return;
             if (ctrlDriverLicenses1.dgvInternationalLicenses.CurrentRow == null)
             {
-                MessageBox.Show("Error:International License is not found !", "Error",
+                MessageBox.Show("Error:International License is not found!", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+
             if (!(ctrlDriverLicenses1.dgvInternationalLicenses.CurrentRow.Cells[0].Value is int InternationalLicenseID))
             {
-                MessageBox.Show("Error:An unexpected error happened !", "Error",
+                MessageBox.Show("Error:An unexpected error happened!", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new FormatException("Error while parsing InternationalLicenseID in dgvInternationalLicensesHistory cell[0] to int."));
+                WindownsEventLog?.Log(new FormatException("Error while parsing " +
+                    "InternationalLicenseID in dgvInternationalLicensesHistory cell[0] to int."));
                 return;
             }
+
             frmShowInternationaLicenseInfo frm = new frmShowInternationaLicenseInfo(InternationalLicenseID);
-            frm.ShowDialog();
+            frm.ShowDialogIfAuthorized(GetPermissions("View"), frm);
         }
 
         private void showLicenseInfoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ShowLicenseInfo))
-                return;
-            if (ctrlDriverLicenses1.dgvLocalLicenses.CurrentRow == null)
+            if (ctrlDriverLicenses1?.dgvLocalLicenses?.CurrentRow == null)
             {
-                MessageBox.Show("Error:Local License is not found !", "Error",
+                MessageBox.Show("Error:Local License is not found!", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            if (!(ctrlDriverLicenses1.dgvLocalLicenses.CurrentRow.Cells[0].Value is int LicenseID))
+
+            if (!(ctrlDriverLicenses1?.dgvLocalLicenses?.CurrentRow?.Cells[0]?.Value is int LicenseID))
             {
-                MessageBox.Show("Error:An unexpected error happened !", "Error",
+                MessageBox.Show("Error:An unexpected error happened!", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new FormatException("Error while parsing LicenseID in dgvLocalLicensesHistory cell[0] to int."));
+                WindownsEventLog?.Log(new FormatException("Error while parsing LicenseID in dgvLocalLicensesHistory cell[0] to int."));
                 return;
             }
+
             frmShowLicenseInfo frm = new frmShowLicenseInfo(LicenseID);
-            frm.ShowDialog();
+            frm.ShowDialogIfAuthorized(GetPermissions("View"), frm);
         }
 
         private void cmsInterenationalLicenseHistory_Opening(object sender, CancelEventArgs e)

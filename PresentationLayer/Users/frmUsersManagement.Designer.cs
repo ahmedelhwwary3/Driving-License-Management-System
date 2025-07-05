@@ -50,9 +50,16 @@
             txtFilterValue = new TextBox();
             pictureBox1 = new PictureBox();
             btnAddNewUser = new Button();
+            btnSendEmailToAll = new Button();
+            txtEmail = new TextBox();
+            rbUsers = new RadioButton();
+            rbPeople = new RadioButton();
+            groupBox2 = new GroupBox();
+            btnView = new Button();
             ((System.ComponentModel.ISupportInitialize)dgvUsers).BeginInit();
             contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            groupBox2.SuspendLayout();
             SuspendLayout();
             // 
             // label2
@@ -62,11 +69,12 @@
             label2.BackColor = Color.White;
             label2.Font = new Font("Microsoft Sans Serif", 26.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label2.ForeColor = Color.FromArgb(192, 0, 0);
-            label2.Location = new Point(539, 232);
+            label2.Location = new Point(580, 242);
             label2.Margin = new Padding(4, 0, 4, 0);
             label2.Name = "label2";
             label2.Size = new Size(254, 39);
             label2.TabIndex = 22;
+            label2.Tag = "MainTitle";
             label2.Text = "Manage Users";
             // 
             // dgvUsers
@@ -208,7 +216,7 @@
             label1.Anchor = AnchorStyles.Left;
             label1.AutoSize = true;
             label1.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label1.Location = new Point(8, 307);
+            label1.Location = new Point(19, 307);
             label1.Margin = new Padding(4, 0, 4, 0);
             label1.Name = "label1";
             label1.Size = new Size(85, 20);
@@ -220,7 +228,7 @@
             cbFilterColumn.Anchor = AnchorStyles.Left;
             cbFilterColumn.FormattingEnabled = true;
             cbFilterColumn.Items.AddRange(new object[] { "None", "User ID", "Person ID", "User Name", "Is Active", "Full Name", "Permissions" });
-            cbFilterColumn.Location = new Point(114, 302);
+            cbFilterColumn.Location = new Point(125, 302);
             cbFilterColumn.Margin = new Padding(4, 3, 4, 3);
             cbFilterColumn.Name = "cbFilterColumn";
             cbFilterColumn.Size = new Size(284, 23);
@@ -232,7 +240,7 @@
             cbIsActive.Anchor = AnchorStyles.Right;
             cbIsActive.FormattingEnabled = true;
             cbIsActive.Items.AddRange(new object[] { "All", "Yes", "No" });
-            cbIsActive.Location = new Point(454, 302);
+            cbIsActive.Location = new Point(490, 302);
             cbIsActive.Margin = new Padding(4, 3, 4, 3);
             cbIsActive.Name = "cbIsActive";
             cbIsActive.Size = new Size(167, 23);
@@ -242,7 +250,7 @@
             // txtFilterValue
             // 
             txtFilterValue.Anchor = AnchorStyles.None;
-            txtFilterValue.Location = new Point(472, 302);
+            txtFilterValue.Location = new Point(508, 302);
             txtFilterValue.Margin = new Padding(4, 3, 4, 3);
             txtFilterValue.Name = "txtFilterValue";
             txtFilterValue.Size = new Size(294, 23);
@@ -254,7 +262,7 @@
             // 
             pictureBox1.Anchor = AnchorStyles.None;
             pictureBox1.Image = Properties.Resources.Users_2_400;
-            pictureBox1.Location = new Point(556, 2);
+            pictureBox1.Location = new Point(597, 12);
             pictureBox1.Margin = new Padding(4, 3, 4, 3);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(265, 226);
@@ -273,6 +281,72 @@
             btnAddNewUser.UseVisualStyleBackColor = true;
             btnAddNewUser.Click += btnAddNewUser_Click;
             // 
+            // btnSendEmailToAll
+            // 
+            btnSendEmailToAll.Location = new Point(348, 26);
+            btnSendEmailToAll.Name = "btnSendEmailToAll";
+            btnSendEmailToAll.Size = new Size(111, 38);
+            btnSendEmailToAll.TabIndex = 28;
+            btnSendEmailToAll.Text = "Send";
+            btnSendEmailToAll.UseVisualStyleBackColor = true;
+            btnSendEmailToAll.Click += btnSendEmailToAll_Click;
+            // 
+            // txtEmail
+            // 
+            txtEmail.Location = new Point(21, 67);
+            txtEmail.Multiline = true;
+            txtEmail.Name = "txtEmail";
+            txtEmail.ScrollBars = ScrollBars.Both;
+            txtEmail.Size = new Size(312, 85);
+            txtEmail.TabIndex = 29;
+            // 
+            // rbUsers
+            // 
+            rbUsers.AutoSize = true;
+            rbUsers.Checked = true;
+            rbUsers.Location = new Point(21, 36);
+            rbUsers.Name = "rbUsers";
+            rbUsers.Size = new Size(85, 19);
+            rbUsers.TabIndex = 30;
+            rbUsers.TabStop = true;
+            rbUsers.Text = "To All Users";
+            rbUsers.UseVisualStyleBackColor = true;
+            rbUsers.CheckedChanged += rbUsers_CheckedChanged;
+            // 
+            // rbPeople
+            // 
+            rbPeople.AutoSize = true;
+            rbPeople.Location = new Point(161, 36);
+            rbPeople.Name = "rbPeople";
+            rbPeople.Size = new Size(93, 19);
+            rbPeople.TabIndex = 31;
+            rbPeople.Text = "To All People";
+            rbPeople.UseVisualStyleBackColor = true;
+            // 
+            // groupBox2
+            // 
+            groupBox2.Controls.Add(btnView);
+            groupBox2.Controls.Add(rbPeople);
+            groupBox2.Controls.Add(rbUsers);
+            groupBox2.Controls.Add(txtEmail);
+            groupBox2.Controls.Add(btnSendEmailToAll);
+            groupBox2.Location = new Point(30, 77);
+            groupBox2.Name = "groupBox2";
+            groupBox2.Size = new Size(476, 175);
+            groupBox2.TabIndex = 32;
+            groupBox2.TabStop = false;
+            groupBox2.Text = "Send Mail";
+            // 
+            // btnView
+            // 
+            btnView.Location = new Point(348, 101);
+            btnView.Name = "btnView";
+            btnView.Size = new Size(111, 37);
+            btnView.TabIndex = 33;
+            btnView.Text = "View";
+            btnView.UseVisualStyleBackColor = true;
+            btnView.Click += btnView_Click;
+            // 
             // frmUsersManagement
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -280,6 +354,7 @@
             BackColor = Color.White;
             CancelButton = btnClose;
             ClientSize = new Size(1378, 787);
+            Controls.Add(groupBox2);
             Controls.Add(btnAddNewUser);
             Controls.Add(label2);
             Controls.Add(dgvUsers);
@@ -299,6 +374,8 @@
             ((System.ComponentModel.ISupportInitialize)dgvUsers).EndInit();
             contextMenuStrip1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            groupBox2.ResumeLayout(false);
+            groupBox2.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -326,5 +403,11 @@
         private System.Windows.Forms.ToolStripMenuItem sendEmailToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem sendSMSToolStripMenuItem;
         private Button btnAddNewUser;
+        private Button btnSendEmailToAll;
+        private TextBox txtEmail;
+        private RadioButton rbUsers;
+        private RadioButton rbPeople;
+        private GroupBox groupBox2;
+        private Button btnView;
     }
 }

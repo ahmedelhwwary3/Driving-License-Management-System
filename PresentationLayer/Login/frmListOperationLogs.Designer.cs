@@ -30,7 +30,6 @@
         {
             components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmListOperationLogs));
-            btnClose = new Button();
             txtFilterValue = new TextBox();
             dgvLogs = new DataGridView();
             contextMenuStrip1 = new ContextMenuStrip(components);
@@ -44,23 +43,12 @@
             pictureBox1 = new PictureBox();
             saveFileDialog1 = new SaveFileDialog();
             cbAction = new ComboBox();
+            notifyIcon1 = new NotifyIcon(components);
+            btncLose = new Button();
             ((System.ComponentModel.ISupportInitialize)dgvLogs).BeginInit();
             contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
-            // 
-            // btnClose
-            // 
-            btnClose.Anchor = AnchorStyles.None;
-            btnClose.DialogResult = DialogResult.Cancel;
-            btnClose.Image = (Image)resources.GetObject("btnClose.Image");
-            btnClose.Location = new Point(1137, 740);
-            btnClose.Margin = new Padding(4, 3, 4, 3);
-            btnClose.Name = "btnClose";
-            btnClose.Size = new Size(136, 59);
-            btnClose.TabIndex = 76;
-            btnClose.UseVisualStyleBackColor = true;
-            btnClose.Click += btnClose_Click;
             // 
             // txtFilterValue
             // 
@@ -187,17 +175,37 @@
             pictureBox1.TabIndex = 68;
             pictureBox1.TabStop = false;
             // 
-            // cbGender
+            // cbAction
             // 
             cbAction.Anchor = AnchorStyles.Left;
             cbAction.FormattingEnabled = true;
             cbAction.Items.AddRange(new object[] { "All", "AddNew", "Update", "Delete" });
             cbAction.Location = new Point(497, 296);
             cbAction.Margin = new Padding(4, 3, 4, 3);
-            cbAction.Name = "cbGender";
+            cbAction.Name = "cbAction";
             cbAction.Size = new Size(162, 23);
             cbAction.TabIndex = 77;
             cbAction.SelectedIndexChanged += cbAction_SelectedIndexChanged;
+            // 
+            // notifyIcon1
+            // 
+            notifyIcon1.BalloonTipIcon = ToolTipIcon.Info;
+            notifyIcon1.BalloonTipText = "Log FIle";
+            notifyIcon1.BalloonTipTitle = "File Downloaded";
+            notifyIcon1.Icon = (Icon)resources.GetObject("notifyIcon1.Icon");
+            notifyIcon1.Text = "notifyIcon1";
+            notifyIcon1.Visible = true;
+            notifyIcon1.MouseClick += notifyIcon1_MouseClick;
+            // 
+            // btncLose
+            // 
+            btncLose.Image = Properties.Resources.Close_32;
+            btncLose.Location = new Point(1138, 756);
+            btncLose.Name = "btncLose";
+            btncLose.Size = new Size(131, 39);
+            btncLose.TabIndex = 78;
+            btncLose.UseVisualStyleBackColor = true;
+            btncLose.Click += btncLose_Click;
             // 
             // frmListOperationLogs
             // 
@@ -205,8 +213,8 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(1281, 807);
+            Controls.Add(btncLose);
             Controls.Add(cbAction);
-            Controls.Add(btnClose);
             Controls.Add(txtFilterValue);
             Controls.Add(dgvLogs);
             Controls.Add(lblTotalRecords);
@@ -216,6 +224,7 @@
             Controls.Add(label1);
             Controls.Add(pictureBox1);
             Name = "frmListOperationLogs";
+            Tag = "MainTitle";
             Text = "frmListOperationLogs";
             Load += frmListOperationLogs_Load;
             ((System.ComponentModel.ISupportInitialize)dgvLogs).EndInit();
@@ -241,5 +250,7 @@
         private ToolStripMenuItem downloadAllRecordToolStripMenuItem;
         private ToolStripMenuItem downloadAllRecordsToolStripMenuItem;
         private ComboBox cbAction;
+        private NotifyIcon notifyIcon1;
+        private Button btncLose;
     }
 }

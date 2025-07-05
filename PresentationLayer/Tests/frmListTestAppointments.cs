@@ -1,180 +1,170 @@
-﻿using BusinessLayer;
+﻿using BusinessLayer.Core;
 using PresentationLayer.Global;
 using PresentationLayer.Properties;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using static BusinessLayer.Core.clsUsersPermissions;
+using static BusinessLayer.Core.clsTestType;
+using PresentationLayer.Helpers.BaseUI;
 namespace PresentationLayer.Tests
 {
-    public partial class frmListTestAppointments : Form
+    public partial class frmListTestAppointments : clsBaseForm
     {
         private int? _LocalDrivingLicenseApplicationID = null;
         private DataTable _dtTestAppointmentsList = new DataTable();
-        private clsTestType.enTestType _TestTypeID = clsTestType.enTestType.Vision;
-        public frmListTestAppointments(int LocalDrivingLicenseApplicationID, clsTestType.enTestType TestTypeID)
+        private enTestType _TestTypeID = enTestType.Vision;
+
+        public frmListTestAppointments(int LocalDrivingLicenseApplicationID, enTestType TestTypeID)
         {
             InitializeComponent();
-
+            SetTheme(this);
             _LocalDrivingLicenseApplicationID = LocalDrivingLicenseApplicationID;
             _TestTypeID = TestTypeID;
-
         }
 
-        private void btnClose_Click(object sender, EventArgs e)
-            => this.Close();
-        void _RefreshTotalCount() =>
-            lblRecords.Text = dgvTestAppointments.Rows.Count.ToString();
         private void frmListTestAppointments_Load(object sender, EventArgs e)
         {
-            _LoadTestTypeImage();
+            this.AcceptButton = btnAddNewAppointment;
+            LoadTestTypeImage();
+            SetTitle("List Test Appointments");
+
             ctrlDrivingLicenesApplicationInfo1.LoadLocalApplication(_LocalDrivingLicenseApplicationID.Value);
-            _dtTestAppointmentsList = clsTestAppointment.GetAllTestAppointmentsListPerTestType(_LocalDrivingLicenseApplicationID, _TestTypeID);
+
+            _dtTestAppointmentsList =
+                clsTestAppointment.GetAllTestAppointmentsListPerTestType(_LocalDrivingLicenseApplicationID, _TestTypeID);
+
             dgvTestAppointments.DataSource = _dtTestAppointmentsList;
-            _RefreshTotalCount();
+            RefreshTotalCount();
         }
-        private void _LoadTestTypeImage()
+
+        private void LoadTestTypeImage()
         {
             switch (_TestTypeID)
             {
-                case clsTestType.enTestType.Vision:
-                    {
-                        pbTestTypeImage.Image = Resources.Vision_512;
-                        break;
-                    }
-                case clsTestType.enTestType.Written:
-                    {
-                        pbTestTypeImage.Image = Resources.Written_Test_512;
-                        break;
-                    }
-                case clsTestType.enTestType.Street:
-                    {
-                        pbTestTypeImage.Image = Resources.driving_test_512;
-                        break;
-                    }
-                default:
+                case enTestType.Vision:
+                    pbTestTypeImage.Image = Resources.Vision_512;
+                    break;
+                case enTestType.Written:
+                    pbTestTypeImage.Image = Resources.Written_Test_512;
+                    break;
+                case enTestType.Street:
+                    pbTestTypeImage.Image = Resources.driving_test_512;
                     break;
             }
         }
-        void _RefreshForm()
+
+        private void RefreshTotalCount()
+            => lblRecords.Text = dgvTestAppointments.Rows.Count.ToString();
+
+        private void RefreshForm()
             => frmListTestAppointments_Load(null, null);
+
         private void btnAddNewAppointment_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ScheduleTest))
-                return;
-            clsLocalDrivingLicenseApplication LocalDrivingLicenseApplication = clsLocalDrivingLicenseApplication.GetLocalApplicationByID(_LocalDrivingLicenseApplicationID);
-            if (LocalDrivingLicenseApplication.IsThereActiveScheduledTestAppointment(_TestTypeID))
-            {
-                //Handeled also in CTRL for safety
-                MessageBox.Show("Error:There is already an active scheduled " +
-                    "Test appointment !", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+            var localApp = clsLocalDrivingLicenseApplication.GetLocalApplicationByID(_LocalDrivingLicenseApplicationID.Value);
 
-
-            clsTest LastTest = LocalDrivingLicenseApplication.GetLastTestAppointmentInfoPerTestType(_TestTypeID);
-            //If The Person did not have any Test appointment For this type before
-            ///Modes:AddNew & First Time 
-            if (LastTest == null)
+            if (localApp.IsThereActiveScheduledTestAppointment(_TestTypeID))
             {
-                //open form in AddNew Mode
-                frmScheduleTest frm = new frmScheduleTest(_LocalDrivingLicenseApplicationID.Value, _TestTypeID);
-                frm.ShowDialog();
-                _RefreshForm();
-                return;
-            }
-            //Passed
-            if (LastTest.TestResult == true)
-            {
-                MessageBox.Show("Error:This Person already Passed this test type before !", "Error",
+                MessageBox.Show("There is already an active scheduled test appointment!", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            //Failed 
-            ///Modes:AddNew & Retake
-            frmScheduleTest frm1 = new frmScheduleTest(_LocalDrivingLicenseApplicationID.Value, _TestTypeID);
-            frm1.ShowDialog();
-            _RefreshForm();
+
+            var lastTest = localApp.GetLastTestAppointmentInfoPerTestType(_TestTypeID);
+
+            // First Time
+            if (lastTest == null)
+            {
+                var frm = new frmScheduleTest(_LocalDrivingLicenseApplicationID.Value, _TestTypeID);
+                frm.ShowDialogIfAuthorized(GetPermissions("AddEdit"), frm);
+                RefreshForm();
+                return;
+            }
+
+            // Already Passed
+            if (lastTest.TestResult == true)
+            {
+                MessageBox.Show("This person already passed this test type!", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Retake
+            var frmRetake = new frmScheduleTest(_LocalDrivingLicenseApplicationID.Value, _TestTypeID);
+            frmRetake.ShowDialogIfAuthorized(GetPermissions("AddEdit"), frmRetake);
+            RefreshForm();
         }
 
         private void editToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ScheduleTest))
-                return;
             if (dgvTestAppointments.CurrentRow == null)
             {
-                MessageBox.Show("Local Driving License Application is not existed !", "Error",
+                MessageBox.Show("Application not found!", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Loading Local Driving License Application through DGV"));
+                clsGlobalData.WindownsEventLog.Log(new Exception("Loading Application failed from DGV"));
                 return;
             }
-            if (!(dgvTestAppointments.CurrentRow.Cells[0].Value is int TestAppointmentID))
-            {
 
-                MessageBox.Show("Error:An unexpected error happened !", "Error",
+            if (!(dgvTestAppointments.CurrentRow.Cells[0].Value is int testAppointmentID))
+            {
+                MessageBox.Show("Unexpected error occurred!", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new FormatException($"Error with parsing TestAppointmentID Value To int ."));
+                clsGlobalData.WindownsEventLog.Log(new FormatException("Parsing TestAppointmentID failed."));
                 return;
             }
-            clsTestAppointment TestAppointment = clsTestAppointment.GetByID(TestAppointmentID);
-            if (TestAppointment == null)
+
+            var testApp = clsTestAppointment.GetByID(testAppointmentID);
+            if (testApp == null)
             {
-                MessageBox.Show("Error:This Test Appointment is not existed !\nYou can not update it"
-                   , "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Test Appointment not found!", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            if (TestAppointment.IsLocked)
+
+            if (testApp.IsLocked)
             {
-                MessageBox.Show("Error:This Test Appointment is locked !\nYou can not update it"
-                    , "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("This Test Appointment is locked!", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-
-
-            frmScheduleTest frm = new frmScheduleTest(_LocalDrivingLicenseApplicationID.Value, _TestTypeID, TestAppointmentID);
-            frm.ShowDialog();
-            _RefreshForm();
+            var frm = new frmScheduleTest(_LocalDrivingLicenseApplicationID.Value, _TestTypeID, testAppointmentID);
+            frm.ShowDialogIfAuthorized(GetPermissions("AddEdit"), frm);
+            RefreshForm();
         }
 
         private void takeTestToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.TakeScheduledTest))
-                return;
-            if (!(dgvTestAppointments.CurrentRow.Cells[0].Value is int TestAppointmentID))
+            if (!(dgvTestAppointments.CurrentRow.Cells[0].Value is int testAppointmentID))
             {
-                MessageBox.Show("Error:An unexpected error happened !", "Error",
+                MessageBox.Show("Unexpected error occurred!", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new FormatException($"Error with parsing TestAppointmentID Value To int ."));
+                clsGlobalData.WindownsEventLog.Log(new FormatException("Parsing TestAppointmentID failed."));
                 return;
             }
 
-            clsTestAppointment TestAppointment = clsTestAppointment.GetByID(TestAppointmentID);
-            //If No Test is Attached to TestAppointment yet (Take NewTest ):- 
-            //1.TestAppointemnt.TestID = null , 2.frmTakeScheduledTest will open in New Mode
-            if (TestAppointment.IsLocked)
+            var testApp = clsTestAppointment.GetByID(testAppointmentID);
+
+            if (testApp == null)
             {
-                MessageBox.Show("Error:This Test Appointment is locked !\nYou can not update it"
-                    , "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Loading Local Driving License Application through DGV"));
+                MessageBox.Show("Test Appointment not found!", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            int? TestID = TestAppointment.GetTestID();
-            if (TestAppointment == null)
+
+            if (testApp.IsLocked)
             {
-                MessageBox.Show("Error:This Test Appointment is not existed !\nYou can not update it"
-                   , "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("This Test Appointment is locked!", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            frmTakeScheduledTest frm = new frmTakeScheduledTest(_TestTypeID, TestAppointmentID, TestID);
-            frm.ShowDialog();
-            _RefreshForm();
+
+            int? testID = testApp.GetTestID();
+            var frm = new frmTakeScheduledTest(_TestTypeID, testAppointmentID, testID??default);
+            frm.ShowDialogIfAuthorized(GetPermissions("AddEdit"), frm);
+            RefreshForm();
         }
 
         private void dgvTestAppointments_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
@@ -185,7 +175,7 @@ namespace PresentationLayer.Tests
                 dgvTestAppointments.Columns[0].Width = 100;
 
                 dgvTestAppointments.Columns[1].HeaderText = "Local Application ID";
-                dgvTestAppointments.Columns[0].Width = 150;
+                dgvTestAppointments.Columns[1].Width = 150;
 
                 dgvTestAppointments.Columns[2].HeaderText = "Test Type Title";
                 dgvTestAppointments.Columns[2].Width = 110;
@@ -212,5 +202,8 @@ namespace PresentationLayer.Tests
             if (dgvTestAppointments.CurrentRow == null || dgvTestAppointments.Rows.Count == 0)
                 e.Cancel = true;
         }
+
+        private void btnClose_Click(object sender, EventArgs e)
+            => this.Close();
     }
 }

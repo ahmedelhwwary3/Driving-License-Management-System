@@ -44,6 +44,7 @@
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(514, 45);
             lblTitle.TabIndex = 138;
+            lblTitle.Tag = "MainTitle";
             lblTitle.Text = "Driver License Info";
             lblTitle.TextAlign = ContentAlignment.MiddleCenter;
             // 

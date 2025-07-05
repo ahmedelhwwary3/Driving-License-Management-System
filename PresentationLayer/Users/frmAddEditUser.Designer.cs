@@ -36,20 +36,28 @@
             ctrlPersonCardWithFilter1 = new People.ctrlPersonCardWithFilter();
             btnNext = new Button();
             tpLoginInfo = new TabPage();
-            label1 = new Label();
-            pictureBox5 = new PictureBox();
-            cbPermissions = new ComboBox();
-            chkIsActive = new CheckBox();
+            btnGiveAdministrator = new Button();
             txtConfirmPassword = new TextBox();
             txtPassword = new TextBox();
-            txtUserName = new TextBox();
-            label6 = new Label();
             label5 = new Label();
             label4 = new Label();
-            label3 = new Label();
-            label2 = new Label();
             pictureBox4 = new PictureBox();
             pictureBox3 = new PictureBox();
+            txtManagerID = new TextBox();
+            label8 = new Label();
+            pictureBox7 = new PictureBox();
+            label7 = new Label();
+            pictureBox6 = new PictureBox();
+            cbHierarcky = new ComboBox();
+            treePermissions = new TreeView();
+            imageList1 = new ImageList(components);
+            label1 = new Label();
+            pictureBox5 = new PictureBox();
+            chkIsActive = new CheckBox();
+            txtUserName = new TextBox();
+            label6 = new Label();
+            label3 = new Label();
+            label2 = new Label();
             pictureBox2 = new PictureBox();
             pictureBox1 = new PictureBox();
             errorProvider1 = new ErrorProvider(components);
@@ -58,9 +66,11 @@
             tcAddNewUser.SuspendLayout();
             tpPersonInfo.SuspendLayout();
             tpLoginInfo.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBox5).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox4).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox7).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox6).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox5).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)errorProvider1).BeginInit();
@@ -76,6 +86,7 @@
             lblAddEditUser.Name = "lblAddEditUser";
             lblAddEditUser.Size = new Size(228, 37);
             lblAddEditUser.TabIndex = 6;
+            lblAddEditUser.Tag = "MainTitle";
             lblAddEditUser.Text = "Add Edit User";
             // 
             // tcAddNewUser
@@ -129,20 +140,27 @@
             // tpLoginInfo
             // 
             tpLoginInfo.BackColor = Color.White;
-            tpLoginInfo.Controls.Add(label1);
-            tpLoginInfo.Controls.Add(pictureBox5);
-            tpLoginInfo.Controls.Add(cbPermissions);
-            tpLoginInfo.Controls.Add(chkIsActive);
+            tpLoginInfo.Controls.Add(btnGiveAdministrator);
             tpLoginInfo.Controls.Add(txtConfirmPassword);
             tpLoginInfo.Controls.Add(txtPassword);
-            tpLoginInfo.Controls.Add(txtUserName);
-            tpLoginInfo.Controls.Add(label6);
             tpLoginInfo.Controls.Add(label5);
             tpLoginInfo.Controls.Add(label4);
-            tpLoginInfo.Controls.Add(label3);
-            tpLoginInfo.Controls.Add(label2);
             tpLoginInfo.Controls.Add(pictureBox4);
             tpLoginInfo.Controls.Add(pictureBox3);
+            tpLoginInfo.Controls.Add(txtManagerID);
+            tpLoginInfo.Controls.Add(label8);
+            tpLoginInfo.Controls.Add(pictureBox7);
+            tpLoginInfo.Controls.Add(label7);
+            tpLoginInfo.Controls.Add(pictureBox6);
+            tpLoginInfo.Controls.Add(cbHierarcky);
+            tpLoginInfo.Controls.Add(treePermissions);
+            tpLoginInfo.Controls.Add(label1);
+            tpLoginInfo.Controls.Add(pictureBox5);
+            tpLoginInfo.Controls.Add(chkIsActive);
+            tpLoginInfo.Controls.Add(txtUserName);
+            tpLoginInfo.Controls.Add(label6);
+            tpLoginInfo.Controls.Add(label3);
+            tpLoginInfo.Controls.Add(label2);
             tpLoginInfo.Controls.Add(pictureBox2);
             tpLoginInfo.Controls.Add(pictureBox1);
             tpLoginInfo.Location = new Point(4, 24);
@@ -153,11 +171,172 @@
             tpLoginInfo.TabIndex = 1;
             tpLoginInfo.Text = "Login Info";
             // 
+            // btnGiveAdministrator
+            // 
+            btnGiveAdministrator.Font = new Font("Segoe UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnGiveAdministrator.ForeColor = Color.Red;
+            btnGiveAdministrator.Location = new Point(600, 376);
+            btnGiveAdministrator.Name = "btnGiveAdministrator";
+            btnGiveAdministrator.Size = new Size(196, 62);
+            btnGiveAdministrator.TabIndex = 36;
+            btnGiveAdministrator.Text = "Give Administrator Access";
+            btnGiveAdministrator.UseVisualStyleBackColor = true;
+            btnGiveAdministrator.Click += btnGiveAdministrator_Click;
+            // 
+            // txtConfirmPassword
+            // 
+            txtConfirmPassword.Location = new Point(276, 338);
+            txtConfirmPassword.Margin = new Padding(4, 3, 4, 3);
+            txtConfirmPassword.Name = "txtConfirmPassword";
+            txtConfirmPassword.PasswordChar = '*';
+            txtConfirmPassword.Size = new Size(301, 23);
+            txtConfirmPassword.TabIndex = 31;
+            txtConfirmPassword.Validating += txtConfirmPassword_Validating;
+            // 
+            // txtPassword
+            // 
+            txtPassword.Location = new Point(276, 278);
+            txtPassword.Margin = new Padding(4, 3, 4, 3);
+            txtPassword.Name = "txtPassword";
+            txtPassword.PasswordChar = '*';
+            txtPassword.Size = new Size(301, 23);
+            txtPassword.TabIndex = 30;
+            txtPassword.Validating += txtPassword_Validating;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label5.Location = new Point(22, 340);
+            label5.Margin = new Padding(4, 0, 4, 0);
+            label5.Name = "label5";
+            label5.Size = new Size(163, 20);
+            label5.TabIndex = 33;
+            label5.Text = "Confirm Password :";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label4.Location = new Point(89, 279);
+            label4.Margin = new Padding(4, 0, 4, 0);
+            label4.Name = "label4";
+            label4.Size = new Size(96, 20);
+            label4.TabIndex = 32;
+            label4.Text = "Password :";
+            // 
+            // pictureBox4
+            // 
+            pictureBox4.Image = Properties.Resources.Password_321;
+            pictureBox4.Location = new Point(214, 338);
+            pictureBox4.Margin = new Padding(4, 3, 4, 3);
+            pictureBox4.Name = "pictureBox4";
+            pictureBox4.Size = new Size(37, 23);
+            pictureBox4.TabIndex = 35;
+            pictureBox4.TabStop = false;
+            // 
+            // pictureBox3
+            // 
+            pictureBox3.Image = Properties.Resources.Password_32;
+            pictureBox3.Location = new Point(214, 278);
+            pictureBox3.Margin = new Padding(4, 3, 4, 3);
+            pictureBox3.Name = "pictureBox3";
+            pictureBox3.Size = new Size(37, 23);
+            pictureBox3.TabIndex = 34;
+            pictureBox3.TabStop = false;
+            // 
+            // txtManagerID
+            // 
+            txtManagerID.Location = new Point(275, 461);
+            txtManagerID.Name = "txtManagerID";
+            txtManagerID.Size = new Size(302, 23);
+            txtManagerID.TabIndex = 29;
+            txtManagerID.KeyPress += txtManagerID_KeyPress;
+            txtManagerID.Validating += txtManagerID_Validating;
+            // 
+            // label8
+            // 
+            label8.AutoSize = true;
+            label8.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label8.Location = new Point(77, 460);
+            label8.Margin = new Padding(4, 0, 4, 0);
+            label8.Name = "label8";
+            label8.Size = new Size(108, 20);
+            label8.TabIndex = 27;
+            label8.Text = "ManagerID :";
+            // 
+            // pictureBox7
+            // 
+            pictureBox7.Image = Properties.Resources.Password_321;
+            pictureBox7.Location = new Point(214, 457);
+            pictureBox7.Margin = new Padding(4, 3, 4, 3);
+            pictureBox7.Name = "pictureBox7";
+            pictureBox7.Size = new Size(37, 23);
+            pictureBox7.TabIndex = 28;
+            pictureBox7.TabStop = false;
+            // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label7.Location = new Point(90, 399);
+            label7.Margin = new Padding(4, 0, 4, 0);
+            label7.Name = "label7";
+            label7.Size = new Size(95, 20);
+            label7.TabIndex = 25;
+            label7.Text = "Hierarchy :";
+            // 
+            // pictureBox6
+            // 
+            pictureBox6.Image = Properties.Resources.Password_321;
+            pictureBox6.Location = new Point(214, 396);
+            pictureBox6.Margin = new Padding(4, 3, 4, 3);
+            pictureBox6.Name = "pictureBox6";
+            pictureBox6.Size = new Size(37, 23);
+            pictureBox6.TabIndex = 26;
+            pictureBox6.TabStop = false;
+            // 
+            // cbHierarcky
+            // 
+            cbHierarcky.FormattingEnabled = true;
+            cbHierarcky.Location = new Point(276, 399);
+            cbHierarcky.Name = "cbHierarcky";
+            cbHierarcky.Size = new Size(301, 23);
+            cbHierarcky.TabIndex = 24;
+            cbHierarcky.SelectedIndexChanged += cbHierarcky_SelectedIndexChanged;
+            cbHierarcky.Validating += cbHierarcky_Validating;
+            // 
+            // treePermissions
+            // 
+            treePermissions.CheckBoxes = true;
+            treePermissions.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            treePermissions.ImageIndex = 0;
+            treePermissions.ImageList = imageList1;
+            treePermissions.Location = new Point(805, 160);
+            treePermissions.Name = "treePermissions";
+            treePermissions.SelectedImageIndex = 0;
+            treePermissions.Size = new Size(354, 324);
+            treePermissions.TabIndex = 16;
+            treePermissions.TabStop = false;
+            treePermissions.BeforeCheck += treePermissions_BeforeCheck;
+            treePermissions.AfterCheck += treePermissions_AfterCheck;
+            treePermissions.Validating += treePermissions_Validating;
+            // 
+            // imageList1
+            // 
+            imageList1.ColorDepth = ColorDepth.Depth32Bit;
+            imageList1.ImageStream = (ImageListStreamer)resources.GetObject("imageList1.ImageStream");
+            imageList1.TransparentColor = Color.Transparent;
+            imageList1.Images.SetKeyName(0, "bin.png");
+            imageList1.Images.SetKeyName(1, "updated.png");
+            imageList1.Images.SetKeyName(2, "settings.png");
+            imageList1.Images.SetKeyName(3, "eye.png");
+            // 
             // label1
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label1.Location = new Point(213, 415);
+            label1.Location = new Point(622, 167);
             label1.Margin = new Padding(4, 0, 4, 0);
             label1.Name = "label1";
             label1.Size = new Size(115, 20);
@@ -167,27 +346,19 @@
             // pictureBox5
             // 
             pictureBox5.Image = (Image)resources.GetObject("pictureBox5.Image");
-            pictureBox5.Location = new Point(357, 408);
+            pictureBox5.Location = new Point(766, 160);
             pictureBox5.Margin = new Padding(4, 3, 4, 3);
             pictureBox5.Name = "pictureBox5";
-            pictureBox5.Size = new Size(37, 33);
+            pictureBox5.Size = new Size(30, 33);
             pictureBox5.TabIndex = 14;
             pictureBox5.TabStop = false;
-            // 
-            // cbPermissions
-            // 
-            cbPermissions.FormattingEnabled = true;
-            cbPermissions.Location = new Point(419, 413);
-            cbPermissions.Name = "cbPermissions";
-            cbPermissions.Size = new Size(236, 23);
-            cbPermissions.TabIndex = 13;
             // 
             // chkIsActive
             // 
             chkIsActive.AutoSize = true;
             chkIsActive.Checked = true;
             chkIsActive.CheckState = CheckState.Checked;
-            chkIsActive.Location = new Point(432, 509);
+            chkIsActive.Location = new Point(322, 530);
             chkIsActive.Margin = new Padding(4, 3, 4, 3);
             chkIsActive.Name = "chkIsActive";
             chkIsActive.Size = new Size(70, 19);
@@ -195,34 +366,12 @@
             chkIsActive.Text = "Is Active";
             chkIsActive.UseVisualStyleBackColor = true;
             // 
-            // txtConfirmPassword
-            // 
-            txtConfirmPassword.Location = new Point(419, 351);
-            txtConfirmPassword.Margin = new Padding(4, 3, 4, 3);
-            txtConfirmPassword.Name = "txtConfirmPassword";
-            txtConfirmPassword.PasswordChar = '*';
-            txtConfirmPassword.Size = new Size(236, 23);
-            txtConfirmPassword.TabIndex = 2;
-            txtConfirmPassword.KeyPress += txtConfirmPassword_KeyPress;
-            txtConfirmPassword.Validating += txtConfirmPassword_Validating;
-            // 
-            // txtPassword
-            // 
-            txtPassword.Location = new Point(419, 291);
-            txtPassword.Margin = new Padding(4, 3, 4, 3);
-            txtPassword.Name = "txtPassword";
-            txtPassword.PasswordChar = '*';
-            txtPassword.Size = new Size(236, 23);
-            txtPassword.TabIndex = 1;
-            txtPassword.KeyPress += txtPassword_KeyPress;
-            txtPassword.Validating += txtPassword_Validating;
-            // 
             // txtUserName
             // 
-            txtUserName.Location = new Point(419, 238);
+            txtUserName.Location = new Point(277, 217);
             txtUserName.Margin = new Padding(4, 3, 4, 3);
             txtUserName.Name = "txtUserName";
-            txtUserName.Size = new Size(236, 23);
+            txtUserName.Size = new Size(301, 23);
             txtUserName.TabIndex = 0;
             txtUserName.KeyPress += txtUserName_KeyPress;
             txtUserName.Validating += txtUserName_Validating;
@@ -232,40 +381,18 @@
             label6.AutoSize = true;
             label6.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label6.ForeColor = Color.FromArgb(192, 0, 0);
-            label6.Location = new Point(502, 182);
+            label6.Location = new Point(360, 161);
             label6.Margin = new Padding(4, 0, 4, 0);
             label6.Name = "label6";
             label6.Size = new Size(39, 20);
             label6.TabIndex = 8;
             label6.Text = "???";
             // 
-            // label5
-            // 
-            label5.AutoSize = true;
-            label5.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label5.Location = new Point(165, 353);
-            label5.Margin = new Padding(4, 0, 4, 0);
-            label5.Name = "label5";
-            label5.Size = new Size(163, 20);
-            label5.TabIndex = 3;
-            label5.Text = "Confirm Password :";
-            // 
-            // label4
-            // 
-            label4.AutoSize = true;
-            label4.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label4.Location = new Point(232, 292);
-            label4.Margin = new Padding(4, 0, 4, 0);
-            label4.Name = "label4";
-            label4.Size = new Size(96, 20);
-            label4.TabIndex = 2;
-            label4.Text = "Password :";
-            // 
             // label3
             // 
             label3.AutoSize = true;
             label3.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label3.Location = new Point(220, 237);
+            label3.Location = new Point(78, 216);
             label3.Margin = new Padding(4, 0, 4, 0);
             label3.Name = "label3";
             label3.Size = new Size(108, 20);
@@ -276,50 +403,30 @@
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label2.Location = new Point(247, 182);
+            label2.Location = new Point(105, 161);
             label2.Margin = new Padding(4, 0, 4, 0);
             label2.Name = "label2";
             label2.Size = new Size(81, 20);
             label2.TabIndex = 0;
             label2.Text = "User ID :";
             // 
-            // pictureBox4
-            // 
-            pictureBox4.Image = Properties.Resources.Password_321;
-            pictureBox4.Location = new Point(357, 351);
-            pictureBox4.Margin = new Padding(4, 3, 4, 3);
-            pictureBox4.Name = "pictureBox4";
-            pictureBox4.Size = new Size(37, 33);
-            pictureBox4.TabIndex = 7;
-            pictureBox4.TabStop = false;
-            // 
-            // pictureBox3
-            // 
-            pictureBox3.Image = Properties.Resources.Password_32;
-            pictureBox3.Location = new Point(357, 291);
-            pictureBox3.Margin = new Padding(4, 3, 4, 3);
-            pictureBox3.Name = "pictureBox3";
-            pictureBox3.Size = new Size(37, 33);
-            pictureBox3.TabIndex = 6;
-            pictureBox3.TabStop = false;
-            // 
             // pictureBox2
             // 
             pictureBox2.Image = Properties.Resources.User_32__22;
-            pictureBox2.Location = new Point(357, 235);
+            pictureBox2.Location = new Point(215, 214);
             pictureBox2.Margin = new Padding(4, 3, 4, 3);
             pictureBox2.Name = "pictureBox2";
-            pictureBox2.Size = new Size(37, 33);
+            pictureBox2.Size = new Size(37, 23);
             pictureBox2.TabIndex = 5;
             pictureBox2.TabStop = false;
             // 
             // pictureBox1
             // 
             pictureBox1.Image = Properties.Resources.User_32__21;
-            pictureBox1.Location = new Point(357, 181);
+            pictureBox1.Location = new Point(215, 160);
             pictureBox1.Margin = new Padding(4, 3, 4, 3);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(37, 33);
+            pictureBox1.Size = new Size(37, 23);
             pictureBox1.TabIndex = 4;
             pictureBox1.TabStop = false;
             // 
@@ -375,9 +482,11 @@
             tpPersonInfo.ResumeLayout(false);
             tpLoginInfo.ResumeLayout(false);
             tpLoginInfo.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBox5).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox4).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox7).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox6).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox5).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ((System.ComponentModel.ISupportInitialize)errorProvider1).EndInit();
@@ -395,22 +504,30 @@
         private System.Windows.Forms.Button btnNext;
         private System.Windows.Forms.TabPage tpLoginInfo;
         private System.Windows.Forms.CheckBox chkIsActive;
-        private System.Windows.Forms.TextBox txtConfirmPassword;
-        private System.Windows.Forms.TextBox txtPassword;
         private System.Windows.Forms.TextBox txtUserName;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.PictureBox pictureBox4;
-        private System.Windows.Forms.PictureBox pictureBox3;
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ErrorProvider errorProvider1;
         private People.ctrlPersonCardWithFilter ctrlPersonCardWithFilter1;
         private PictureBox pictureBox5;
-        private ComboBox cbPermissions;
         private Label label1;
+        private TreeView treePermissions;
+        private ImageList imageList1;
+        private TextBox txtConfirmPassword;
+        private TextBox txtPassword;
+        private Label label5;
+        private Label label4;
+        private PictureBox pictureBox4;
+        private PictureBox pictureBox3;
+        private TextBox txtManagerID;
+        private Label label8;
+        private PictureBox pictureBox7;
+        private Label label7;
+        private PictureBox pictureBox6;
+        private ComboBox cbHierarcky;
+        private Button btnGiveAdministrator;
     }
 }

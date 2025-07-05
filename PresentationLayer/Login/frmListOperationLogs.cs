@@ -1,5 +1,6 @@
-﻿using BusinessLayer;
+﻿using BusinessLayer.Core;
 using PresentationLayer.Global;
+using PresentationLayer.Helpers.BaseUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,15 +14,18 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace PresentationLayer.Login
 {
-    public partial class frmListOperationLogs : Form
+    public partial class frmListOperationLogs : clsBaseForm
     {
+        Task task;
         public frmListOperationLogs()
         {
             InitializeComponent();
+            SetTheme(this);
         }
+        string path;
 
         private DataTable _dtAllUsersLogs = new DataTable();
-        private string _ConvertAllRecordsToTXTFile()
+        private async Task<string> ConvertAllRecordsToTXTFile()
         {
             StringBuilder stBuilder = new StringBuilder();
             int count = 0;
@@ -29,7 +33,7 @@ namespace PresentationLayer.Login
             foreach (DataRow Row in _dtAllUsersLogs.Rows)
             {
                 count++;
-                clsOperationLog RecordLog = clsOperationLog.ConvertDataRowToObject(Row);
+                clsOperationLog RecordLog = await clsOperationLog.ConvertDataRowToObjectAsync(Row);
                 stBuilder.Append($"__________________ Record[{count}] __________________\n");
                 stBuilder.Append(RecordLog.ToString() ?? $" Record[{count}] N/A !\n\n");
                 stBuilder.Append("________________________________________________\n\n");
@@ -37,16 +41,16 @@ namespace PresentationLayer.Login
             return stBuilder.ToString();
         }
 
-        void _RefreshList()
+        void RefreshList()
         {
             _dtAllUsersLogs = clsOperationLog.GetAllOperationLogs();
             dgvLogs.DataSource = _dtAllUsersLogs;
-            _RefreshListCount();
+            RefreshListCount();
 
         }
-        private void _RefreshListCount()
+        private void RefreshListCount()
             => lblTotalRecords.Text = dgvLogs.Rows.Count.ToString();
-        string _GetFilterColumnDBName()
+        string GetFilterColumnDBName()
         {
             switch (cbFilterBy.Text)
             {
@@ -98,7 +102,7 @@ namespace PresentationLayer.Login
                 dgvLogs.Columns[6].Visible = false;
             }
         }
-        void _ResetSFD()
+        void ResetSaveFileDialog()
         {
             saveFileDialog1.Title = "Save Log File";
             saveFileDialog1.DefaultExt = ".txt";
@@ -107,24 +111,24 @@ namespace PresentationLayer.Login
         }
         private void frmListOperationLogs_Load(object sender, EventArgs e)
         {
-            this.Text = "Operation Logs";
+            task = Task.Run(() => _dtAllUsersLogs = clsOperationLog.GetAllOperationLogs());
+            SetTitle("Operation Logs");
             cbFilterBy.SelectedIndex = cbFilterBy.FindString("None");
             cbAction.Visible = false;
-            _dtAllUsersLogs = clsOperationLog.GetAllOperationLogs();
+            Task.WaitAll(task);
             dgvLogs.DataSource = _dtAllUsersLogs;
-
-            _RefreshListCount();
+            RefreshListCount();
         }
 
         private void txtFilterValue_TextChanged(object sender, EventArgs e)
         {
-            string FilterColumn = _GetFilterColumnDBName();
+            string FilterColumn = GetFilterColumnDBName();
 
 
             if (txtFilterValue.Text.Trim() == "")
             {
                 _dtAllUsersLogs.DefaultView.RowFilter = "";
-                _RefreshListCount();
+                RefreshListCount();
                 return;
             }
             if (FilterColumn == "None")
@@ -145,10 +149,10 @@ namespace PresentationLayer.Login
                                 string.Format("[{0}] like '%{1}%'", FilterColumn,
                                  txtFilterValue.Text.Trim());
             }
-            _RefreshListCount();
+            RefreshListCount();
 
         }
-        void _CheckTXT_CBVisible()
+        void CheckTXT_CBVisible()
         {
             txtFilterValue.Visible =
               (cbFilterBy.Text != "None" && cbFilterBy.Text != "Action" && this.dgvLogs.Rows.Count != 0);
@@ -156,9 +160,9 @@ namespace PresentationLayer.Login
         }
         private void cbFilterBy_SelectedIndexChanged(object sender, EventArgs e)
         {
-            
-            _RefreshList();
-            _CheckTXT_CBVisible();
+
+            RefreshList();
+            CheckTXT_CBVisible();
             if (txtFilterValue.Visible)
             {
                 txtFilterValue.Text = "";
@@ -191,7 +195,7 @@ namespace PresentationLayer.Login
             {
                 MessageBox.Show("Error:An Unexpected Error happened while loading Log !", "Error",
                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Loading Log Row from DGV."));
+                clsGlobalData.WindownsEventLog.Log(new Exception($"Error when Loading Log Row from DGV."));
                 return;
             }
 
@@ -199,7 +203,7 @@ namespace PresentationLayer.Login
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
                            MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Parsing LogID from DGV Row."));
+                clsGlobalData.WindownsEventLog.Log(new Exception($"Error when Parsing LogID from DGV Row."));
                 return;
             }
             clsOperationLog Log = clsOperationLog.GetByLogID(LogID);
@@ -209,24 +213,24 @@ namespace PresentationLayer.Login
                            MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            _ResetSFD();
+            ResetSaveFileDialog();
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
 
                 //We overrided the ToString() for Log class
                 try
                 {
-                    string path = saveFileDialog1.FileName;
+                    path = saveFileDialog1.FileName;
                     File.WriteAllText(path, Log.ToString());
-                    MessageBox.Show("File was saved successfully.", "Confirm save",
-                       MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    notifyIcon1.Visible = true;
+                    notifyIcon1.ShowBalloonTip(3);
 
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show("Error:An Unexpected Error happened while downloaing Log !"
                         , "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    clsGlobal.LogError(ex);
+                    clsGlobalData.WindownsEventLog.Log(ex);
                 }
 
             }
@@ -240,33 +244,34 @@ namespace PresentationLayer.Login
                 return;
         }
 
-        private void downloadAllRecordsToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void downloadAllRecordsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (dgvLogs.CurrentRow == null)
             {
                 MessageBox.Show("Error:An Unexpected Error happened while loading Log !", "Error",
                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Loading Log Row from DGV."));
+                clsGlobalData.WindownsEventLog.Log(new Exception($"Error when Loading Log Row from DGV."));
                 return;
             }
-            _ResetSFD();
+            ResetSaveFileDialog();
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
 
                 //We overrided the ToString() for Log class
                 try
                 {
-                    string path = saveFileDialog1.FileName;
-                    File.WriteAllText(path, _ConvertAllRecordsToTXTFile());
-                    MessageBox.Show("File was saved successfully.", "Confirm save",
-                       MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    string data = await ConvertAllRecordsToTXTFile();
+                    path = saveFileDialog1.FileName;
+                    notifyIcon1.Visible = true;
+                    File.WriteAllText(path, data);
+                    notifyIcon1.ShowBalloonTip(3);
 
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show("Error:An Unexpected Error happened while downloaing Log !"
                         , "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    clsGlobal.LogError(ex);
+                    clsGlobalData.WindownsEventLog.Log(ex);
                 }
 
             }
@@ -278,14 +283,40 @@ namespace PresentationLayer.Login
             if (cbAction.Text == "All")
             {
                 _dtAllUsersLogs.DefaultView.RowFilter = "";
-                _RefreshListCount();
+                RefreshListCount();
                 return;
 
             }
             _dtAllUsersLogs.DefaultView.RowFilter =
                         string.Format("[{0}] = '{1}'", FilterColumn,
                         cbAction.Text);
-            _RefreshListCount();
+            RefreshListCount();
+        }
+
+
+        private void notifyIcon1_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left)
+                return;
+            try
+            {
+                if (File.Exists(path))
+                    File.Open(path, FileMode.Open);
+                else
+                    MessageBox.Show("Error:File is not existed !", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                clsGlobalData.WindownsEventLog.Log(ex);
+                MessageBox.Show("Error with openning File !", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btncLose_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

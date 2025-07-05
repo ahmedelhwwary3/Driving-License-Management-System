@@ -1,4 +1,4 @@
-﻿using BusinessLayer;
+﻿using BusinessLayer.Core;
 using PresentationLayer.Global;
 using PresentationLayer.Properties;
 using System;
@@ -12,48 +12,53 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using System.Windows.Forms;
-
+using static PresentationLayer.Global.clsGlobalData;
+using static BusinessLayer.Core.clsTestType;
+using static BusinessLayer.Core.clsApplication;
+using static BusinessLayer.Core.clsUsersPermissions;
+using static System.Formats.Asn1.AsnWriter;
+using PresentationLayer.Helpers;
+using PresentationLayer.Helpers.BaseUI;
 namespace PresentationLayer.Tests.Controls
 {
-    public partial class ctrlScheduleTest : UserControl
+    public partial class ctrlScheduleTest : clsBaseCtrl
     {
         clsTestAppointment _TestAppointment = new clsTestAppointment();
         int? _TestAppointmentID = null;
         clsLocalDrivingLicenseApplication _LocalDrivingLicenseApplication = new clsLocalDrivingLicenseApplication();
-        clsTestType.enTestType? _TestTypeID = clsTestType.enTestType.Vision;
         public Button SaveButton
         {
             get => btnSave;
             set => btnSave = value;
         }
-        public clsTestType.enTestType? TestTypeID
+        enTestType _TestTypeID = enTestType.Vision;
+        public enTestType TestTypeID
         {
             get => _TestTypeID;
             set {
                 _TestTypeID = value;
-                switch(_TestTypeID)
+                switch(TestTypeID)
                 {
-                    case clsTestType.enTestType.Vision:
+                    
+                    case enTestType.Vision:
+                    default:
                         {
                             lblTestTypeTitle.Text = "Vision Test";
                             pbTestType.Image = Resources.Vision_512;
                             break;
                         }
-                    case clsTestType.enTestType.Written:
+                    case enTestType.Written:
                         {
                             lblTestTypeTitle.Text = "Written Test";
                             pbTestType.Image = Resources.Written_Test_512;
                             break;
                         }
-                    case clsTestType.enTestType.Street:
+                    case enTestType.Street:
                         {
                             lblTestTypeTitle.Text = "Street Test";
                             pbTestType.Image = Resources.driving_test_512;
                             break;
                         }
-
-
-
                 }
             }
 
@@ -63,13 +68,19 @@ namespace PresentationLayer.Tests.Controls
         enum enCreationMode
         {FirstTime,RetakeTest}
          
-        enCreationMode CreationMode = enCreationMode.FirstTime;
-
-        public ctrlScheduleTest()=> InitializeComponent();
+        enCreationMode _CreationMode = enCreationMode.FirstTime;
+    
+        public ctrlScheduleTest()
+        {
+            InitializeComponent();
+            SetTheme(this);
+        }
 
     
         public void LoadTestAppointmentFullData(int LocalDrivingLicenseApplicationID,int? TestAppointmentID=null)
         {
+            if (!CheckUserAccess(GetByAccessType("AddEdit").Permissions.Value))
+                return;
             ///All these steps applied on All Modes (Add,Update) , (First,Retake)
             _LocalDrivingLicenseApplication = clsLocalDrivingLicenseApplication.GetLocalApplicationByID(LocalDrivingLicenseApplicationID);
             _TestAppointmentID= TestAppointmentID;
@@ -81,24 +92,23 @@ namespace PresentationLayer.Tests.Controls
                 return;
             }
 
-            _Mode = TestAppointmentID == null ? enMode.AddNew : enMode.Update;
+            _Mode = TestAppointmentID.HasValue ? enMode.Update : enMode.AddNew;
             //Retake App is extra application linked with the LocalApp
-            if (_LocalDrivingLicenseApplication.HasAttentedTestType((clsTestType.enTestType)this.TestTypeID))
-                CreationMode = enCreationMode.RetakeTest;
+            if (_LocalDrivingLicenseApplication.HasAttentedTestType((enTestType)_TestTypeID))
+                _CreationMode = enCreationMode.RetakeTest;
             else
-                CreationMode = enCreationMode.FirstTime;
+                _CreationMode = enCreationMode.FirstTime;
 
-            if(CreationMode==enCreationMode.FirstTime)
-                _ResetRetakeGB();
+            if(_CreationMode==enCreationMode.FirstTime)
+                ResetFirstTimeData();
             else
-                //In AddNew Mode , CreationMode may be Retake but the Retake app is still not created
-                //Retake App will be created when Click Save
-                _LoadAddNewRetakeGBData();
+                LoadAddNewRetakeGBData();//In AddNew Mode , CreationMode may be Retake but the Retake app is still not created
+                                         //Retake App will be created when Click Save
 
-            _LoadLocalAppData();
+            LoadLocalAppData();
 
             if (_Mode==enMode.AddNew)
-                _LoadAddNewData();//Data is 1.Fees 2.Date
+                LoadAddNewData();//Data is 1.Fees 2.Date
             else
             {
                 ///Only Update Mode
@@ -108,19 +118,20 @@ namespace PresentationLayer.Tests.Controls
             }
 
             //TotalFees In AddNew or Update Mode
-            if (!(decimal.TryParse(lblFees.Text, out decimal TestFees) && decimal.TryParse(lblRetakeAppFees.Text, out decimal RetakeFees)))
+            if (!(decimal.TryParse(lblFees.Text, out decimal TestFees) && 
+                decimal.TryParse(lblRetakeAppFees.Text, out decimal RetakeFees)))
             {
                 MessageBox.Show("Error:An unexpected error happened !","Error",
                     MessageBoxButtons.OK,MessageBoxIcon.Error);
-                clsGlobal.LogError(new FormatException("Error while parsing lblFees or lblRetakeAppFees to decimal ."));
+                   WindownsEventLog?.Log(new FormatException("Error while parsing lblFees or lblRetakeAppFees to decimal ."));
                 return;
             }
             lblTotalFees.Text = (TestFees + RetakeFees).ToString();
             lblUserMessage.Visible = false;
             dtpScheduleDate.MaxDate = clsTestAppointment.TestMaxDate;
-            _HandleChecksBeforeCompletingLoad();
+            HandleChecksBeforeCompletingLoad();
         }
-        void _HandleChecksBeforeCompletingLoad()
+        void HandleChecksBeforeCompletingLoad()
         {
             if (!HandleIfPersonHaveActiveAppointmentInAddNewMode())
                 return;
@@ -130,41 +141,41 @@ namespace PresentationLayer.Tests.Controls
             if (!HandleIfPersonPassThePreviousTestType())
                 return;
         }
-        void _ResetRetakeGB()
+        void ResetFirstTimeData()
         {
             lblRetakeAppFees.Text = "0";
             lblRetakeTestAppID.Text = "N/A";
         }
-        void _LoadAddNewRetakeGBData()
+        void LoadAddNewRetakeGBData()
         {
-            lblRetakeAppFees.Text = clsApplicationType.GetApplicationTypeFees((int)clsApplication.enApplicationType.RetakeTest).ToString();
+            lblRetakeAppFees.Text = clsApplicationType.GetApplicationTypeFees((int)enApplicationType.RetakeTest).ToString();
             lblTestTypeTitle.Text = "Schedule Retake Test";
             lblRetakeTestAppID.Text = "[????]";
         }
-        void _LoadUpdateRetakeGBData()
+        void LoadUpdateRetakeGBData()
         {
             gbRetakeTestInfo.Enabled = true;
             lblRetakeTestAppID.Text = _TestAppointment.RetakeTestApplicationInfo.ApplicationID.ToString();
             lblRetakeAppFees.Text = _TestAppointment.RetakeTestApplicationInfo.PaidFees.ToString();
         }
-        void _LoadLocalAppData()
+        void LoadLocalAppData()
         {
-            lblTestTypeTitle.Text = (CreationMode == enCreationMode.RetakeTest ? "Schedule Retake Test" : "Schedule Test First Time");
+            lblTestTypeTitle.Text = (_CreationMode == enCreationMode.RetakeTest ? "Schedule Retake Test" : "Schedule Test First Time");
             lblClassName.Text = _LocalDrivingLicenseApplication.LicenseClass.ClassName;
             lblFees.Text = _LocalDrivingLicenseApplication.PaidFees.ToString();
             lblLocalAppID.Text = _LocalDrivingLicenseApplication.LocalDrivingLicenseApplicationID.ToString();
             lblName.Text = _LocalDrivingLicenseApplication.Person.FullName;
-            lblTrials.Text = _LocalDrivingLicenseApplication.CountAllTestTrials((clsTestType.enTestType)_TestTypeID).ToString();
+            lblTrials.Text = _LocalDrivingLicenseApplication.CountAllTestTrials((enTestType)TestTypeID).ToString();
 
         }
-        void _LoadAddNewData()
+        void LoadAddNewData()
         {
             dtpScheduleDate.MinDate = DateTime.Now;
-            lblFees.Text = clsTestType.GetByID((int)_TestTypeID.Value).TestTypeFees.ToString();
+            lblFees.Text = clsTestType.GetByID((int)TestTypeID).TestTypeFees.ToString();
         }
         private bool LoadUpdateModeData()
         {
-            _TestAppointment = clsTestAppointment.GetByID(_TestAppointmentID);
+            _TestAppointment = clsTestAppointment.GetByID(_TestAppointmentID.Value);
             if (_TestAppointment == null)
             {
                 MessageBox.Show($"Error:Test Appointment is not found !", "Error"
@@ -182,19 +193,20 @@ namespace PresentationLayer.Tests.Controls
                 dtpScheduleDate.MinDate = _TestAppointment.AppointmentDate;
 
             lblFees.Text = _TestAppointment.PaidFees.ToString();
-            if (_TestAppointment.RetakeTestApplicationID ==null)
-                _ResetRetakeGB();
+            if (!_TestAppointment.RetakeTestApplicationID.HasValue)
+                ResetFirstTimeData();
             else
                 //Data is not the same as RetakeDataNewMode .. Fees may be modefied in DB and RetakeID is found 
                 //but in AddNew RetakeID is created after Save
-                _LoadUpdateRetakeGBData();
+                LoadUpdateRetakeGBData();
             return true;
         }
 
         private bool HandleIfPersonHaveActiveAppointmentInAddNewMode()
         {
             //If User clicked the (add new appointment) button And there was an active test appointment
-            if (_Mode == enMode.AddNew && _LocalDrivingLicenseApplication.HasActiveTestAppointment((clsTestType.enTestType)_TestTypeID))
+            if (_Mode == enMode.AddNew && _LocalDrivingLicenseApplication
+                .HasActiveTestAppointment((clsTestType.enTestType)TestTypeID))
             {
                 DisableFormLoading("You Can not Schedule a new test appointment\n" +
                 "as you already have an active one");
@@ -217,12 +229,12 @@ namespace PresentationLayer.Tests.Controls
         {
             switch(TestTypeID)
             {
-                case clsTestType.enTestType.Vision:
+                case enTestType.Vision:
                     return true;
 
-                case clsTestType.enTestType.Written:
+                case enTestType.Written:
                     {
-                        if(_LocalDrivingLicenseApplication.HasPassedTestType(clsTestType.enTestType.Vision))
+                        if(_LocalDrivingLicenseApplication.HasPassedTestType(enTestType.Vision))
                             return true;
                         else
                         {
@@ -230,9 +242,9 @@ namespace PresentationLayer.Tests.Controls
                             return false;
                         }
                     }
-                case clsTestType.enTestType.Street:
+                case enTestType.Street:
                     {
-                        if (_LocalDrivingLicenseApplication.HasPassedTestType(clsTestType.enTestType.Written))
+                        if (_LocalDrivingLicenseApplication.HasPassedTestType(enTestType.Written))
                             return true;
                         else
                         {
@@ -252,54 +264,62 @@ namespace PresentationLayer.Tests.Controls
             dtpScheduleDate.Enabled = false;
             btnSave.Enabled = false;
         }
+        int? GetNewRetakeApplicationID()
+        {
+            clsApplication app = new clsApplication();
+            app.ApplicationStatus = (int)enApplicationStatus.Completed;
+            app.LastStatusDate= DateTime.Now;
+            app.ApplicationDate= DateTime.Now;
+            app.ApplicantPersonID = _TestAppointment.LocalDrivingLicenseApplication.ApplicantPersonID;
+            app.ApplicationTypeID =(int) enApplicationType.RetakeTest;
+            app.CreatedByUserID = CurrentUser.UserID.Value;
+            app.PaidFees = clsApplicationType.GetApplicationTypeFees((int)enApplicationType.RetakeTest);
+            app.LoggedUserID= CurrentUser.UserID.Value;
+            return app.Save() ? app.ApplicationID:null;
+        }
         private void btnSave_Click(object sender, EventArgs e)
         {
             if (!decimal.TryParse(lblFees.Text, out decimal TestFees))
             {
                 MessageBox.Show("Error:Some thing wrong happened !", "Error"
                    , MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new FormatException(
+                   WindownsEventLog?.Log(new FormatException(
                     "Error with Test Fees Parsing."));
                 return;
             }
             if (!HandleSavingRetakeTestApplication())
                 return;
-
-
             try
             {
-                //RollBack if Any Save Failed
-                using (TransactionScope scope = new TransactionScope())
+                _TestAppointment.LoggedUserID = CurrentUser.UserID.Value;
+                _TestAppointment.PaidFees = TestFees;
+                _TestAppointment.LocalDrivingLicenseApplicationID = _LocalDrivingLicenseApplication.LocalDrivingLicenseApplicationID.Value;
+                _TestAppointment.AppointmentDate = dtpScheduleDate.Value;
+                _TestAppointment.CreatedByUserID = CurrentUser.UserID.Value;
+                _TestAppointment.IsLocked = false;
+                _TestAppointment.TestTypeID = (int)TestTypeID;
+
+                if (((_TestAppointment.TestAppointmentID == null) && _Mode == enMode.Update))
                 {
-                    _TestAppointment.LoggedUserID=clsGlobal.CurrentUser.UserID;
-                    _TestAppointment.PaidFees = TestFees;
-                    _TestAppointment.LocalDrivingLicenseApplicationID = _LocalDrivingLicenseApplication.LocalDrivingLicenseApplicationID;
-                    _TestAppointment.AppointmentDate = dtpScheduleDate.Value;
-                    _TestAppointment.CreatedByUserID = clsGlobal.CurrentUser.UserID;
-                    _TestAppointment.IsLocked = false;
-                    _TestAppointment.TestTypeID = _TestTypeID;
-                    if ((_TestAppointment.CreatedByUserID == null || _TestAppointment.LocalDrivingLicenseApplicationID == null||_TestTypeID==null
-                        ||(_TestAppointment.TestAppointmentID== null)&&_Mode==enMode.Update))
-                    {
-                        MessageBox.Show("Error:An unexpected error occurred while saving because if Missed Data. " +
-                          "Please try again later.", "Save failed", MessageBoxButtons.OK
-                         , MessageBoxIcon.Error);
-                        return;
-                    }
-                    if (!_TestAppointment.Save())
-                        throw new Exception($"Save Test Appointment with LocalDrivingLicenseApplicationID {_TestAppointment.LocalDrivingLicenseApplicationID} Failed.");
-                    //All Succeeded
-                    _Mode = enMode.Update;
-                    _TestAppointmentID = _TestAppointment.TestAppointmentID;
-                    MessageBox.Show("Test Appointment Was Saved Successfully", "Saved",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    scope.Complete();
+                    MessageBox.Show("Error:An unexpected error occurred while saving because if Missed Data. " +
+                      "Please try again later.", "Save failed", MessageBoxButtons.OK
+                     , MessageBoxIcon.Error);
+                    return;
                 }
+                if (!_TestAppointment.Save())
+                    throw new Exception($"Save Test Appointment with LocalDrivingLicenseApplicationID {_TestAppointment.LocalDrivingLicenseApplicationID} Failed.");
+                //All Succeeded
+                _Mode = enMode.Update;
+                if(_CreationMode==enCreationMode.RetakeTest)
+                    lblRetakeTestAppID.Text=_TestAppointment?.RetakeTestApplicationID?.ToString();
+                _TestAppointmentID = _TestAppointment.TestAppointmentID;
+                MessageBox.Show("Test Appointment Was Saved Successfully", "Saved",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             }
             catch (Exception ex)
             {
-                clsGlobal.LogError(ex);
+                WindownsEventLog?.Log(ex);
                 MessageBox.Show("Error:An unexpected error occurred while saving. " +
                  "Please try again later.", "Save failed", MessageBoxButtons.OK
                 , MessageBoxIcon.Error);
@@ -314,16 +334,16 @@ namespace PresentationLayer.Tests.Controls
             //As if the mood was update .. you must not add a new application (it is already exists)
             if (_Mode == enMode.AddNew)
             {
-                if (CreationMode == enCreationMode.RetakeTest)
+                if (_CreationMode == enCreationMode.RetakeTest)
                 {
-                    NewRetakeApplication.ApplicationStatus = clsApplication.enApplicationStatus.Completed;
+                    NewRetakeApplication.ApplicationStatus = (int)enApplicationStatus.Completed;
                     NewRetakeApplication.ApplicantPersonID = _LocalDrivingLicenseApplication.ApplicantPersonID;
                     NewRetakeApplication.ApplicationDate = DateTime.Now;
                     NewRetakeApplication.LastStatusDate = DateTime.Now;
-                    NewRetakeApplication.ApplicationTypeID = clsApplication.enApplicationType.RetakeTest;
-                    NewRetakeApplication.CreatedByUserID = clsGlobal.CurrentUser.UserID;
-                    NewRetakeApplication.PaidFees = clsApplicationType.GetByID((int)clsApplication.enApplicationType.RetakeTest).ApplicationFees;
-
+                    NewRetakeApplication.ApplicationTypeID = (int)enApplicationType.RetakeTest;
+                    NewRetakeApplication.CreatedByUserID = CurrentUser.UserID.Value;
+                    NewRetakeApplication.PaidFees = clsApplicationType.GetApplicationTypeFees((int)enApplicationType.RetakeTest);
+                    NewRetakeApplication.LoggedUserID= CurrentUser.UserID.Value;
                     if (!NewRetakeApplication.Save())
                     {
                         MessageBox.Show("Error:An unexpected error occurred while saving. " +

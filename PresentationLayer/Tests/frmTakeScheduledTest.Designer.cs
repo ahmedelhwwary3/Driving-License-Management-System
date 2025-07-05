@@ -1,4 +1,6 @@
-﻿namespace PresentationLayer.Tests
+﻿using BusinessLayer.Core;
+
+namespace PresentationLayer.Tests
 {
     partial class frmTakeScheduledTest
     {
@@ -159,7 +161,7 @@
             this.ctrlScheduledTest1.Size = new System.Drawing.Size(595, 549);
             this.ctrlScheduledTest1.TabIndex = 11;
             this.ctrlScheduledTest1.TestID = -1;
-            this.ctrlScheduledTest1.TestTypeID = BusinessLayer.clsTestType.enTestType.Vision;
+            this.ctrlScheduledTest1.TestTypeID = clsTestType.enTestType.Vision;
             // 
             // frmTakeScheduledTest
             // 

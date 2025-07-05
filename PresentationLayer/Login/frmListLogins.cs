@@ -1,4 +1,5 @@
-﻿using BusinessLayer;
+﻿using BusinessLayer.Core;
+using PresentationLayer.Helpers.BaseUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,24 +13,26 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace PresentationLayer.Login
 {
-    public partial class frmListUserLogins : Form
+    public partial class frmListUserLogins : clsBaseForm
     {
+        Task task;
         public frmListUserLogins()
         {
             InitializeComponent();
+            SetTheme(this);
         }
 
         private static DataTable _dtAllUsersLogs = new DataTable();
-        void _RefreshList()
+        void RefreshList()
         {
             _dtAllUsersLogs = clsUserLogin.GetAllUsersLogins();
             dgvLogs.DataSource = _dtAllUsersLogs;
-            _RefreshListCount();
+            RefreshListCount();
 
         }
-        private void _RefreshListCount()
+        private void RefreshListCount()
             => lblTotalRecords.Text = dgvLogs.Rows.Count.ToString();
-        string _GetFilterColumnDBName()
+        string GetFilterColumnDBName()
         {
             switch (cbFilterBy.Text)
             {
@@ -62,13 +65,13 @@ namespace PresentationLayer.Login
         }
         private void txtFilterValue_TextChanged(object sender, EventArgs e)
         {
-            string FilterColumn = _GetFilterColumnDBName();
+            string FilterColumn = GetFilterColumnDBName();
 
 
             if (txtFilterValue.Text.Trim() == "")
             {
                 _dtAllUsersLogs.DefaultView.RowFilter = "";
-                _RefreshListCount();
+                RefreshListCount();
                 return;
             }
             if (FilterColumn == "None")
@@ -89,13 +92,13 @@ namespace PresentationLayer.Login
                                 string.Format("[{0}] like '%{1}%'", FilterColumn,
                                  txtFilterValue.Text.Trim());
             }
-            _RefreshListCount();
+            RefreshListCount();
 
         }
 
         private void cbFilterBy_SelectedIndexChanged(object sender, EventArgs e)
         {
-            _RefreshList();
+            RefreshList();
             txtFilterValue.Visible = (cbFilterBy.Text != "None");
             if (txtFilterValue.Visible)
             {
@@ -119,11 +122,12 @@ namespace PresentationLayer.Login
 
         private void frmListLogins_Load(object sender, EventArgs e)
         {
+            task = Task.Run(() => _dtAllUsersLogs = clsUserLogin.GetAllUsersLogins());
             cbFilterBy.SelectedIndex = cbFilterBy.FindString("None");
-            _dtAllUsersLogs = clsUserLogin.GetAllUsersLogins();
+            SetTitle("List Users Logins");
+            Task.WaitAll(task);
             dgvLogs.DataSource = _dtAllUsersLogs;
-
-            _RefreshListCount();
+            RefreshListCount();
         }
 
         private void dgvLogs_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
@@ -142,6 +146,7 @@ namespace PresentationLayer.Login
                 dgvLogs.Columns[3].Width = 170;
                 dgvLogs.Columns[3].HeaderText = "Login Date";
 
+                dgvLogs.Columns["LoginDate"].DefaultCellStyle.Format = "yyyy-MM-dd HH:mm:ss";
             }
         }
 

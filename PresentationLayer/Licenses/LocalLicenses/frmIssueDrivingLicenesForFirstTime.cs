@@ -1,30 +1,31 @@
-﻿using BusinessLayer;
-using PresentationLayer.Global;
+﻿using BusinessLayer.Core;
+using PresentationLayer.Helpers.BaseUI;
+using static PresentationLayer.Global.clsGlobalData;
 
 namespace PresentationLayer.Licenses.LocalLicenses
 {
-    public partial class frmIssueDrivingLicenesForFirstTime : Form
+    public partial class frmIssueDrivingLicenesForFirstTime : clsBaseForm
     {
-        private int? _LocalDrivingLicenseApplicationID = null;
-        private clsLocalDrivingLicenseApplication _LocalDrivingLicenseApplication =
-            new clsLocalDrivingLicenseApplication();
+        private int _LocalDrivingLicenseApplicationID = default;
+        private clsLocalDrivingLicenseApplication _LocalDrivingLicenseApplication =new clsLocalDrivingLicenseApplication();
 
         public frmIssueDrivingLicenesForFirstTime(int LocalDrivingLicenseApplicationID)
         {
             InitializeComponent();
+            SetTheme(this);
             _LocalDrivingLicenseApplicationID = LocalDrivingLicenseApplicationID;
         }
 
         private void btnClose_Click(object sender, EventArgs e)
             => this.Close();
-        void _Refresh()
+        void RefreshForm()
         {
             ctrlDrivingLicenesApplicationInfo1.ResetDefaultValues();
             txtNotes.Enabled = false;
         }
         private void frmIssueDrivingLicenesForFirstTime_Load(object sender, EventArgs e)
         {
-        
+            SetTitle("Issue Driving License");
             txtNotes.Text = string.Empty;
             _LocalDrivingLicenseApplication = clsLocalDrivingLicenseApplication.GetLocalApplicationByID(_LocalDrivingLicenseApplicationID);
             if (_LocalDrivingLicenseApplication == null)
@@ -32,17 +33,17 @@ namespace PresentationLayer.Licenses.LocalLicenses
                 MessageBox.Show($"Error:Local Driving License Application with ID " +
                     $"{_LocalDrivingLicenseApplication} is not found !", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                _Refresh();
+                RefreshForm();
                 return;
             }
-            ctrlDrivingLicenesApplicationInfo1.LoadLocalApplication(_LocalDrivingLicenseApplicationID.Value);
+            ctrlDrivingLicenesApplicationInfo1?.LoadLocalApplication(_LocalDrivingLicenseApplicationID);
             txtNotes.Focus();
             txtNotes.Enabled = true;
         }
 
         private void btnIssueLicense_Click(object sender, EventArgs e)
         {
-            int? LicenseID = _LocalDrivingLicenseApplication.IssueDrivingLicenseForFirstTime(clsGlobal.CurrentUser.UserID.Value, txtNotes.Text.Trim());
+            int? LicenseID = _LocalDrivingLicenseApplication?.IssueDrivingLicenseForFirstTime(CurrentUser.UserID.Value, txtNotes.Text.Trim());
             if (LicenseID == null)
             {
 

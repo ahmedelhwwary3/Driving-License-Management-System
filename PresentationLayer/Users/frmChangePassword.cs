@@ -1,169 +1,146 @@
-﻿using BusinessLayer;
-using PresentationLayer.Global;
-using PresentationLayer.People;
+﻿using PresentationLayer.People;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Data.SqlClient;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using BusinessLayer.Core;
+using static BusinessLayer.Core.clsUsersPermissions;
+using static PresentationLayer.Global.clsGlobalData;
+using static PresentationLayer.Global.clsUtil;
+using PresentationLayer.Helpers.BaseUI;
 namespace PresentationLayer.Users
 {
-    public partial class frmChangePassword : Form
+    public partial class frmChangePassword : clsBaseForm
     {
         private int? _UserID = null;
-        private clsUser _User = new clsUser();
-        DataTable _dtAllPermissions=new DataTable();
-        public frmChangePassword(int UserID)
+        private clsUser _User = null;
+        bool _IsAdminModifyAnotherUser = false;
+        public frmChangePassword(int userID)
         {
             InitializeComponent();
-            this._UserID = UserID;
+            SetTheme(this);
+            _UserID = userID;
         }
-        void _FillPermissionsCB()
-        {
-            _dtAllPermissions = clsUsersPermissions.GetAllPermissions();
-            foreach (DataRow permission in _dtAllPermissions.Rows)
-                cbPermissions.Items.Add(permission["Access"]);
-            cbPermissions.SelectedIndex = cbPermissions.FindString("Editor");
-            if (_User.PermissionsData.Access!= "Admin")
-                cbPermissions.Enabled = false;
-        }
+
         private void frmChangePassword_Load(object sender, EventArgs e)
         {
-            
-            _User = clsUser.GetByID(_UserID);
+            _User = clsUser.GetByID(_UserID.Value);
             if (_User == null)
             {
-                this.ctrlUserCard1.ResetUserCard();
-                MessageBox.Show($"Error:User with ID {_UserID.ToString()} is not found !",
+                ctrlUserCard1.ResetUserCard();
+                MessageBox.Show($"Error: User with ID {_UserID?.ToString() ?? "N/A"} was not found.",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            _FillPermissionsCB();
-            BeginInvoke(new Action(()=>txtPassword.Focus()));
-            ctrlUserCard1.LoadUserInfo(_User);//To Avoid Loading Again
+            bool IsCurrentUserAdmin = CurrentUser.Permissions == GetPermissions("Admin");
+            _IsAdminModifyAnotherUser = IsCurrentUserAdmin&&_User.UserID != CurrentUser.UserID;
+            if (_IsAdminModifyAnotherUser)
+            {
+                txtCurrentPassword.Visible = false;
+                lblPass.Visible = false;
+                pbPass.Visible = false;
+            }
+
+            ctrlUserCard1.LoadUserInfo(_User);
+            SetTitle("Change User Password");
+            BeginInvoke(new Action(() => txtPassword.Focus()));
         }
-       
+
         private void btnSave_Click(object sender, EventArgs e)
         {
             if (!this.ValidateChildren())
             {
-                MessageBox.Show("Error:Some Fields are not valid !" +
-                    " Please Check the red icon messages"
-                    , "Validation Error", MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                MessageBox.Show("Some fields are not valid. Please check the red icons.",
+                    "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-
 
             try
             {
-                _User.Permissions = clsUsersPermissions.GetByAccessType(cbPermissions.Text).Access;
-                _User.LoggedUserID=clsGlobal.CurrentUser.UserID;
-                _User.Password = clsUtil.ComputeHash(txtConfirmPassword.Text.Trim());
-
                 if (_User == null)
-                {
-                    MessageBox.Show("Error:Password change Failed", "Error",
-                       MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                if (!_User.Save())
-                    throw new Exception($"Save User Failed.");
+                    throw new Exception("User object is null.");
 
-                MessageBox.Show("Password was changed successfully",
-                   "succeeded", MessageBoxButtons.OK,
-                   MessageBoxIcon.Information);
+                _User.LoggedUserID = CurrentUser.UserID ?? default;
+                _User.Password = ComputeHash(txtConfirmPassword.Text.Trim());
+                if (!_User.Save())
+                    throw new Exception("Saving user failed.");
+
+                MessageBox.Show("Password was changed successfully.",
+                    "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error:Password change Failed", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                clsGlobal.LogError(ex);
+                MessageBox.Show("Error: Password change failed.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                WindownsEventLog.Log(ex);
             }
         }
 
-        private void btnClose_Click(object sender, EventArgs e)
-            => this.Close();
-
-
-
+        private void btnClose_Click(object sender, EventArgs e) => this.Close();
 
         private void txtCurrentPassword_Validating(object sender, CancelEventArgs e)
         {
-            if (string.IsNullOrEmpty(txtCurrentPassword.Text.Trim()))
-            {
-                errorProvider1.SetError(txtCurrentPassword, "This Field is required !");
-                e.Cancel = true;
+            if (_IsAdminModifyAnotherUser)
                 return;
-            }
-            else
+
+            string input = txtCurrentPassword.Text.Trim();
+            if(_User.Permissions!=GetPermissions("Admin"))
             {
-                errorProvider1.SetError(txtCurrentPassword, null);
-                e.Cancel = false;
-            }
-            if (clsUtil.ComputeHash(txtCurrentPassword.Text.Trim()) != _User.Password)
-            {
-                e.Cancel = true;
-                errorProvider1.SetError(txtCurrentPassword, "Password is not correct !");
-            }
-            else
-            {
-                e.Cancel = false;
-                errorProvider1.SetError(txtCurrentPassword, null);
+                if (string.IsNullOrEmpty(input))
+                {
+                    errorProvider1.SetError(txtCurrentPassword, "This field is required!");
+                    e.Cancel = true;
+                    return;
+                }
+
+                if (_User != null && ComputeHash(input) != _User.Password)
+                {
+                    errorProvider1.SetError(txtCurrentPassword, "Password is not correct!");
+                    e.Cancel = true;
+                    return;
+                }
+
+                errorProvider1.SetError(txtCurrentPassword, string.Empty);
             }
         }
 
         private void txtPassword_Validating(object sender, CancelEventArgs e)
         {
-            if (string.IsNullOrEmpty(txtPassword.Text.Trim()))
+            if (string.IsNullOrWhiteSpace(txtPassword.Text))
             {
-                errorProvider1.SetError(txtPassword, "This Field is required !");
+                errorProvider1.SetError(txtPassword, "This field is required!");
                 e.Cancel = true;
             }
             else
             {
+                errorProvider1.SetError(txtPassword, string.Empty);
                 e.Cancel = false;
-                errorProvider1.SetError(txtPassword, null);
             }
-
         }
 
         private void txtConfirmPassword_Validating(object sender, CancelEventArgs e)
         {
-            
-            if (string.IsNullOrEmpty(txtConfirmPassword.Text.Trim()))
+            string password = txtPassword.Text.Trim();
+            string confirmPassword = txtConfirmPassword.Text.Trim();
+
+            if (string.IsNullOrEmpty(confirmPassword))
             {
-                errorProvider1.SetError(txtConfirmPassword, "This Field is required !");
+                errorProvider1.SetError(txtConfirmPassword, "This field is required!");
                 e.Cancel = true;
                 return;
             }
-            else
-            {
-                errorProvider1.SetError(txtConfirmPassword, null);
-                e.Cancel = false;
-            }
 
-            if (txtConfirmPassword.Text.Trim() != txtPassword.Text.Trim())
+            if (confirmPassword != password)
             {
-                errorProvider1.SetError(txtConfirmPassword,
-                    "Passwords are not matched with each other !");
-                errorProvider1.SetError(txtPassword,
-                    "Passwords are not matched with each other !");
+                errorProvider1.SetError(txtConfirmPassword, "Passwords do not match!");
+                errorProvider1.SetError(txtPassword, "Passwords do not match!");
                 e.Cancel = true;
             }
             else
             {
-                errorProvider1.SetError(txtConfirmPassword, "");
+                errorProvider1.SetError(txtConfirmPassword, string.Empty);
+                errorProvider1.SetError(txtPassword, string.Empty);
                 e.Cancel = false;
             }
-
         }
 
         private void txtCurrentPassword_KeyPress(object sender, KeyPressEventArgs e)

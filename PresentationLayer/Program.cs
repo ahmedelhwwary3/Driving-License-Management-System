@@ -1,5 +1,6 @@
 using PresentationLayer.Login;
-
+using PresentationLayer.Users;
+using static PresentationLayer.Global.clsGlobalData;
 namespace PresentationLayer
 {
     internal static class Program
@@ -10,8 +11,9 @@ namespace PresentationLayer
         [STAThread]
         static void Main()
         {
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
+         
+             
+
             ApplicationConfiguration.Initialize();
             Application.Run(new frmLogin());
         }

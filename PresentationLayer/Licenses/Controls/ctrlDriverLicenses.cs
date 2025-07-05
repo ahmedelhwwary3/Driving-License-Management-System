@@ -1,5 +1,7 @@
-﻿using BusinessLayer;
+﻿using BusinessLayer.Core;
 using PresentationLayer.Global;
+using PresentationLayer.Helpers;
+using PresentationLayer.Helpers.BaseUI;
 using PresentationLayer.Licenses.InternationalLicenses;
 using PresentationLayer.Licenses.LocalLicenses;
 using System;
@@ -14,7 +16,7 @@ using System.Windows.Forms;
 
 namespace PresentationLayer.Licenses.Controls
 {
-    public partial class ctrlDriverLicenses : UserControl
+    public partial class ctrlDriverLicenses : clsBaseCtrl
     {
         private clsDriver _Driver = new clsDriver();
         private DataTable _dtDriverLocalLicensesHistory=new DataTable();
@@ -27,30 +29,31 @@ namespace PresentationLayer.Licenses.Controls
 
         public ctrlDriverLicenses()
         {
+            SetTheme(this);
             InitializeComponent();
         }
        
         
 
-        void _RefreshLocalLicensesTotalCount()
+        void RefreshLocalLicensesTotalCount()
             => lblLocalLicensesRecords.Text = dgvLocalLicensesHistory.Rows.Count.ToString();
-        void _RefreshInternationalLicensesTotalCount()
+        void RefreshInternationalLicensesTotalCount()
             => lblInternationalLicensesRecords.Text = dgvInternationalLicensesHistory.Rows.Count.ToString();
 
-        void _LoadLocalLicense()
+        void LoadLocalLicense()
         {
 
             _dtDriverLocalLicensesHistory = clsDriver.GetAllLocalLicenses((int)_Driver.DriverID);
             dgvLocalLicensesHistory.DataSource = _dtDriverLocalLicensesHistory;
-            _RefreshLocalLicensesTotalCount();    
+            RefreshLocalLicensesTotalCount();    
         }
 
-        void _LoadInternationalLicense()
+        void LoadInternationalLicense()
         {
 
             _dtDriverInternationalLicensesHistory = clsDriver.GetAllInternationalLicenses((int)_Driver.DriverID);
             dgvInternationalLicensesHistory.DataSource = _dtDriverInternationalLicensesHistory;
-            _RefreshInternationalLicensesTotalCount();          
+            RefreshInternationalLicensesTotalCount();          
         }
 
         public void LoadDriverData(int DriverID)
@@ -62,8 +65,7 @@ namespace PresentationLayer.Licenses.Controls
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            _LoadLocalLicense();
-            _LoadInternationalLicense();
+            Parallel.Invoke(LoadLocalLicense,LoadInternationalLicense);
 
         }
 
@@ -77,8 +79,8 @@ namespace PresentationLayer.Licenses.Controls
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            _LoadLocalLicense();
-            _LoadInternationalLicense();
+            LoadLocalLicense();
+            LoadInternationalLicense();
         }
 
         
@@ -87,8 +89,8 @@ namespace PresentationLayer.Licenses.Controls
         {
             _dtDriverLocalLicensesHistory.Clear();
             _dtDriverInternationalLicensesHistory.Clear();
-            _RefreshInternationalLicensesTotalCount();
-            _RefreshLocalLicensesTotalCount();
+            RefreshInternationalLicensesTotalCount();
+            RefreshLocalLicensesTotalCount();
         }
 
         private void dgvLocalLicensesHistory_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)

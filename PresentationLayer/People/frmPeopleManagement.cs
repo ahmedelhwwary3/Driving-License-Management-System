@@ -1,4 +1,4 @@
-﻿using BusinessLayer;
+﻿using BusinessLayer.Core;
 using PresentationLayer.Global;
 using PresentationLayer.Users;
 using System;
@@ -10,43 +10,91 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static PresentationLayer.Global.clsGlobalData;
+using static BusinessLayer.Core.clsUsersPermissions;
+using PresentationLayer.Helpers.BaseUI;
 
 namespace PresentationLayer.People
 {
-    public partial class frmPeopleManagement : Form
+    public partial class frmPeopleManagement : clsBaseForm
     {
+        int _PageNumber = 1;
+        int _RowsPerPage = 10;
+        int _TotalCount = 0;
+        enum enRanking
+        { RowNumber = 1, Rank = 2, DenseRank = 3 }
+        enRanking _Rank = enRanking.RowNumber;
 
+        DataTable _dtSubPeopleList = new DataTable();
+        DataTable _dtAllPeopleList = new DataTable();
+        void LoadSubPeopleList(int PageNumber, int RowsPerPage, out int TotalCount, int Ranking)
+        {
+            _dtSubPeopleList = clsPerson.GetSubPeopleList(PageNumber, RowsPerPage, out TotalCount, Ranking);
+        }
         public frmPeopleManagement()
         {
             InitializeComponent();
-
+            SetTheme(this);
         }
-        private static DataTable _dtAllPeopleFullData = new DataTable();
-        void _RefreshList()
+        void RefreshPageNumber()
+            => lblPageNumber.Text = _PageNumber.ToString();
+        void RefreshSubList()
+
         {
-            _dtAllPeopleFullData = clsPerson.GetAllPeopleList();
-            dgvPeopleList.DataSource = _dtAllPeopleFullData;
-            _RefreshListCount();
-
+            LoadSubPeopleList(_PageNumber, _RowsPerPage, out _TotalCount, (int)_Rank);
+            dgvPeopleList.DataSource = _dtSubPeopleList;
+            RefreshPageNumber();
+            _TotalCount = _dtSubPeopleList.Rows.Count;
         }
-        void _SetTitle()
+        void SetTitle()
             => this.Text = "People Management";
 
         private void frmPeopleManagement_Load(object sender, EventArgs e)
         {
-            _SetTitle();
+            LoadSubPeopleList(_PageNumber, _RowsPerPage, out _TotalCount, (int)_Rank);
+            RefreshPageNumber();
+            SetTitle();
+            dgvPeopleList.DataSourceChanged += (sender, e) =>
+            {
+                if (dgvPeopleList.DataSource == _dtAllPeopleList)
+                {
+                    btnNext.Enabled = false;
+                    btnPrev.Enabled = false;
+                    rbDenseRank.Enabled = false;
+                    rbRank.Enabled = false;
+                    rbRowNumber.Enabled = false;
+                    lblPageNumber.Text = "N/A";
+                    _TotalCount = _dtAllPeopleList.Rows.Count;
+                    RefreshListCount();
+                }
+                else
+                {
+                    _TotalCount = _dtSubPeopleList.Rows.Count;
+                    RefreshListCount();
+                    rbDenseRank.Enabled = true;
+                    rbRank.Enabled = true;
+                    rbRowNumber.Enabled = true;
+                    btnNext.Enabled = true;
+                    btnPrev.Enabled = true;
+                    lblPageNumber.Text = _PageNumber.ToString();
+                }
+            };
+            btnPrev.FlatStyle = FlatStyle.Flat;
+            btnNext.FlatStyle = FlatStyle.Flat;
+            btnPrev.FlatAppearance.BorderSize = 0;
+            btnNext.FlatAppearance.BorderSize = 0;
+
             //we added Bsource to trace the List using (events) 
             //because dgv doesn't have ListChangeEvent
             //We do this to make CB is not visible when dgv.Rows.Count==0
             cbFilterBy.SelectedIndex = cbFilterBy.FindString("None");
             cbGendor.Visible = false;
-            _dtAllPeopleFullData = clsPerson.GetAllPeopleList();
-            _dtAllPeopleFullData = _dtAllPeopleFullData.DefaultView.ToTable(false, "PersonID", "NationalNo", "FirstName", "SecondName",
+            _dtSubPeopleList = _dtSubPeopleList.DefaultView.ToTable(false, "RowNumber", "PersonID", "NationalNo", "FirstName", "SecondName",
             "ThirdName", "LastName", "GendorCaption", "DateOfBirth", "Nationality",
             "Phone", "Email");//Not All columns
-            dgvPeopleList.DataSource = _dtAllPeopleFullData;
+            dgvPeopleList.DataSource = _dtSubPeopleList;
             //_bsPeppleList.ResetBindings(false);//Fire Event
-            _RefreshListCount();
+            RefreshListCount();
             #region Formatting
             //Check Rows Because if dbSource is null , no Cols will be created
             //but if not null the cols by default (even if no Rows) will be created depending on the object info
@@ -63,7 +111,7 @@ namespace PresentationLayer.People
         => this.Close();
 
 
-        string _GetFilterColumnDBName()
+        string GetFilterColumnDBName()
         {
             switch (cbFilterBy.Text)
             {
@@ -130,64 +178,77 @@ namespace PresentationLayer.People
                     }
             }
         }
+
         private void txtFilterValue_TextChanged(object sender, EventArgs e)
         {
-            string FilterColumn = _GetFilterColumnDBName();
-
-
-            if (txtFilterValue.Text.Trim() == "")
+            string FilterColumn = GetFilterColumnDBName();
+            string FilterValue = txtFilterValue.Text.Trim();
+            if (FilterColumn == "None")
             {
-                //Disable Filteration, not hiding txtFilter
-                _dtAllPeopleFullData.DefaultView.RowFilter = "";
-                return;
-            }
-            if (txtFilterValue.Text.Trim() == string.Empty)
-            {
-                _dtAllPeopleFullData.DefaultView.RowFilter = "";
-                _RefreshListCount();
-                return;
-            }
-            else if (FilterColumn == "None")
-            {
-                _dtAllPeopleFullData.DefaultView.RowFilter = "";
-                //Selcted Index Changed Event will fire and Handle txtFilter Visibie
+                _PageNumber = 1;
+                _dtSubPeopleList.DefaultView.RowFilter = "";
+                dgvPeopleList.DataSource = _dtSubPeopleList;//will refresh subList using event
+                _TotalCount = _dtSubPeopleList.Rows.Count;
                 cbFilterBy.SelectedIndex = cbFilterBy.FindString("None");
+                RefreshListCount();
                 return;
 
             }
+            if (FilterValue == string.Empty)
+            {
+                dgvPeopleList.DataSource = _dtSubPeopleList;//will refresh subList using event
+                _TotalCount = _dtSubPeopleList.Rows.Count;
+                _dtSubPeopleList.DefaultView.RowFilter = "";
+                RefreshListCount();
+                return;
+            }
 
+            if (_dtAllPeopleList.Rows.Count == 0)
+                _dtAllPeopleList = clsPerson.GetAllPeopleList();
 
+            dgvPeopleList.DataSource = _dtAllPeopleList;
+            _TotalCount = _dtAllPeopleList.Rows.Count;
             if (cbFilterBy.Text == "Person ID")
             {
-                _dtAllPeopleFullData.DefaultView.RowFilter =
-                        string.Format("[{0}] = {1}", FilterColumn,
-                         txtFilterValue.Text.Trim());
+                _dtAllPeopleList.DefaultView.RowFilter =
+                        string.Format("[{0}] = {1}", FilterColumn, FilterValue);
             }
             else
             {
-                _dtAllPeopleFullData.DefaultView.RowFilter =
-                  string.Format("[{0}] LIKE '%{1}%'", FilterColumn,
-                  txtFilterValue.Text.Trim());
+                _dtAllPeopleList.DefaultView.RowFilter =
+                  string.Format("[{0}] LIKE '%{1}%'", FilterColumn, FilterValue);
             }
-            _RefreshListCount();
-
+            RefreshListCount();
         }
-        private void _RefreshListCount()
-            => lblTotalRecords.Text = dgvPeopleList.Rows.Count.ToString();
+        private void RefreshListCount()
+            => lblTotalRecords.Text = _TotalCount.ToString();
         private void CheckCBTXTVisible()
         {
             txtFilterValue.Visible =
-              (cbFilterBy.Text != "None" && cbFilterBy.Text != "Gendor Caption" && this.dgvPeopleList.Rows.Count != 0);
+              (cbFilterBy.Text != "None" && cbFilterBy.Text != "Gendor Caption");
             cbGendor.Visible = (cbFilterBy.Text == "Gendor Caption");
         }
-        void _RefreshDGV()
+        void RefreshDGV()
         {
-            _dtAllPeopleFullData.DefaultView.RowFilter = "";
-            _RefreshListCount();
+            _dtSubPeopleList.DefaultView.RowFilter = "";
+            RefreshListCount();
         }
         private void cbFilterBy_SelectedIndexChanged(object sender, EventArgs e)
         {
-            _RefreshDGV();
+            if (cbFilterBy.Text != "None")
+            {
+                if (_dtAllPeopleList.Rows.Count == 0)
+                    _dtAllPeopleList = clsPerson.GetAllPeopleList();
+                dgvPeopleList.DataSource = _dtAllPeopleList;
+                _TotalCount = _dtAllPeopleList.Rows.Count;
+            }
+            else
+            {
+                _PageNumber = 1;
+                dgvPeopleList.DataSource = _dtSubPeopleList;
+                _TotalCount = _dtSubPeopleList.Rows.Count;
+            }
+            RefreshDGV();
             CheckCBTXTVisible();
             if (txtFilterValue.Visible)
             {
@@ -195,24 +256,26 @@ namespace PresentationLayer.People
                 txtFilterValue.Focus();
                 return;
             }
-            if(cbGendor.Visible)
+            if (cbGendor.Visible)
                 cbGendor.SelectedIndex = cbGendor.FindString("All");
         }
         private void cbGender_SelectedIndexChanged(object sender, EventArgs e)
         {
             string FilterColumn = "GendorCaption";
             string FilterValue = cbGendor.Text == "Male" ? "Male" : "Female";
+            dgvPeopleList.DataSource = _dtAllPeopleList;
             if (cbGendor.Text == "All")
             {
-                _dtAllPeopleFullData.DefaultView.RowFilter = "";
-                _RefreshListCount();
+                _dtAllPeopleList.DefaultView.RowFilter = "";
+                RefreshListCount();
                 return;
 
             }
-            _dtAllPeopleFullData.DefaultView.RowFilter =
-                        string.Format("[{0}] = '{1}'", FilterColumn,
-                        FilterValue);
-            _RefreshListCount();
+            if (_dtAllPeopleList.Rows.Count == 0)
+                _dtAllPeopleList = clsPerson.GetAllPeopleList();
+            dgvPeopleList.DataSource = _dtAllPeopleList;
+            _dtAllPeopleList.DefaultView.RowFilter = string.Format("[{0}] = '{1}'", FilterColumn, FilterValue);
+            RefreshListCount();
 
         }
 
@@ -230,34 +293,34 @@ namespace PresentationLayer.People
 
         private void showPersonToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ShowPersonCard))
-                return;
+
             if (dgvPeopleList.CurrentRow == null)
             {
                 MessageBox.Show("Error:An Unexpected Error happened while loading User!", "Error",
                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Loading Person Row from DGV."));
+                WindownsEventLog?.Log(new Exception($"Error when Loading Person Row from DGV."));
                 return;
             }
 
-            if (!(dgvPeopleList.CurrentRow.Cells[0].Value is int PersonID))
+            if (!(dgvPeopleList.CurrentRow.Cells[1].Value is int PersonID))
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
                   MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Parsing PersonID from DGV Row."));
+                WindownsEventLog?.Log(new Exception($"Error when Parsing PersonID from DGV Row."));
                 return;
             }
 
 
 
             frmShowPersonCard frm = new frmShowPersonCard(PersonID);
-            frm.ShowDialog();
-            _RefreshList();
+            frm.ShowDialogIfAuthorized(GetPermissions("View"), frm);
+            RefreshSubList();
+            RefreshListCount();
         }
 
         private void addNewPersonToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.AddEditPerson))
+            if (!CheckUserAccess(GetPermissions("AddEdit")))
                 return;
             btnAddNewPerson.PerformClick();
         }
@@ -265,48 +328,48 @@ namespace PresentationLayer.People
 
         private void editToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.AddEditPerson))
-                return;
+
             if (dgvPeopleList.CurrentRow == null)
             {
                 MessageBox.Show("Error:An Unexpected Error happened while loading Person !", "Error",
                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Loading Person Row from DGV."));
+                WindownsEventLog?.Log(new Exception($"Error when Loading Person Row from DGV."));
                 return;
             }
-            if (!(dgvPeopleList.CurrentRow.Cells[0].Value is int PersonID))
+            if (!(dgvPeopleList.CurrentRow.Cells[1].Value is int PersonID))
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
                   MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Parsing PersonID from DGV Row."));
+                WindownsEventLog?.Log(new Exception($"Error when Parsing PersonID from DGV Row."));
                 return;
 
             }
 
 
             frmAddEditPerson frm = new frmAddEditPerson(PersonID);
-            frm.ShowDialog();
-            _RefreshList();
+            frm.ShowDialogIfAuthorized(GetPermissions("AddEdit"), frm);
+            RefreshSubList();
+            RefreshListCount();
 
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.AddEditPerson))
+            if (!CheckUserAccess(GetPermissions("Delete")))
                 return;
             if (dgvPeopleList.CurrentRow == null)
             {
                 MessageBox.Show("Error:An Unexpected Error happened while loading Person !", "Error",
                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Loading Person Row from DGV."));
+                WindownsEventLog?.Log(new Exception($"Error when Loading Person Row from DGV."));
                 return;
             }
 
-            if (!(dgvPeopleList.CurrentRow.Cells[0].Value is int PersonID))
+            if (!(dgvPeopleList.CurrentRow.Cells[1].Value is int PersonID))
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
                            MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Parsing PersonID from DGV Row."));
+                WindownsEventLog?.Log(new Exception($"Error when Parsing PersonID from DGV Row."));
                 return;
             }
 
@@ -315,10 +378,11 @@ namespace PresentationLayer.People
                 "confirm", MessageBoxButtons.OKCancel, MessageBoxIcon.Question,
                 MessageBoxDefaultButton.Button2) != DialogResult.OK)
                 return;
-            int LoggedUserID = clsGlobal.CurrentUser.UserID.Value;
+            int LoggedUserID = clsGlobalData.CurrentUser.UserID.Value;
             if (clsPerson.DeletePerson(PersonID, LoggedUserID))
             {
-                _RefreshList();
+                RefreshSubList();
+                RefreshListCount();
                 MessageBox.Show("Person was deleted successfully",
                     "Delete succeeded", MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
@@ -335,7 +399,7 @@ namespace PresentationLayer.People
 
         private void sendEmailToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.AddEditPerson))
+            if (!CheckUserAccess(GetPermissions("AddEdit")))
                 return;
             MessageBox.Show("This Method is not implemented", "Stup",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -344,7 +408,7 @@ namespace PresentationLayer.People
 
         private void phoneCallToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.AddEditPerson))
+            if (!CheckUserAccess(GetPermissions("AddEdit")))
                 return;
             MessageBox.Show("This Method is not implemented", "Stup",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -359,7 +423,7 @@ namespace PresentationLayer.People
 
         private void dgvPeopleList_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
-            if (dgvPeopleList.Columns.Count == 11)
+            if (dgvPeopleList.DataSource == _dtSubPeopleList && dgvPeopleList.Rows.Count == 11)
             {
                 dgvPeopleList.Columns[0].Width = 110;
                 dgvPeopleList.Columns[0].HeaderText = "PersonID";
@@ -393,6 +457,45 @@ namespace PresentationLayer.People
 
                 dgvPeopleList.Columns[10].Width = 200;
                 dgvPeopleList.Columns[10].HeaderText = "Email";
+                return;
+            }
+            if (dgvPeopleList.DataSource == _dtSubPeopleList && dgvPeopleList.Columns.Count == 12)
+            {
+                dgvPeopleList.Columns[0].Width = 110;
+                dgvPeopleList.Columns[0].HeaderText = "Row Number";
+
+                dgvPeopleList.Columns[1].Width = 110;
+                dgvPeopleList.Columns[1].HeaderText = "PersonID";
+
+                dgvPeopleList.Columns[2].Width = 110;
+                dgvPeopleList.Columns[2].HeaderText = "National No";
+
+                dgvPeopleList.Columns[3].Width = 110;
+                dgvPeopleList.Columns[3].HeaderText = "First Name";
+
+                dgvPeopleList.Columns[4].Width = 110;
+                dgvPeopleList.Columns[4].HeaderText = "Second Name";
+
+                dgvPeopleList.Columns[5].Width = 100;
+                dgvPeopleList.Columns[5].HeaderText = "Third Name";
+
+                dgvPeopleList.Columns[6].Width = 100;
+                dgvPeopleList.Columns[6].HeaderText = "Last Name";
+
+                dgvPeopleList.Columns[7].Width = 100;
+                dgvPeopleList.Columns[7].HeaderText = "Gendor";
+
+                dgvPeopleList.Columns[8].Width = 120;
+                dgvPeopleList.Columns[8].HeaderText = "Date Of Birth";
+
+                dgvPeopleList.Columns[9].Width = 140;
+                dgvPeopleList.Columns[9].HeaderText = "Country Name";
+
+                dgvPeopleList.Columns[10].Width = 150;
+                dgvPeopleList.Columns[10].HeaderText = "Phone";
+
+                dgvPeopleList.Columns[11].Width = 200;
+                dgvPeopleList.Columns[11].HeaderText = "Email";
             }
 
         }
@@ -410,13 +513,52 @@ namespace PresentationLayer.People
 
         private void btnAddNew_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.AddEditPerson))
-                return;
+
             frmAddEditPerson frm = new frmAddEditPerson();
-            frm.ShowDialog();
-            _RefreshList();
+            frm.ShowDialogIfAuthorized(GetPermissions("AddEdit"), frm);
+            RefreshSubList();
+            RefreshListCount();
         }
 
-        
+
+
+        private void btnNext_Click(object sender, EventArgs e)
+        {
+            if (_dtSubPeopleList.Rows.Count < _RowsPerPage)
+                return;
+            ++_PageNumber;
+            RefreshSubList();
+            RefreshListCount();
+
+        }
+
+        private void btnPrev_Click(object sender, EventArgs e)
+        {
+            if (_PageNumber == 1)
+                return;
+
+            _PageNumber--;
+            RefreshSubList();
+            RefreshListCount();
+
+        }
+
+        private void rbRowCount_CheckedChanged(object sender, EventArgs e)
+        {
+            _Rank = enRanking.RowNumber;
+            RefreshSubList();
+        }
+
+        private void rbRank_CheckedChanged(object sender, EventArgs e)
+        {
+            _Rank = enRanking.Rank;
+            RefreshSubList();
+        }
+
+        private void rbDenseRank_CheckedChanged(object sender, EventArgs e)
+        {
+            _Rank = enRanking.DenseRank;
+            RefreshSubList();
+        }
     }
 }

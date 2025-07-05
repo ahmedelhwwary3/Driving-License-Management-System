@@ -1,5 +1,6 @@
-﻿using BusinessLayer;
+﻿using BusinessLayer.Core;
 using PresentationLayer.Global;
+using PresentationLayer.Helpers.BaseUI;
 using PresentationLayer.Licenses;
 using PresentationLayer.Licenses.Controls;
 using PresentationLayer.People;
@@ -12,33 +13,49 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using static BusinessLayer.Core.clsUsersPermissions;
+using static PresentationLayer.Global.clsGlobalData;
 namespace PresentationLayer.Drivers
 {
-    public partial class frmListDrivers : Form
+    public partial class frmListDrivers : clsBaseForm
     {
-        private DataTable _dtAllDriversList = new DataTable();
+
+        Task task;
+        DataTable _dtAllDriversList = new DataTable();
+        void LoadAllDriversList()
+        {
+            lock (GlobalLockObject)
+            {
+                _dtAllDriversList = clsDriver.GetAllDriversList();
+            }
+        }
 
         public frmListDrivers()
-            => InitializeComponent();
+        {
+            InitializeComponent();
+            SetTheme(this);
+        }
+           
 
 
         private void btnClose_Click(object sender, EventArgs e)
             => this.Close();
 
-        void _RefreshTotalCount()
+        void RefreshTotalCount()
             => lblRecordsCount.Text = dgvDrivers.Rows.Count.ToString();
-        void _RefreshForm()
+        void RefreshForm()
             => frmListDrivers_Load(null, null);
         private void frmListDrivers_Load(object sender, EventArgs e)
         {
+            task= Task.Run(LoadAllDriversList);
+            SetTitle("List Drivers");
             cbFilterBy.SelectedIndex = 0;//DriverID
-            _HandleFilterValueTXTVisibility();
-            _dtAllDriversList = clsDriver.GetAllDriversList();
+            HandleFilterValueTXTVisibility();
+            Task.WaitAll(task);
             dgvDrivers.DataSource = _dtAllDriversList;
-            _RefreshTotalCount();
+            RefreshTotalCount();
         }
-        void _HandleFilterValueTXTVisibility()
+        void HandleFilterValueTXTVisibility()
             => txtFilterValue.Visible = (cbFilterBy.Text != "None");
 
         private void issueInternationalLicenseToolStripMenuItem_Click(object sender, EventArgs e)
@@ -47,8 +64,7 @@ namespace PresentationLayer.Drivers
 
         private void showDetailsToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ShowPersonCard))
-                return;
+      
             if (dgvDrivers.CurrentRow == null)
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
@@ -60,18 +76,17 @@ namespace PresentationLayer.Drivers
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Loading Parsing PersonID from DGV Row."));
+                   clsGlobalData.WindownsEventLog.Log(new Exception($"Error when Loading Parsing PersonID from DGV Row."));
                 return;
             }
             frmShowPersonCard frm = new frmShowPersonCard(PersonID);
-            frm.ShowDialog();
-            _RefreshForm();
+            frm.ShowDialogIfAuthorized(GetPermissions("View"), frm);
+            RefreshForm();
         }
 
         private void showPersonLicenseHistoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ShowLicenseHistory))
-                return;
+            
             if (dgvDrivers.CurrentRow == null)
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
@@ -83,14 +98,14 @@ namespace PresentationLayer.Drivers
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Loading Parsing PersonID from DGV Row."));
+                   clsGlobalData.WindownsEventLog.Log(new Exception($"Error when Loading Parsing PersonID from DGV Row."));
                 return;
             }
             frmShowLicenseHistory frm = new frmShowLicenseHistory(PersonID);
-            frm.ShowDialog();
-            _RefreshForm();
+            frm.ShowDialogIfAuthorized(GetPermissions("View"), frm);
+            RefreshForm();
         }
-        string _GetFilterColumnDBName()
+        string GetFilterColumnDBName()
         {
             switch (cbFilterBy.Text)
             {
@@ -102,17 +117,21 @@ namespace PresentationLayer.Drivers
                     return "NationalNo";
                 case "Full Name":
                     return "FullName";
+                case "Active Licenses":
+                    return "ActiveLicenses";
+                case "Penalty Points":
+                    return "PenaltyPoints";
                 default:
                     return "None";
             }
         }
         private void txtFilterValue_TextChanged(object sender, EventArgs e)
         {
-            string FilterColumn = _GetFilterColumnDBName();
+            string FilterColumn = GetFilterColumnDBName();
             if (txtFilterValue.Text.Trim() == "")
             {
                 _dtAllDriversList.DefaultView.RowFilter = "";
-                _RefreshTotalCount();
+                RefreshTotalCount();
                 return;
             }
             if (txtFilterValue.Text.Trim() == "None")
@@ -120,7 +139,7 @@ namespace PresentationLayer.Drivers
                 //Fire cb Event
                 cbFilterBy.SelectedIndex = cbFilterBy.FindString("None");
                 _dtAllDriversList.DefaultView.RowFilter = "";
-                _RefreshTotalCount();
+                RefreshTotalCount();
                 return;
             }
 
@@ -129,12 +148,12 @@ namespace PresentationLayer.Drivers
                 _dtAllDriversList.DefaultView.RowFilter = string.Format("[{0}] = {1}", FilterColumn, txtFilterValue.Text.Trim());
             else
                 _dtAllDriversList.DefaultView.RowFilter = string.Format("[{0}] LIKE '%{1}%'", FilterColumn, txtFilterValue.Text.Trim());
-            _RefreshTotalCount();
+            RefreshTotalCount();
         }
 
         private void cbFilterBy_SelectedIndexChanged(object sender, EventArgs e)
         {
-            _HandleFilterValueTXTVisibility();
+            HandleFilterValueTXTVisibility();
             txtFilterValue.Text = "";
             txtFilterValue.Focus();
         }
@@ -146,14 +165,14 @@ namespace PresentationLayer.Drivers
                 e.Handled = false;
                 return;
             }
-            if (cbFilterBy.Text == "Driver ID" || cbFilterBy.Text == "Person ID")
+            if (cbFilterBy.Text != "Full Name" && (cbFilterBy.Text != "National No"))
                 e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
         }
 
 
         private void dgvDrivers_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
-            if (dgvDrivers.Columns.Count == 6)
+            if (dgvDrivers.Columns.Count == 7)
             {
 
                 dgvDrivers.Columns[0].HeaderText = "Driver ID";
@@ -168,11 +187,14 @@ namespace PresentationLayer.Drivers
                 dgvDrivers.Columns[3].HeaderText = "Full Name";
                 dgvDrivers.Columns[3].Width = 320;
 
-                dgvDrivers.Columns[4].HeaderText = "Date";
+                dgvDrivers.Columns[4].HeaderText = "Create Date";
                 dgvDrivers.Columns[4].Width = 170;
 
                 dgvDrivers.Columns[5].HeaderText = "Active Licenses";
                 dgvDrivers.Columns[5].Width = 150;
+
+                dgvDrivers.Columns[6].HeaderText = "Penalty Points";
+                dgvDrivers.Columns[6].Width = 100;
             }
         }
 

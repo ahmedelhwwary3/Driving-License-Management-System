@@ -203,6 +203,7 @@
             label1.Name = "label1";
             label1.Size = new Size(307, 39);
             label1.TabIndex = 25;
+            label1.Tag = "MainTitle";
             label1.Text = "Update Test Type";
             // 
             // errorProvider1

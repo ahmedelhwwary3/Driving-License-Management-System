@@ -1,4 +1,4 @@
-﻿using PresentationLayer.Global;
+﻿using PresentationLayer.Helpers.BaseUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,12 +12,13 @@ using System.Windows.Forms;
 
 namespace PresentationLayer.Licenses.InternationalLicenses
 {
-    public partial class frmShowInternationaLicenseInfo : Form
+    public partial class frmShowInternationaLicenseInfo : clsBaseForm
     {
         private int _InternationalLicenseID;
         public frmShowInternationaLicenseInfo(int InternationalLicenseID)
         {
             InitializeComponent();
+            SetTheme(this);
             _InternationalLicenseID = InternationalLicenseID;
 
         }
@@ -27,14 +28,13 @@ namespace PresentationLayer.Licenses.InternationalLicenses
 
         private void frmShowInternationaLicenseInfo_Load(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ShowInternationalLicenseInfo))
-                return;
-            ctrlInternationalLicenseInfo2.LoadInfo(_InternationalLicenseID);
+          
+            ctrlInternationalLicenseInfo2?.LoadInfo(_InternationalLicenseID);
         }
             
 
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnClose_Click(object sender, EventArgs e)
             => this.Close();
 
     }

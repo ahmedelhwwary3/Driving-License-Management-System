@@ -53,7 +53,6 @@
             btnClose.Size = new Size(136, 59);
             btnClose.TabIndex = 31;
             btnClose.UseVisualStyleBackColor = true;
-       
             // 
             // txtFilterValue
             // 
@@ -78,7 +77,6 @@
             dgvLogs.ReadOnly = true;
             dgvLogs.Size = new Size(1266, 396);
             dgvLogs.TabIndex = 29;
-       
             dgvLogs.DataBindingComplete += dgvLogs_DataBindingComplete;
             // 
             // lblTotalRecords
@@ -92,7 +90,6 @@
             lblTotalRecords.Size = new Size(51, 25);
             lblTotalRecords.TabIndex = 28;
             lblTotalRecords.Text = "???";
-          
             // 
             // label3
             // 
@@ -105,7 +102,6 @@
             label3.Size = new Size(98, 25);
             label3.TabIndex = 27;
             label3.Text = "Records:";
-      
             // 
             // label2
             // 
@@ -118,7 +114,6 @@
             label2.Size = new Size(97, 25);
             label2.TabIndex = 25;
             label2.Text = "Filter By:";
-        
             // 
             // label1
             // 
@@ -132,8 +127,8 @@
             label1.Name = "label1";
             label1.Size = new Size(163, 33);
             label1.TabIndex = 24;
+            label1.Tag = "MainTitle";
             label1.Text = "Users Logs";
-           
             // 
             // pictureBox1
             // 
@@ -146,7 +141,6 @@
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 23;
             pictureBox1.TabStop = false;
-           
             // 
             // cbFilterBy
             // 
@@ -165,6 +159,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
+            CancelButton = btnClose;
             ClientSize = new Size(1294, 819);
             Controls.Add(btnClose);
             Controls.Add(txtFilterValue);

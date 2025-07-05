@@ -68,6 +68,7 @@
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(324, 39);
             lblTitle.TabIndex = 16;
+            lblTitle.Tag = "MainTitle";
             lblTitle.Text = "Test Appointments";
             // 
             // dgvTestAppointments
@@ -87,9 +88,9 @@
             // 
             // contextMenuStrip1
             // 
-            contextMenuStrip1.Items.AddRange(new ToolStripItem[] { editToolStripMenuItem, takeTestToolStripMenuItem });
+            contextMenuStrip1.Items.AddRange(new ToolStripItem[] { takeTestToolStripMenuItem, editToolStripMenuItem });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new Size(137, 80);
+            contextMenuStrip1.Size = new Size(197, 102);
             contextMenuStrip1.Opening += contextMenuStrip1_Opening;
             // 
             // editToolStripMenuItem
@@ -97,7 +98,7 @@
             editToolStripMenuItem.Image = Properties.Resources.edit_32;
             editToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
             editToolStripMenuItem.Name = "editToolStripMenuItem";
-            editToolStripMenuItem.Size = new Size(136, 38);
+            editToolStripMenuItem.Size = new Size(196, 38);
             editToolStripMenuItem.Text = "Edit";
             editToolStripMenuItem.Click += editToolStripMenuItem_Click;
             // 
@@ -106,7 +107,7 @@
             takeTestToolStripMenuItem.Image = Properties.Resources.Test_32;
             takeTestToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
             takeTestToolStripMenuItem.Name = "takeTestToolStripMenuItem";
-            takeTestToolStripMenuItem.Size = new Size(136, 38);
+            takeTestToolStripMenuItem.Size = new Size(196, 38);
             takeTestToolStripMenuItem.Text = "Take Test";
             takeTestToolStripMenuItem.Click += takeTestToolStripMenuItem_Click;
             // 

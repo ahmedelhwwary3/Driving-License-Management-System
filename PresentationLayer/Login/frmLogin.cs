@@ -1,4 +1,4 @@
-﻿using BusinessLayer;
+﻿//#define TestEventLog
 using PresentationLayer.Global;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,16 @@ using System.Windows.Forms;
 using System.Xml.Linq;
 using System.Security.Cryptography;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
-
+using BusinessLayer.Core;
+using System.Diagnostics.Eventing.Reader;
+using static PresentationLayer.Global.clsGlobalData;
+using System.Diagnostics;
+using Microsoft.Win32;
+using static PresentationLayer.Helpers.Logger.clsEventLogger;
+using static PresentationLayer.Global.clsUtil;
+using static PresentationLayer.Helpers.Logger.clsDataBaseLog;
+using static PresentationLayer.Helpers.Logger.clsRegistry;
+using PresentationLayer.Helpers.Logger;
 namespace PresentationLayer.Login
 {
     public partial class frmLogin : Form
@@ -24,14 +33,23 @@ namespace PresentationLayer.Login
          => this.Close();
         private void frmLogin_Load(object sender, EventArgs e)
         {
-            string UserName = "", Password = "";
-            clsGlobal.GetStoredCredentialsFromRegistry(ref UserName, ref Password);
-            _LoadCredintialsInCTRLs(UserName, Password);
+#if DEBUG
+            if (MessageBox.Show("Do you want to view code documentaion ?", "Confirm",
+                MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
+                == DialogResult.OK)
+            {
+                ShowDocumentationScreen();
+            }
+            TestEventLog();//Conditional Attribute
+#endif
+            var Credentials = (UserName:"",Password:"");
+            GetStoredCredentialsFromRegistry(ref Credentials.UserName, ref Credentials.Password);
+            LoadCredintialsInCTRLs(Credentials);
         }
-        void _LoadCredintialsInCTRLs(string UserName, string Password)
+        void LoadCredintialsInCTRLs((string UserName, string Password)Credentials)
         {
-            txtUserName.Text = UserName;
-            txtPassword.Text = Password;
+            txtUserName.Text = Credentials.UserName;
+            txtPassword.Text = Credentials.Password;
             btnLogin.Focus();
             chkRemember.Checked = true;
         }
@@ -53,11 +71,13 @@ namespace PresentationLayer.Login
                 return;
             }
             if (chkRemember.Checked)
-                clsGlobal.RememberCredentialsToRegistry(txtUserName.Text, txtPassword.Text);
+                RememberCredentialsToRegistry((txtUserName.Text.Trim(), txtPassword.Text.Trim()));
             else
-                clsGlobal.RememberCredentialsToRegistry();
-            clsGlobal.RegisterLoginData(User.UserID, DateTime.Now);
-            clsGlobal.CurrentUser = User;
+                RememberCredentialsToRegistry((string.Empty,string.Empty));
+            RegisterLoginData(User.UserID, DateTime.Now);
+            CurrentUser = User;
+            if(GetUserThemeFromRegistry(out enThemeMode mode))
+                CurrentTheme.LoadTheme(mode);//else => default theme (ctor)
             this.Hide();//start up Form does not stop execution until closing like frm.ShowDialog()
             frmMain frm = new frmMain(this);
             frm.ShowDialog();

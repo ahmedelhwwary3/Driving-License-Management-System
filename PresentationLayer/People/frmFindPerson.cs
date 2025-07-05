@@ -1,4 +1,4 @@
-﻿using PresentationLayer.Global;
+﻿using PresentationLayer.Helpers.BaseUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,11 +8,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
- 
+
 
 namespace PresentationLayer.People
 {
-    public partial class frmFindPerson : Form
+    public partial class frmFindPerson : clsBaseForm
     {
         //Note:frmAddEditPerson also has another DataBack event
         public event Action<object, int> DataBack;
@@ -22,14 +22,15 @@ namespace PresentationLayer.People
         public frmFindPerson()
         {
             InitializeComponent();
-            this.Load += (sender, e) =>
-            {
-                if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.FindPerson))
-                    return;
-            };
+            SetTheme(this);
         }
 
         private void btnClose_Click(object sender, EventArgs e)
-         => DataBack?.Invoke(this, (int)ctrlPersonCardWithFilter1.Person.PersonID);
+         => DataBack?.Invoke(this,ctrlPersonCardWithFilter1.Person.PersonID.Value);
+
+        private void frmFindPerson_Load(object sender, EventArgs e)
+        {
+            SetTitle("Find Person");
+        }
     }
 }

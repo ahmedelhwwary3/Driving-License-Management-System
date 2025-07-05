@@ -50,6 +50,7 @@
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(1239, 45);
             lblTitle.TabIndex = 132;
+            lblTitle.Tag = "MainTitle";
             lblTitle.Text = "License History";
             lblTitle.TextAlign = ContentAlignment.MiddleCenter;
             // 
@@ -86,7 +87,7 @@
             // 
             cmsLocalLicenseHistory.Items.AddRange(new ToolStripItem[] { showLicenseInfoToolStripMenuItem });
             cmsLocalLicenseHistory.Name = "cmsLocalLicenseHistory";
-            cmsLocalLicenseHistory.Size = new Size(197, 64);
+            cmsLocalLicenseHistory.Size = new Size(186, 42);
             cmsLocalLicenseHistory.Opening += cmsLocalLicenseHistory_Opening;
             // 
             // showLicenseInfoToolStripMenuItem
@@ -94,7 +95,7 @@
             showLicenseInfoToolStripMenuItem.Image = Properties.Resources.License_Type_32;
             showLicenseInfoToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
             showLicenseInfoToolStripMenuItem.Name = "showLicenseInfoToolStripMenuItem";
-            showLicenseInfoToolStripMenuItem.Size = new Size(196, 38);
+            showLicenseInfoToolStripMenuItem.Size = new Size(185, 38);
             showLicenseInfoToolStripMenuItem.Text = "Show License Info";
             showLicenseInfoToolStripMenuItem.Click += showLicenseInfoToolStripMenuItem_Click;
             // 

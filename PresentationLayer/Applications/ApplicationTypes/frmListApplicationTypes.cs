@@ -1,5 +1,6 @@
-﻿using BusinessLayer;
+﻿using BusinessLayer.Core;
 using PresentationLayer.Global;
+using PresentationLayer.Helpers.BaseUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,39 +10,42 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using static BusinessLayer.Core.clsUsersPermissions;
 namespace PresentationLayer.Applications.ApplicationTypes
 {
-    public partial class frmListApplicationTypes : Form
+    public partial class frmListApplicationTypes : clsBaseForm
     {
+        Thread thread;
         private DataTable _dtApplycationTypes=new DataTable();
         BindingSource _bsApplycationTypes=new BindingSource();
         public frmListApplicationTypes()
         {
             InitializeComponent();
- 
+            SetTheme(this);
         }
         
 
         private void btnClose_Click(object sender, EventArgs e)
             => this.Close();
 
-        void _RefreshTotalCount() 
+        void RefreshTotalCount() 
             => lblRecords.Text = dgvApplicationTypes.Rows.Count.ToString();
-        void _RefreshForm()=>
+        void RefreshForm()=>
             frmListApplicationTypes_Load(null, null);
         private void frmListApplicationTypes_Load(object sender, EventArgs e)
         {
-            _dtApplycationTypes = clsApplicationType.GetAllApplicationTypesList();
+            thread = new Thread(() => _dtApplycationTypes = clsApplicationType.GetAllApplicationTypesList());
+            thread.Start();
+            SetTitle("List Application Types");
+            thread.Join();
             _bsApplycationTypes.DataSource= _dtApplycationTypes;
             dgvApplicationTypes.DataSource = _bsApplycationTypes;
-            _RefreshTotalCount();            
+            RefreshTotalCount();            
         }
 
         private void editToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.EditApplicationType))
-                return;
+             
             if (dgvApplicationTypes.CurrentRow == null)
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
@@ -53,12 +57,12 @@ namespace PresentationLayer.Applications.ApplicationTypes
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
               MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Loading Parsing ApplicationTypeID from DGV Row."));
+                   clsGlobalData.WindownsEventLog.Log(new Exception($"Error when Loading Parsing ApplicationTypeID from DGV Row."));
                 return;
             }
             frmEditApplicationType frm = new frmEditApplicationType(ApplicationTypeID);
-            frm.ShowDialog();
-            _RefreshForm();
+            frm.ShowDialogIfAuthorized(GetPermissions("Admin"),frm);
+            RefreshForm();
         }
 
         private void dgvApplicationTypes_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)

@@ -1,4 +1,6 @@
-﻿using BusinessLayer;
+﻿using BusinessLayer.Core;
+using PresentationLayer.Helpers;
+using PresentationLayer.Helpers.BaseUI;
 using PresentationLayer.Licenses.LocalLicenses;
 using System;
 using System.Collections.Generic;
@@ -12,13 +14,17 @@ using System.Windows.Forms;
 
 namespace PresentationLayer.Applications.LocalDrivingLicenseApplications.Controls
 {
-    public partial class ctrlDrivingLicenesApplicationInfo : UserControl
+    public partial class ctrlDrivingLicenesApplicationInfo : clsBaseCtrl
     {
         clsApplication _BaseApplication=new clsApplication();
         clsLocalDrivingLicenseApplication _LocalApplication
             =new clsLocalDrivingLicenseApplication();
         public ctrlDrivingLicenesApplicationInfo()
-            => InitializeComponent();
+        {
+            InitializeComponent();
+            SetTheme(this);
+        }
+            
 
 
         public clsLocalDrivingLicenseApplication LocalApplication 
@@ -49,7 +55,7 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications.Control
             lblAppliedForLicenseClass.Text = _LocalApplication.LicenseClass.ClassName;
             lblLocalID.Text = _LocalApplication.LocalDrivingLicenseApplicationID.ToString();
             lblPassedTests.Text = (_LocalApplication.GetPassedTests()).ToString();
-            llShowLicenseInfo.Enabled = clsLicense.IsThereActiveLicenseForPersonPerLicenseClass((int)_LocalApplication.ApplicantPersonID,(int)_LocalApplication.LicenseClassID);
+            llShowLicenseInfo.Enabled = clsLicense.HasPersonActiveLicensePerLicenseClass((int)_LocalApplication.ApplicantPersonID,(int)_LocalApplication.LicenseClassID);
         }
 
         private void llShowLicenseInfo_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

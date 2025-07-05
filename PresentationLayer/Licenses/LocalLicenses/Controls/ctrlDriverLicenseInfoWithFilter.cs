@@ -1,5 +1,6 @@
-﻿using BusinessLayer;
+﻿using BusinessLayer.Core;
 using PresentationLayer.Global;
+using PresentationLayer.Helpers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,15 +12,19 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static PresentationLayer.Global.clsGlobalData;
+using static BusinessLayer.Core.clsLicenseClass;
+using PresentationLayer.Helpers.BaseUI;
 
 namespace PresentationLayer.Licenses.LocalLicenses.Controls
 {
-    public partial class ctrlDriverLicenseInfoWithFilter : UserControl
+    public partial class ctrlDriverLicenseInfoWithFilter : clsBaseCtrl
     {
 
         public ctrlDriverLicenseInfoWithFilter()
         {
             InitializeComponent();
+            SetTheme(this);
         }
 
 
@@ -67,12 +72,12 @@ namespace PresentationLayer.Licenses.LocalLicenses.Controls
             {
                 MessageBox.Show("Error:An unexpected error happened !", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new FormatException("Error with parsing txtLicenseID to int ."));
+                   WindownsEventLog?.Log(new FormatException("Error with parsing txtLicenseID to int ."));
                 return;
             }
             _LicenseID = LicenseID;
             _License = clsLicense.GetByID(LicenseID);
-            if (!_ValidateEmptyOrNull())
+            if (!ValidateEmptyOrNull())
             {
                 MessageBox.Show("Error:Check the red icon messages", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -80,24 +85,24 @@ namespace PresentationLayer.Licenses.LocalLicenses.Controls
             }
            
 
-            if (!_ValidateLicenseServiceChecks())
+            if (!ValidateLicenseServiceChecks())
                 return;
-            _LoadLicense();
+            LoadLicense();
 
         }
-        void _LoadLicense()
+        void LoadLicense()
         {
             //with out Click Find 
-            ctrlDriverLicenseInfo1.LoadInfo(_LicenseID.Value);
-            _LicenseID = ctrlDriverLicenseInfo1.LicenseID;
-            txtLicenseID.Text = _LicenseID.ToString();
+            ctrlDriverLicenseInfo1?.LoadInfo(_LicenseID.Value);
+            _LicenseID = ctrlDriverLicenseInfo1?.LicenseID;
+            txtLicenseID.Text = _LicenseID.ToString()??string.Empty;
             //We will need LicenseID to select it in the form to complete Form Functionality
             if (FilterEnabled && OnLicenseSelected != null)
                 OnLicenseSelected(_LicenseID.Value);
         }
 
 
-        bool _ValidateEmptyOrNull()
+        bool ValidateEmptyOrNull()
         {
             //Check for All Modes :-
             if (string.IsNullOrEmpty(txtLicenseID.Text))
@@ -118,7 +123,7 @@ namespace PresentationLayer.Licenses.LocalLicenses.Controls
                 errorProvider1.SetError(txtLicenseID, null);
             return true;
         }
-        bool _ValidateLicenseServiceChecks()
+        bool ValidateLicenseServiceChecks()
         {
 
             switch (_LicenseService)
@@ -132,7 +137,7 @@ namespace PresentationLayer.Licenses.LocalLicenses.Controls
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return false;
                         }
-                        if (_License.LicenseClass != clsLicenseClass.enLicenseClassID.Class3_ordinary_driving_license)
+                        if (_License.LicenseClass != (int)enLicenseClassID.Class3OrdinaryDrivingLicense)
                         {
                             MessageBox.Show("Error:License should be Class 3 Ordinary Class !" +
                                 " Please select another one.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -160,10 +165,11 @@ namespace PresentationLayer.Licenses.LocalLicenses.Controls
                             return false;
                         }
                         //Detain or ReplaceForLostOrDamaged
-                        if (_LicenseService == enLicenseService.Detain || _LicenseService == enLicenseService.ReplaceForLostOrDamaged)
+                        if (_LicenseService == enLicenseService.Detain
+                            || _LicenseService == enLicenseService.ReplaceForLostOrDamaged)
                             return true;
                         //Renew (Additional Check)
-                        if (!_License.IsDateExpirated())
+                        if (!_License.IsDateExpired())
                         {
                             MessageBox.Show("Error:Old License is not Expirated !", "Error"
                                 , MessageBoxButtons.OK, MessageBoxIcon.Error);

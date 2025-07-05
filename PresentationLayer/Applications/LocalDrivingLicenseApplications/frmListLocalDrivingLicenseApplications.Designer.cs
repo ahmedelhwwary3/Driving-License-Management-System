@@ -56,9 +56,14 @@
             showPersonLicenseHistoryToolStripMenuItem = new ToolStripMenuItem();
             btnAddNewLocalApp = new Button();
             pictureBox1 = new PictureBox();
+            btnHighRiskApplicants = new Button();
+            btnRefreshHighRiskApplicantsRefreshHighRiskApplicants = new Button();
+            panel1 = new Panel();
+            cbStatus = new ComboBox();
             ((System.ComponentModel.ISupportInitialize)dgvLocalApplications).BeginInit();
             contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            panel1.SuspendLayout();
             SuspendLayout();
             // 
             // label3
@@ -144,6 +149,7 @@
             label1.Name = "label1";
             label1.Size = new Size(728, 39);
             label1.TabIndex = 13;
+            label1.Tag = "MainTitle";
             label1.Text = "Manage Local Driving License Applications ";
             // 
             // dgvLocalApplications
@@ -316,6 +322,49 @@
             pictureBox1.TabIndex = 12;
             pictureBox1.TabStop = false;
             // 
+            // btnHighRiskApplicants
+            // 
+            btnHighRiskApplicants.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            btnHighRiskApplicants.Location = new Point(34, 93);
+            btnHighRiskApplicants.Name = "btnHighRiskApplicants";
+            btnHighRiskApplicants.Size = new Size(209, 54);
+            btnHighRiskApplicants.TabIndex = 21;
+            btnHighRiskApplicants.Text = "Show High Risk Applicants";
+            btnHighRiskApplicants.UseVisualStyleBackColor = true;
+            btnHighRiskApplicants.Click += btnHighRiskApplicants_Click;
+            // 
+            // btnRefreshHighRiskApplicantsRefreshHighRiskApplicants
+            // 
+            btnRefreshHighRiskApplicantsRefreshHighRiskApplicants.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            btnRefreshHighRiskApplicantsRefreshHighRiskApplicants.Location = new Point(34, 20);
+            btnRefreshHighRiskApplicantsRefreshHighRiskApplicants.Name = "btnRefreshHighRiskApplicantsRefreshHighRiskApplicants";
+            btnRefreshHighRiskApplicantsRefreshHighRiskApplicants.Size = new Size(209, 55);
+            btnRefreshHighRiskApplicantsRefreshHighRiskApplicants.TabIndex = 22;
+            btnRefreshHighRiskApplicantsRefreshHighRiskApplicants.Text = "Refresh High Risk Applicants";
+            btnRefreshHighRiskApplicantsRefreshHighRiskApplicants.UseVisualStyleBackColor = true;
+            btnRefreshHighRiskApplicantsRefreshHighRiskApplicants.Click += btnRefreshHighRiskApplicants_Click;
+            // 
+            // panel1
+            // 
+            panel1.Controls.Add(btnRefreshHighRiskApplicantsRefreshHighRiskApplicants);
+            panel1.Controls.Add(btnHighRiskApplicants);
+            panel1.Location = new Point(970, 54);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(274, 171);
+            panel1.TabIndex = 23;
+            // 
+            // cbStatus
+            // 
+            cbStatus.Anchor = AnchorStyles.Left;
+            cbStatus.FormattingEnabled = true;
+            cbStatus.Items.AddRange(new object[] { "New", "Cancelled", "Completed", "All" });
+            cbStatus.Location = new Point(468, 298);
+            cbStatus.Margin = new Padding(4, 3, 4, 3);
+            cbStatus.Name = "cbStatus";
+            cbStatus.Size = new Size(242, 23);
+            cbStatus.TabIndex = 24;
+            cbStatus.SelectedIndexChanged += cbStatus_SelectedIndexChanged;
+            // 
             // frmListLocalDrivingLicenseApplications
             // 
             AcceptButton = btnAddNewLocalApp;
@@ -324,6 +373,8 @@
             BackColor = Color.White;
             CancelButton = btnClose;
             ClientSize = new Size(1348, 915);
+            Controls.Add(cbStatus);
+            Controls.Add(panel1);
             Controls.Add(label3);
             Controls.Add(txtFilterValue);
             Controls.Add(cbFilterColumn);
@@ -342,6 +393,7 @@
             ((System.ComponentModel.ISupportInitialize)dgvLocalApplications).EndInit();
             contextMenuStrip1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            panel1.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -375,5 +427,9 @@
         private System.Windows.Forms.ToolStripSeparator showLicenseToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem showPersonLicenseHistoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem showLicenseToolStripMenuItem1;
+        private Button btnHighRiskApplicants;
+        private Button btnRefreshHighRiskApplicantsRefreshHighRiskApplicants;
+        private Panel panel1;
+        private ComboBox cbStatus;
     }
 }

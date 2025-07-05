@@ -1,19 +1,26 @@
-﻿using BusinessLayer;
-using PresentationLayer.Global;
+﻿using PresentationLayer.Global;
 using PresentationLayer.Properties;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using static PresentationLayer.Global.clsGlobalData;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using BusinessLayer.Core;
+using static BusinessLayer.Core.clsUsersPermissions;
+using PresentationLayer.Helpers;
+using static BusinessLayer.Core.clsTestType;
+using static BusinessLayer.Core.clsTestAppointment;
+using static PresentationLayer.Global.clsFormat;
+using PresentationLayer.Helpers.BaseUI;
 
 namespace PresentationLayer.Tests.Controls
 {
-    public partial class ctrlScheduledTest : UserControl
+    public partial class ctrlScheduledTest : clsBaseCtrl
     {
         private int? _TestAppointmentID = null;
         private clsTestAppointment _TestAppointment;
@@ -24,26 +31,26 @@ namespace PresentationLayer.Tests.Controls
             set
             { 
                 _TestTypeID = value;
-                _SetImageAndTitle();
+                SetImageAndTitle();
             }
         }
-        void _SetImageAndTitle()
+        void SetImageAndTitle()
         {
             switch (_TestTypeID)
             {
-                case clsTestType.enTestType.Vision:
+                case enTestType.Vision:
                     {
                         lblTestTypeTitle.Text = "Scheduled Vision Test";
                         pbTestType.Image = Resources.Vision_512;
                         break;
                     }
-                case clsTestType.enTestType.Written:
+                case enTestType.Written:
                     {
                         lblTestTypeTitle.Text = "Scheduled Written Test";
                         pbTestType.Image = Resources.Written_Test_512;
                         break;
                     }
-                case clsTestType.enTestType.Street:
+                case enTestType.Street:
                     {
                         lblTestTypeTitle.Text = "Scheduled Street Test";
                         pbTestType.Image = Resources.driving_test_512;
@@ -70,15 +77,22 @@ namespace PresentationLayer.Tests.Controls
                 lblTestID.Text =TestID.ToString();
             }
         }
-        public ctrlScheduledTest()=> InitializeComponent();
+    
+        public ctrlScheduledTest()
+        {
+            InitializeComponent();
+            SetTheme(this);
+        }
 
         public void LoadScheduledTest(int TestAppointmentID,
-            clsTestType.enTestType TestTypeID,int? TestID=null)
+            enTestType TestTypeID,int? TestID=null)
         {
+            if (!CheckUserAccess(GetPermissions("AddEdit")))
+                return;
             _TestID = TestID;
             _TestTypeID = TestTypeID;
             _TestAppointmentID =TestAppointmentID;
-            _TestAppointment = clsTestAppointment.GetByID((int)_TestAppointmentID);
+            _TestAppointment =   clsTestAppointment.GetByID((int)_TestAppointmentID.Value);
             if(_TestAppointment==null)
             {
                 MessageBox.Show($"Error:Test Appointment with ID" +
@@ -88,14 +102,14 @@ namespace PresentationLayer.Tests.Controls
             }
             
             lblClassName.Text = _TestAppointment.LocalDrivingLicenseApplication.LicenseClass.ClassName;
-            lblDate.Text = clsFormat.DateToShortString(_TestAppointment.AppointmentDate);
+            lblDate.Text =DateToShortString(_TestAppointment.AppointmentDate);
             lblFees.Text=_TestAppointment.PaidFees.ToString();
             lblLocalAppID.Text=_TestAppointment.LocalDrivingLicenseApplicationID.ToString();
             lblName.Text = _TestAppointment.LocalDrivingLicenseApplication.Person.FullName;
             lblTestTypeTitle.Text = _TestAppointment.TestType.TestTypeTitle;
-            lblTrials.Text = _TestAppointment.LocalDrivingLicenseApplication.CountAllTestTrials((clsTestType.enTestType)_TestAppointment.TestTypeID).ToString();
+            lblTrials.Text = _TestAppointment.LocalDrivingLicenseApplication.CountAllTestTrials((enTestType)_TestAppointment.TestTypeID).ToString();
             //Update Mode
-            lblTestID.Text = TestID==null?"N/A": TestID.ToString();
+            lblTestID.Text =TestID?.ToString()?? "N/A";
         }
 
 

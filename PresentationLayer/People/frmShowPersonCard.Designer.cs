@@ -43,6 +43,7 @@
             label1.Name = "label1";
             label1.Size = new Size(257, 39);
             label1.TabIndex = 1;
+            label1.Tag = "MainTitle";
             label1.Text = "Person Details";
             // 
             // btnClose
@@ -82,7 +83,6 @@
             Margin = new Padding(4, 3, 4, 3);
             Name = "frmShowPersonCard";
             Text = "frmShowPersonCard";
-            Load += frmShowPersonCard_Load;
             ResumeLayout(false);
             PerformLayout();
         }

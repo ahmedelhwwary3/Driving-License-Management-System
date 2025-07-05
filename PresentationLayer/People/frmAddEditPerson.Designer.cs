@@ -60,6 +60,11 @@
             txtFirst = new TextBox();
             txtNationalNo = new TextBox();
             panel1 = new Panel();
+            btnRedo = new Button();
+            btnUndo = new Button();
+            gbBrightness = new GroupBox();
+            trackBar1 = new TrackBar();
+            lblBrightness = new Label();
             btnClose = new Button();
             txtEmail = new TextBox();
             pictureBox11 = new PictureBox();
@@ -76,6 +81,8 @@
             openFileDialog1 = new OpenFileDialog();
             errorProvider1 = new ErrorProvider(components);
             panel1.SuspendLayout();
+            gbBrightness.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)trackBar1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox11).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox10).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox9).BeginInit();
@@ -111,6 +118,7 @@
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(264, 37);
             lblTitle.TabIndex = 95;
+            lblTitle.Tag = "MainTitle";
             lblTitle.Text = "Add Edit Person";
             // 
             // label13
@@ -127,7 +135,7 @@
             // btnSave
             // 
             btnSave.Image = Properties.Resources.Save_32;
-            btnSave.Location = new Point(889, 371);
+            btnSave.Location = new Point(844, 371);
             btnSave.Margin = new Padding(4, 3, 4, 3);
             btnSave.Name = "btnSave";
             btnSave.Size = new Size(96, 45);
@@ -367,7 +375,7 @@
             // llRemove
             // 
             llRemove.AutoSize = true;
-            llRemove.Location = new Point(1108, 459);
+            llRemove.Location = new Point(1099, 330);
             llRemove.Margin = new Padding(4, 0, 4, 0);
             llRemove.Name = "llRemove";
             llRemove.Size = new Size(50, 15);
@@ -379,7 +387,7 @@
             // llSetImage
             // 
             llSetImage.AutoSize = true;
-            llSetImage.Location = new Point(1104, 422);
+            llSetImage.Location = new Point(1095, 302);
             llSetImage.Margin = new Padding(4, 0, 4, 0);
             llSetImage.Name = "llSetImage";
             llSetImage.Size = new Size(59, 15);
@@ -410,20 +418,81 @@
             // 
             // panel1
             // 
+            panel1.Controls.Add(btnRedo);
+            panel1.Controls.Add(btnUndo);
+            panel1.Controls.Add(gbBrightness);
             panel1.Controls.Add(btnClose);
             panel1.Controls.Add(txtEmail);
             panel1.Controls.Add(btnSave);
+            panel1.Controls.Add(llSetImage);
+            panel1.Controls.Add(llRemove);
             panel1.Location = new Point(9, 88);
             panel1.Margin = new Padding(4, 3, 4, 3);
             panel1.Name = "panel1";
             panel1.Size = new Size(1273, 442);
             panel1.TabIndex = 78;
             // 
+            // btnRedo
+            // 
+            btnRedo.Image = Properties.Resources.Next_32;
+            btnRedo.ImageAlign = ContentAlignment.MiddleLeft;
+            btnRedo.Location = new Point(357, 367);
+            btnRedo.Name = "btnRedo";
+            btnRedo.Size = new Size(125, 53);
+            btnRedo.TabIndex = 105;
+            btnRedo.Text = "Redo";
+            btnRedo.UseVisualStyleBackColor = true;
+            btnRedo.Click += btnRedo_Click;
+            // 
+            // btnUndo
+            // 
+            btnUndo.Image = Properties.Resources.Sign_Out_32;
+            btnUndo.ImageAlign = ContentAlignment.MiddleLeft;
+            btnUndo.Location = new Point(488, 365);
+            btnUndo.Name = "btnUndo";
+            btnUndo.Size = new Size(125, 56);
+            btnUndo.TabIndex = 104;
+            btnUndo.Text = "Undo";
+            btnUndo.UseVisualStyleBackColor = true;
+            btnUndo.Click += btnUndo_Click;
+            // 
+            // gbBrightness
+            // 
+            gbBrightness.Controls.Add(trackBar1);
+            gbBrightness.Controls.Add(lblBrightness);
+            gbBrightness.Font = new Font("Cascadia Code SemiBold", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            gbBrightness.Location = new Point(988, 351);
+            gbBrightness.Name = "gbBrightness";
+            gbBrightness.Size = new Size(273, 82);
+            gbBrightness.TabIndex = 103;
+            gbBrightness.TabStop = false;
+            gbBrightness.Text = "Brightness";
+            // 
+            // trackBar1
+            // 
+            trackBar1.Location = new Point(87, 28);
+            trackBar1.Name = "trackBar1";
+            trackBar1.Size = new Size(176, 45);
+            trackBar1.TabIndex = 101;
+            trackBar1.Scroll += trackBar1_Scroll;
+            // 
+            // lblBrightness
+            // 
+            lblBrightness.AutoSize = true;
+            lblBrightness.Font = new Font("Stencil", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblBrightness.ForeColor = Color.Red;
+            lblBrightness.Location = new Point(14, 38);
+            lblBrightness.Margin = new Padding(4, 0, 4, 0);
+            lblBrightness.Name = "lblBrightness";
+            lblBrightness.Size = new Size(43, 19);
+            lblBrightness.TabIndex = 102;
+            lblBrightness.Text = "?? %";
+            // 
             // btnClose
             // 
             btnClose.Image = Properties.Resources.Close_32;
             btnClose.ImageAlign = ContentAlignment.MiddleLeft;
-            btnClose.Location = new Point(769, 371);
+            btnClose.Location = new Point(724, 371);
             btnClose.Name = "btnClose";
             btnClose.Size = new Size(97, 45);
             btnClose.TabIndex = 98;
@@ -550,7 +619,7 @@
             // pbPersonImage
             // 
             pbPersonImage.Image = Properties.Resources.Female_512;
-            pbPersonImage.Location = new Point(1018, 187);
+            pbPersonImage.Location = new Point(1018, 168);
             pbPersonImage.Margin = new Padding(4, 3, 4, 3);
             pbPersonImage.Name = "pbPersonImage";
             pbPersonImage.Size = new Size(233, 212);
@@ -609,8 +678,6 @@
             Controls.Add(rbMale);
             Controls.Add(pictureBox2);
             Controls.Add(pbPersonImage);
-            Controls.Add(llRemove);
-            Controls.Add(llSetImage);
             Controls.Add(txtFirst);
             Controls.Add(txtNationalNo);
             Controls.Add(panel1);
@@ -622,6 +689,9 @@
             KeyPress += frmAddEditPerson_KeyPress;
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
+            gbBrightness.ResumeLayout(false);
+            gbBrightness.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)trackBar1).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox11).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox10).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox9).EndInit();
@@ -685,5 +755,10 @@
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.ErrorProvider errorProvider1;
         private Button btnClose;
+        private GroupBox gbBrightness;
+        private TrackBar trackBar1;
+        private Label lblBrightness;
+        private Button btnUndo;
+        private Button btnRedo;
     }
 }

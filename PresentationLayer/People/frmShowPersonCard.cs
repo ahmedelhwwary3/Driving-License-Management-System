@@ -1,4 +1,4 @@
-﻿using PresentationLayer.Global;
+﻿using PresentationLayer.Helpers.BaseUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,34 +11,26 @@ using System.Windows.Forms;
 
 namespace PresentationLayer.People
 {
-    public partial class frmShowPersonCard : Form
+    public partial class frmShowPersonCard : clsBaseForm
     {
 
         public frmShowPersonCard(int PersonID)
         {
             InitializeComponent();
+            SetTheme(this);
             ctrlPersonCard1.LoadPerson(PersonID);
-            _SetTitle();
+            SetTitle("Show Person Details");
         }
         public frmShowPersonCard(string NationalNo)
         {
             InitializeComponent();
-            ctrlPersonCard1.LoadPerson(NationalNo);
-            _SetTitle();
+            SetTheme(this);
+            ctrlPersonCard1?.LoadPerson(NationalNo);
+            SetTitle("Show Person Details");
         }
-        void _SetTitle()
-        {
-            this.Text = "Show Person Details";
-        }
-
-
         private void btnClose_Click(object sender, EventArgs e)
         => this.Close();
 
-        private void frmShowPersonCard_Load(object sender, EventArgs e)
-        {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ShowPersonCard))
-                return;
-        }
+         
     }
 }

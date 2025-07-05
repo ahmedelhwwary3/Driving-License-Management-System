@@ -144,10 +144,11 @@
             // lblTotalRecords
             // 
             lblTotalRecords.AutoSize = true;
+            lblTotalRecords.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             lblTotalRecords.Location = new Point(122, 779);
             lblTotalRecords.Margin = new Padding(4, 0, 4, 0);
             lblTotalRecords.Name = "lblTotalRecords";
-            lblTotalRecords.Size = new Size(17, 15);
+            lblTotalRecords.Size = new Size(24, 21);
             lblTotalRecords.TabIndex = 170;
             lblTotalRecords.Text = "??";
             // 
@@ -158,9 +159,9 @@
             label5.Location = new Point(13, 779);
             label5.Margin = new Padding(4, 0, 4, 0);
             label5.Name = "label5";
-            label5.Size = new Size(96, 20);
+            label5.Size = new Size(86, 20);
             label5.TabIndex = 169;
-            label5.Text = "# Records:";
+            label5.Text = " Records:";
             // 
             // dgvDetainedLicenses
             // 
@@ -245,6 +246,7 @@
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(663, 45);
             lblTitle.TabIndex = 162;
+            lblTitle.Tag = "MainTitle";
             lblTitle.Text = "List Detained Licenses";
             lblTitle.TextAlign = ContentAlignment.MiddleCenter;
             // 

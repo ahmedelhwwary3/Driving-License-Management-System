@@ -427,6 +427,7 @@
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(1021, 45);
             lblTitle.TabIndex = 178;
+            lblTitle.Tag = "MainTitle";
             lblTitle.Text = "Issue International License";
             lblTitle.TextAlign = ContentAlignment.MiddleCenter;
             // 

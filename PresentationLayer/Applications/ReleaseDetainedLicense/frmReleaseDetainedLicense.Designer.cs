@@ -111,6 +111,7 @@
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(1015, 45);
             lblTitle.TabIndex = 192;
+            lblTitle.Tag = "MainTitle";
             lblTitle.Text = "Release Detained License";
             lblTitle.TextAlign = ContentAlignment.MiddleCenter;
             // 

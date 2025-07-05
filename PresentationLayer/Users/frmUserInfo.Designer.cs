@@ -38,13 +38,13 @@
             ctrlUserCard1.Location = new Point(4, 3);
             ctrlUserCard1.Margin = new Padding(5, 3, 5, 3);
             ctrlUserCard1.Name = "ctrlUserCard1";
-            ctrlUserCard1.Size = new Size(1147, 516);
+            ctrlUserCard1.Size = new Size(1147, 578);
             ctrlUserCard1.TabIndex = 0;
             // 
             // btnClose
             // 
             btnClose.Image = Properties.Resources.Close_32;
-            btnClose.Location = new Point(960, 518);
+            btnClose.Location = new Point(965, 583);
             btnClose.Margin = new Padding(4, 3, 4, 3);
             btnClose.Name = "btnClose";
             btnClose.Size = new Size(164, 63);
@@ -61,7 +61,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             CancelButton = btnClose;
-            ClientSize = new Size(1152, 591);
+            ClientSize = new Size(1152, 658);
             Controls.Add(btnClose);
             Controls.Add(ctrlUserCard1);
             Margin = new Padding(4, 3, 4, 3);

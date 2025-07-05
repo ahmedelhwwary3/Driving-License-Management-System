@@ -112,6 +112,7 @@
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(1021, 45);
             lblTitle.TabIndex = 192;
+            lblTitle.Tag = "MainTitle";
             lblTitle.Text = "License Replacement";
             lblTitle.TextAlign = ContentAlignment.MiddleCenter;
             // 

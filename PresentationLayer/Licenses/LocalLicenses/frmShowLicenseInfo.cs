@@ -1,4 +1,4 @@
-﻿using PresentationLayer.Global;
+﻿using PresentationLayer.Helpers.BaseUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,12 +11,13 @@ using System.Windows.Forms;
 
 namespace PresentationLayer.Licenses.LocalLicenses
 {
-    public partial class frmShowLicenseInfo : Form
+    public partial class frmShowLicenseInfo : clsBaseForm
     {
-        private int? _LicenseID = null;
+        private int _LicenseID = default;
         public frmShowLicenseInfo(int LicenseID)
         {
             InitializeComponent();
+            SetTheme(this);
             _LicenseID = LicenseID;
         }
 
@@ -26,9 +27,8 @@ namespace PresentationLayer.Licenses.LocalLicenses
 
         private void frmShowLicenseInfo_Load(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ShowLicenseInfo))
-                return;
-            ctrlDriverLicenseInfo1.LoadInfo(_LicenseID.Value);
+            SetTitle("Show License Information");
+            ctrlDriverLicenseInfo1?.LoadInfo(_LicenseID);
         }
     }
 }

@@ -1,56 +1,75 @@
-﻿using BusinessLayer;
-using PresentationLayer.Properties;
+﻿using PresentationLayer.Properties;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
- 
+using static PresentationLayer.Global.clsGlobalData;
 using PresentationLayer.Global;
- 
- 
+using System.Drawing.Imaging;
+using System.IO;
+using static BusinessLayer.Core.clsPerson;
+using Microsoft.VisualBasic.ApplicationServices;
+using BusinessLayer.Core;
+using PresentationLayer.Helpers.BaseUI;
+
+using static PresentationLayer.Global.clsUtil;
+using static PresentationLayer.Global.clsValidation;    
 
 namespace PresentationLayer.People
 {
-    public partial class frmAddEditPerson : Form
+
+    public partial class frmAddEditPerson : clsBaseForm
     {
+        //First we fill _stkUndo with person states from Load() &  Save()
+        //Then we use _stkUndo with _stkRedo together <->
+
+
+        clsPerson _DeserializedPerson;
+        Stack<MemoryStream> _stkUndo = new Stack<MemoryStream>();
+        Stack<MemoryStream> _stkRedo = new Stack<MemoryStream>();
+
+        Image OriginalImage;
         private int? _PersonID;
-        private clsPerson _Person = new clsPerson();
+        private clsPerson _CurrentPerson = new clsPerson();
         private enum enMode
         { AddNew, Update };
         enMode _Mode;
-        enum enGendor
-        { Male = 0, Female = 1 }
+
 
         public frmAddEditPerson()
         {
             InitializeComponent();
+            SetTheme(this);
             _Mode = enMode.AddNew;
         }
         public frmAddEditPerson(int PersonID)
         {
             InitializeComponent();
+            SetTheme(this);
             _PersonID = PersonID;
             _Mode = enMode.Update;
         }
 
         #region DataBack Event 
-        //public event Action<object, int> DataBack;//Same
-        public delegate void DataBackEventHandler(object sender, int PersonID);//Class Type
-        public DataBackEventHandler DataBack;//Reference 
+        public event Action<object, int> DataBack;
         #endregion
         private void frmAddEditPerson_Load(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.AddEditPerson))
-                return;
-            this.BeginInvoke(new Action(() => txtFirst.Focus()));
-            _ResetDefaultAddNewValues();
+            ResetDefaultAddNewValues();
             if (_Mode == enMode.Update)
-                _LoadPersonData();
+                LoadPersonData();
         }
-        private void _ResetDefaultAddNewValues()
+        private void ResetDefaultAddNewValues()
         {
-            //AddNew      
-            _SetTitle();
+
+            SetTitle();
+            this.FormClosed += (sender, e) =>
+            {
+                _stkUndo.Clear();
+                _stkRedo.Clear();
+            };
+            btnUndo.Visible = false;
+            btnRedo.Visible = false;
             txtAddress.Multiline = true;
             lblPersonID.Text = "N/A";
             txtFirst.Text = "";
@@ -66,57 +85,64 @@ namespace PresentationLayer.People
             rbMale.Checked = true;
             txtAddress.Text = "";
             llRemove.Visible = false;
-            _FillCountriesInComboBox();
+            FillCountriesInComboBox();
             cbCountries.SelectedIndex = cbCountries.FindString("Egypt");//Flexibility
-
+            lblBrightness.Text = (10 * trackBar1.Value).ToString() + " %";
         }
-        void _SetTitle()
+        void SetTitle()
         {
             lblTitle.Text = _Mode == enMode.Update ? "Update Person" : "Add New Person";
             this.Text = _Mode == enMode.Update ? "Update Person" : "Add New Person";
         }
-        private void _LoadPersonData()
+        private void LoadPersonData()
         {
 
-            _Person = clsPerson.GetByID(_PersonID.Value);
-            if (_Person == null)
+            _CurrentPerson = clsPerson.GetByID(_PersonID.Value);
+            if (_CurrentPerson == null)
             {
                 MessageBox.Show($"Person with ID {_PersonID.ToString()} is not found",
                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
                 return;//To ensure that no code will run after 
             }
-            _SetTitle();
-            llRemove.Visible = (_Person.ImagePath != "");
-            dtpBirth.Value = _Person.DateOfBirth;
-            if (_Person.Gendor == 0)
-                rbMale.PerformClick();
-            else
-                rbFemale.PerformClick();
-            txtEmail.Text = _Person.Email;
-            txtFirst.Text = _Person.FirstName;
-            txtSecond.Text = _Person.SecondName;
-            txtThird.Text = _Person.ThirdName;
-            txtLast.Text = _Person.LastName;
-            txtNationalNo.Text = _Person.NationalNo;
-            txtPhone.Text = _Person.Phone;
-            txtAddress.Text = _Person.Address;
-            cbCountries.SelectedIndex = cbCountries.FindString(_Person.Country.CountryName);
+
+            SetTitle();
             try
             {
-                if (_Person.ImagePath != "")
+                if (_CurrentPerson.ImagePath != "")
                 {
-                    if (File.Exists(_Person.ImagePath))
+                    if (File.Exists(_CurrentPerson.ImagePath))
                     {
-                        pbPersonImage.ImageLocation = _Person.ImagePath;
+                        pbPersonImage.ImageLocation = _CurrentPerson.ImagePath;
                     }
 
                 }
             }
             catch (Exception ex)
             {
-                clsGlobal.LogError(ex);
+                WindownsEventLog.Log(ex);
             }
+            llRemove.Visible = (_CurrentPerson.ImagePath != "");
+
+            dtpBirth.Value = _CurrentPerson.DateOfBirth;
+            if (_CurrentPerson.Gendor == 0)
+                rbMale.PerformClick();
+            else
+                rbFemale.PerformClick();
+            txtEmail.Text = _CurrentPerson.Email;
+            txtFirst.Text = _CurrentPerson.FirstName;
+            txtSecond.Text = _CurrentPerson.SecondName;
+            txtThird.Text = _CurrentPerson.ThirdName;
+            txtLast.Text = _CurrentPerson.LastName;
+            txtNationalNo.Text = _CurrentPerson.NationalNo;
+            txtPhone.Text = _CurrentPerson.Phone;
+            txtAddress.Text = _CurrentPerson.Address;
+            cbCountries.SelectedIndex = cbCountries.FindString(_CurrentPerson.Country.CountryName);
+            //Serialize Loaded Person .. First Undo
+            clsPerson person = new(_CurrentPerson);
+            MemoryStream stream = SerializeCurrentPersonState(person);
+            _stkUndo?.Push(stream);
+
 
         }
 
@@ -167,43 +193,40 @@ namespace PresentationLayer.People
 
                 //if AddNew , PersonID is not needed
                 //if Update , PersonID is Loaded in the object
-                _Person.LoggedUserID=clsGlobal.CurrentUser.UserID;
-                _Person.Email = txtEmail.Text.Trim();
-                _Person.NationalNo = txtNationalNo.Text.ToUpper().Trim();
-                _Person.NationalityCountryID = clsCountry.GetByName(cbCountries.Text).CountryID;
-                _Person.Address = txtAddress.Text.Trim();
-                _Person.DateOfBirth = dtpBirth.Value;
-                _Person.FirstName = txtFirst.Text.Trim();
-                _Person.SecondName = txtSecond.Text.Trim();
-                _Person.ThirdName = txtThird.Text.Trim();
-                _Person.LastName = txtLast.Text.Trim();
-                if (rbMale.Checked)
-                    _Person.Gendor = (int)enGendor.Male;
-                else
-                    _Person.Gendor = (int)enGendor.Female;
-
-                _Person.Phone = txtPhone.Text.Trim();
-                if (_Person.NationalityCountryID == null || (_Person.PersonID == null && _Mode == enMode.Update))
+                FillCurrentPersonData();
+                if (!ValidateDateToAge(_CurrentPerson))
+                    return;
+                if (_CurrentPerson.NationalityCountryID == null || (_CurrentPerson.PersonID == null && _Mode == enMode.Update))
                 {
                     MessageBox.Show("Error:An unexpected error occurred while saving. " +
                      "Please try again later.", "Save failed",
                      MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-                if (!_Person.Save())
+                if (!_CurrentPerson.Save())
                     throw new Exception("Person Save Failed.");
 
                 //Send PersonID to Subscribed Forms
-                DataBack?.Invoke(this, _Person.PersonID.Value);
+                DataBack?.Invoke(this, _CurrentPerson.PersonID.Value);
+                //Fill Stack For Undo & Redo
+                //Ensure that User did not save the same State
+                clsPerson person = new clsPerson(_CurrentPerson);
+                MemoryStream stream = SerializeCurrentPersonState(person);
+                _stkUndo?.Push(stream);
+                //If the stack history changed , the Redo not make sense 
+                btnRedo.Visible = false;
+                _stkRedo?.Clear();
+                btnUndo.Visible = (_Mode == enMode.Update);
+
                 _Mode = enMode.Update;
-                _SetTitle();
-                lblPersonID.Text = _Person.PersonID.ToString();
+                SetTitle();
+                lblPersonID.Text = _CurrentPerson?.PersonID.ToString();
                 MessageBox.Show(" Person was saved successfully", "Confirm Save",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                clsGlobal.LogError(ex);
+                WindownsEventLog?.Log(ex);
                 MessageBox.Show("Error:An unexpected error occurred while saving. " +
                     "Please try again later.", "Save failed",
                      MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -219,25 +242,26 @@ namespace PresentationLayer.People
             //1.Person has Image and Location does not have (Remove)
             //2.Person has Image and Location has another one(Changed)
             //3.Person does not have image and Location has (Added)
-            if (_Person.ImagePath != pbPersonImage.ImageLocation)
+            if (_CurrentPerson.ImagePath != pbPersonImage.ImageLocation)
             {
                 //Delete the old image from disk if changed or removed
-                if (!string.IsNullOrEmpty(_Person.ImagePath))
-                    _DeleteImageFile();
+                if (!string.IsNullOrEmpty(_CurrentPerson.ImagePath))
+                    DeleteImageFile();
                 ///Handle 1.removed
                 //If Image was "removed" , so the Image is already handeled => "" ::return true;
                 //Here we ensure for safety that Compiler will understand that :
                 //If ImageLocation==null <-- is the same as --> ImageLocation==""
                 if (string.IsNullOrEmpty(pbPersonImage.ImageLocation))
                 {
-                    _Person.ImagePath = string.Empty;
+                    _CurrentPerson.ImagePath = string.Empty;
                     return true;
                 }
                 ///Handle 2.Change or 3.Added
                 string SourceFilePath = pbPersonImage.ImageLocation.ToString();
+
                 if (clsUtil.CopyImageToImagesFile(ref SourceFilePath))
                 {
-                    _Person.ImagePath = SourceFilePath;
+                    _CurrentPerson.ImagePath = SourceFilePath;
                     return true;
                 }
                 else
@@ -248,19 +272,19 @@ namespace PresentationLayer.People
                 //(Same Image State will be saved)
                 return true;
         }
-        void _DeleteImageFile()
+        void DeleteImageFile()
         {
             try
             {
-                if (File.Exists(_Person.ImagePath))
-                    File.Delete(_Person.ImagePath);
+                if (File.Exists(_CurrentPerson.ImagePath))
+                    File.Delete(_CurrentPerson.ImagePath);
             }
             catch (FileNotFoundException ex)
             {
-                clsGlobal.LogError(ex);
+                WindownsEventLog.Log(ex);
             }
         }
-        void _FillCountriesInComboBox()
+        void FillCountriesInComboBox()
         {
             DataTable dtCountries = clsCountry.GetAllCountriesList();
             foreach (DataRow row in dtCountries.Rows)
@@ -298,13 +322,13 @@ namespace PresentationLayer.People
 
 
 
-        
+
 
         private void btnClose_Click(object sender, EventArgs e)
         {
             this.Close();
         }
-        
+
 
         private void txtFirst_Validating(object sender, CancelEventArgs e)
         {
@@ -354,7 +378,8 @@ namespace PresentationLayer.People
 
         private void txtNationalNo_Validating(object sender, CancelEventArgs e)
         {
-            if (string.IsNullOrEmpty(txtNationalNo.Text.Trim()))
+            string NationalNo = txtNationalNo.Text.Trim();
+            if (string.IsNullOrEmpty(NationalNo))
             {
 
                 errorProvider1.SetError(txtNationalNo, "This Field is required !");
@@ -368,18 +393,20 @@ namespace PresentationLayer.People
             }
 
             //Another person has the same National No
-            if (_Mode == enMode.AddNew && clsPerson.IsExist(txtNationalNo.Text.Trim()))
+            if (clsPerson.IsExist(NationalNo))
             {
-
-                errorProvider1.SetError(txtNationalNo, "There is a person already having this national No !");
-                e.Cancel = true;
-
+                if(_Mode == enMode.AddNew||(_Mode == enMode.Update && _CurrentPerson.NationalNo != NationalNo))
+                {
+                    errorProvider1.SetError(txtNationalNo, "There is a person already having this national No !");
+                    e.Cancel = true;
+                }
+                else
+                {
+                    e.Cancel = false;
+                    errorProvider1.SetError(txtNationalNo, null);
+                }
             }
-            else
-            {
-                e.Cancel = false;
-                errorProvider1.SetError(txtNationalNo, null);
-            }
+           
 
 
         }
@@ -446,7 +473,7 @@ namespace PresentationLayer.People
             {
                 e.Cancel = true;
                 errorProvider1.SetError(txtAddress, "This Field is required !");
- 
+
             }
             else
             {
@@ -454,5 +481,140 @@ namespace PresentationLayer.People
                 errorProvider1.SetError(txtAddress, null);
             }
         }
+
+
+        public Image SetImageBrightness(Image image, float brightness)
+        {
+            float[][] ptsArray = {
+              new float[] {1, 0, 0, 0, 0},
+              new float[] {0, 1, 0, 0, 0},
+              new float[] {0, 0, 1, 0, 0},
+              new float[] {0, 0, 0, 1, 0},
+              new float[] {brightness, brightness, brightness, 0, 1}
+            };
+
+            ColorMatrix colorMatrix = new ColorMatrix(ptsArray);
+            ImageAttributes attributes = new ImageAttributes();
+            attributes.SetColorMatrix(colorMatrix);
+
+            Bitmap newBitmap = new Bitmap(image.Width, image.Height);
+            using (Graphics g = Graphics.FromImage(newBitmap))
+            {
+                g.DrawImage(image, new Rectangle(0, 0, newBitmap.Width, newBitmap.Height),
+                    0, 0, image.Width, image.Height, GraphicsUnit.Pixel, attributes);
+            }
+
+            return newBitmap;
+        }
+        private void trackBar1_Scroll(object sender, EventArgs e)
+        {
+            if (pbPersonImage.ImageLocation == null)
+                return;
+            //Original Image will not be changed
+            using (var temp = Image.FromFile(pbPersonImage.ImageLocation))
+                OriginalImage = new Bitmap(temp);//To solve pbox Lock Problem
+            lblBrightness.Text = (trackBar1.Value * 10).ToString() + " $";
+            pbPersonImage.Image = SetImageBrightness(OriginalImage, trackBar1.Value / 10f);
+        }
+
+
+
+
+        clsPerson DeserializeCurrentPersonState(MemoryStream stream)
+            => _DeserializedPerson = DeserializeObjectJSONformat<clsPerson>(stream);
+        void DisplayDerserializedPersonState(clsPerson person)
+        {
+            if (person == null)
+            {
+                MessageBox.Show("Error:Person Previous State was not saved !", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            llRemove.Visible = (person.ImagePath != "");
+            dtpBirth.Value = person.DateOfBirth;
+            if (person.Gendor == 0)
+                rbMale.PerformClick();
+            else
+                rbFemale.PerformClick();
+            txtEmail.Text = person.Email;
+            txtFirst.Text = person.FirstName;
+            txtSecond.Text = person.SecondName;
+            txtThird.Text = person.ThirdName;
+            txtLast.Text = person.LastName;
+            txtNationalNo.Text = person.NationalNo;
+            txtPhone.Text = person.Phone;
+            txtAddress.Text = person.Address;
+            cbCountries.SelectedIndex = cbCountries.FindString(person.Country.CountryName);
+            try
+            {
+                if (person.ImagePath != "")
+                {
+                    if (File.Exists(person.ImagePath))
+                    {
+                        pbPersonImage.ImageLocation = person.ImagePath;
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                WindownsEventLog.Log(ex);
+            }
+        }
+
+
+        void FillCurrentPersonData()
+        {
+            _CurrentPerson.LoggedUserID = CurrentUser.UserID.Value;
+            _CurrentPerson.Email = txtEmail.Text.Trim();
+            _CurrentPerson.NationalNo = txtNationalNo.Text.ToUpper().Trim();
+            _CurrentPerson.NationalityCountryID = clsCountry.GetByName(cbCountries.Text).CountryID.Value;
+            _CurrentPerson.Address = txtAddress.Text.Trim();
+            _CurrentPerson.FirstName = txtFirst.Text.Trim();
+            _CurrentPerson.SecondName = txtSecond.Text.Trim();
+            _CurrentPerson.ThirdName = txtThird.Text.Trim();
+            _CurrentPerson.LastName = txtLast.Text.Trim();
+            if (rbMale.Checked)
+                _CurrentPerson.Gendor = enGendor.Male;
+            else
+                _CurrentPerson.Gendor = enGendor.Female;
+
+            _CurrentPerson.Phone = txtPhone.Text.Trim();
+            _CurrentPerson.DateOfBirth = dtpBirth.Value;
+        }
+
+        MemoryStream SerializeCurrentPersonState(clsPerson person)
+            => SerializeObjectJSONformat<clsPerson>(person);
+        private void btnUndo_Click(object sender, EventArgs e)
+        {
+            btnRedo.Visible = true;
+            UpdatePersonStacks(IsUndo: true);
+        }
+        private void btnRedo_Click(object sender, EventArgs e)
+        {
+            UpdatePersonStacks(IsUndo: false);
+        }
+
+        void UpdatePersonStacks(bool IsUndo)
+        {
+            clsPerson person = new clsPerson(_CurrentPerson);
+            MemoryStream CurrentStream = SerializeCurrentPersonState(person);
+            //1.Push the Current State
+            if (IsUndo)
+                _stkRedo?.Push(CurrentStream);
+            else
+                _stkUndo?.Push(CurrentStream);
+
+            MemoryStream PrevStream = IsUndo ? _stkUndo?.Pop() : _stkRedo?.Pop();
+            //2.Get Previous Stream Person for Deserialization (from Stack) and Display
+            //It will be the Current PersonState
+            _CurrentPerson = DeserializeCurrentPersonState(PrevStream);
+            DisplayDerserializedPersonState(_CurrentPerson);
+            //3.Check if There is no Person States remainded
+            btnUndo.Enabled = _stkUndo.Count > 0;
+            btnRedo.Enabled = _stkRedo.Count > 0;
+        }
+
     }
 }
+ 

@@ -53,7 +53,7 @@
             cbFilterBy.Anchor = AnchorStyles.Left;
             cbFilterBy.DropDownStyle = ComboBoxStyle.DropDownList;
             cbFilterBy.FormattingEnabled = true;
-            cbFilterBy.Items.AddRange(new object[] { "None", "Driver ID", "Person ID", "National No.", "Full Name" });
+            cbFilterBy.Items.AddRange(new object[] { "None", "Driver ID", "Person ID", "National No.", "Full Name", "Active Licenses", "Penalty Points" });
             cbFilterBy.Location = new Point(104, 351);
             cbFilterBy.Margin = new Padding(4, 3, 4, 3);
             cbFilterBy.Name = "cbFilterBy";
@@ -96,6 +96,7 @@
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(520, 45);
             lblTitle.TabIndex = 132;
+            lblTitle.Tag = "MainTitle";
             lblTitle.Text = "Manage Drivers";
             lblTitle.TextAlign = ContentAlignment.MiddleCenter;
             // 

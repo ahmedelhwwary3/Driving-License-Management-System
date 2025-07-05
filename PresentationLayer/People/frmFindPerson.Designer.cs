@@ -42,7 +42,8 @@
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(279, 45);
             lblTitle.TabIndex = 103;
-            lblTitle.Text = "FindByLicenseID Person";
+            lblTitle.Tag = "MainTitle";
+            lblTitle.Text = "Find Person";
             lblTitle.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // btnClose
@@ -85,6 +86,7 @@
             Margin = new Padding(4, 3, 4, 3);
             Name = "frmFindPerson";
             Text = "frmFindPerson";
+            Load += frmFindPerson_Load;
             ResumeLayout(false);
         }
 

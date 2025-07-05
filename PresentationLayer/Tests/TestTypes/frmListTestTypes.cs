@@ -1,5 +1,4 @@
-﻿using BusinessLayer;
-using PresentationLayer.Global;
+﻿using BusinessLayer.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,21 +7,24 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static BusinessLayer.Core.clsUsersPermissions;
 using System.Windows.Forms;
-
+using static BusinessLayer.Core.clsTestType;
+using PresentationLayer.Helpers.BaseUI;
 namespace PresentationLayer.Tests.TestTypes
 {
-    public partial class frmListTestTypes : Form
+    public partial class frmListTestTypes : clsBaseForm
     {
         private DataTable _dtTestTypesList=new DataTable();
         BindingSource _bsTestTypesList = new BindingSource();
         public frmListTestTypes()
         {
             InitializeComponent();
+            SetTheme(this);
             this._bsTestTypesList.BindingComplete 
-                += (sender, e) => _FormatDGVColumns();
+                += (sender, e) => FormatDGVColumns();
         }
-        void _FormatDGVColumns()
+        void FormatDGVColumns()
         {
             if (dgvTestTypes.Columns.Count == 4)
             {
@@ -44,25 +46,24 @@ namespace PresentationLayer.Tests.TestTypes
         private void btnClose_Click(object sender, EventArgs e) 
             => this.Close();
 
-        void _RefreshTotalCount()
+        void RefreshTotalCount()
             => lblRecords.Text = dgvTestTypes.Rows.Count.ToString();
         private void frmListTestTypes_Load(object sender, EventArgs e)
         {
             _dtTestTypesList = clsTestType.GetAllTestTypesList();
             _bsTestTypesList.DataSource= _dtTestTypesList;
             dgvTestTypes.DataSource = _bsTestTypesList;
-            _RefreshTotalCount();
+            RefreshTotalCount();
         }
 
         private void editToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.EditTestType))
-                return;
-            frmEditTestType frm = new frmEditTestType((clsTestType.enTestType)dgvTestTypes.CurrentRow.Cells[0].Value);
-            frm.ShowDialog();
-            _RefreshForm();
+         
+            frmEditTestType frm = new frmEditTestType((enTestType)dgvTestTypes.CurrentRow.Cells[0].Value);
+            frm.ShowDialogIfAuthorized(GetPermissions("Admin"), frm);
+            RefreshForm();
         }
-        void _RefreshForm() => frmListTestTypes_Load(null, null);
+        void RefreshForm() => frmListTestTypes_Load(null, null);
          
     }
 }

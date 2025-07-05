@@ -90,6 +90,7 @@
             label1.Name = "label1";
             label1.Size = new Size(339, 39);
             label1.TabIndex = 7;
+            label1.Tag = "MainTitle";
             label1.Text = "Manage Test Types";
             // 
             // dgvTestTypes

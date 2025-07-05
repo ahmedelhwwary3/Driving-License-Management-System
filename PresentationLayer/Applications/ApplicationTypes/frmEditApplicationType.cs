@@ -1,5 +1,6 @@
-﻿using BusinessLayer;
+﻿using BusinessLayer.Core;
 using PresentationLayer.Global;
+using PresentationLayer.Helpers.BaseUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,14 +14,14 @@ using System.Windows.Forms;
 
 namespace PresentationLayer.Applications.ApplicationTypes
 {
-    public partial class frmEditApplicationType : Form
+    public partial class frmEditApplicationType : clsBaseForm
     {
         private int? _ApplicationTypeID = null;
         private clsApplicationType _ApplicationType = new clsApplicationType();
         public frmEditApplicationType(int ApplicationTypeID)
         {
             InitializeComponent();
-
+            SetTheme(this);
             _ApplicationTypeID = ApplicationTypeID;
         }
 
@@ -28,13 +29,15 @@ namespace PresentationLayer.Applications.ApplicationTypes
 
         private void frmEditApplicationType_Load(object sender, EventArgs e)
         {
-            _ApplicationType = clsApplicationType.GetByID(_ApplicationTypeID);
+         
+            _ApplicationType = clsApplicationType.GetByID(_ApplicationTypeID.Value);
             if (_ApplicationType == null)
             {
                 MessageBox.Show($"Application Type with is not found", "Error"
                     , MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+            SetTitle("Edit Application Type");
             lblID.Text = _ApplicationType.ApplicationTypeID.ToString();
             txtFees.Text = (_ApplicationType.ApplicationFees).ToString("F2");
             txtTitle.Text = _ApplicationType.ApplicationTypeTitle;
@@ -54,13 +57,13 @@ namespace PresentationLayer.Applications.ApplicationTypes
             {
                 MessageBox.Show("Error:An unexpected error occurred ! ", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new FormatException("ApplicationTypeFees Parsing Error."));
+                   clsGlobalData.WindownsEventLog.Log(new FormatException("ApplicationTypeFees Parsing Error."));
                 return;
             }
             _ApplicationType.ApplicationFees = Fees;
             try
             {
-                _ApplicationType.LoggedUserID = clsGlobal.CurrentUser.UserID;
+                _ApplicationType.LoggedUserID = clsGlobalData.CurrentUser.UserID.Value;
                 if (!_ApplicationType.Save())
                     throw new Exception("Save Application Type Failed.");
 
@@ -71,7 +74,7 @@ namespace PresentationLayer.Applications.ApplicationTypes
             {
                 MessageBox.Show("Error:Application Type update Failed", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(ex);
+                clsGlobalData.WindownsEventLog.Log(ex);
             }
 
         }

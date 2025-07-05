@@ -1,72 +1,70 @@
-﻿using BusinessLayer;
-using PresentationLayer.Global;
-using PresentationLayer.People;
+﻿using PresentationLayer.People;
 using PresentationLayer.Properties;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using BusinessLayer.Core;
+using static PresentationLayer.Global.clsGlobalData;
+using static BusinessLayer.Core.clsUsersPermissions;
+using PresentationLayer.Helpers.BaseUI;
 
 namespace PresentationLayer.Users
 {
-    public partial class frmUsersManagement : Form
+    public partial class frmUsersManagement : clsBaseForm
     {
-        private DataTable _dtUsersList = new DataTable();
+        DataTable _SentEmails = new DataTable();
+        DataTable _dtUsersList = new DataTable();
+        Task task;
 
         public frmUsersManagement()
         {
             InitializeComponent();
         }
 
-
-        private void changePasswordToolStripMenuItem_Click(object sender, EventArgs e)
+        void LoadUsersList()
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.AddEditUser))
-                return;
-            if (dgvUsers.CurrentRow == null)
-            {
-                MessageBox.Show("Error:An Unexpected Error happened !", "Error",
-                       MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            if (!(dgvUsers.CurrentRow.Cells[0].Value is int UserID))
-            {
-                MessageBox.Show("Error:An Unexpected Error happened !", "Error",
-              MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Loading Parsing UserID from DGV Row."));
-                return;
-            }
-            frmChangePassword frm = new frmChangePassword(UserID);
-            frm.ShowDialog();
+            lock (GlobalLockObject)
+                _dtUsersList = clsUser.GetAllUsersList();
         }
-        void _RefreshForm()
-            => frmUsersManagement_Load(null, null);
 
-        void _RefreshUsersListCount()
-            => lblRecords.Text = dgvUsers.Rows.Count.ToString();
         private void frmUsersManagement_Load(object sender, EventArgs e)
         {
-            _dtUsersList = clsUser.GetAllUsersList();
-            dgvUsers.DataSource = _dtUsersList;
+            SetTheme(this);
+            btnView.Visible = false;
+            task = Task.Run(() => LoadUsersList());
             SetComboBoxesAsDefault();
-            _RefreshUsersListCount();
+            SetTitle("Users Management");
+            Task.WaitAll(task);
+            dgvUsers.DataSource = _dtUsersList;
+            RefreshUsersListCount();
         }
+
         void SetComboBoxesAsDefault()
         {
             cbFilterColumn.Text = "None";
             cbIsActive.Visible = false;
         }
 
+        void RefreshUsersListCount()
+            => lblRecords.Text = dgvUsers.Rows.Count.ToString();
 
-        private void btnClose_Click(object sender, EventArgs e)
-           => this.Close();
+        void RefreshForm()
+            => frmUsersManagement_Load(null, null);
 
+        string GetFilterColumnDBName()
+        {
+            return cbFilterColumn.Text switch
+            {
+                "Person ID" => "PersonID",
+                "User ID" => "UserID",
+                "User Name" => "UserName",
+                "Full Name" => "FullName",
+                "Permissions" => "Permissions",
+                _ => "None"
+            };
+        }
 
         private void cbFilterColumn_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -79,9 +77,7 @@ namespace PresentationLayer.Users
                 return;
             }
 
-
-
-            txtFilterValue.Visible = (cbFilterColumn.Text != "None");
+            txtFilterValue.Visible = cbFilterColumn.Text != "None";
             if (txtFilterValue.Visible)
             {
                 txtFilterValue.Text = "";
@@ -89,269 +85,68 @@ namespace PresentationLayer.Users
                 cbIsActive.Visible = false;
             }
         }
-        string _GetFilterColumnDBName()
-        {
-            switch (cbFilterColumn.Text)
-            {
-                case "Person ID":
-                    {
-                        return "PersonID";
-                    }
-                case "User ID":
-                    {
-                        return "UserID";
-                    }
-                case "User Name":
-                    {
-                        return "UserName";
-                    }
-                case "Full Name":
-                    {
-                        return "FullName";
-                    }
-                case "Permissions":
-                    return "Permissions";
-                default:
-                    {
-                        return "None";
-                    }
-            }
 
-        }
         private void txtFilterValue_TextChanged(object sender, EventArgs e)
         {
-            //It can not be (Is Active) as the logic we set in 'cbFilterColumn_SelectedIndexChanged' prevent this
-            string FilterColumn = _GetFilterColumnDBName();
-            if (txtFilterValue.Text.Trim() == "")
+            string FilterColumn = GetFilterColumnDBName();
+
+            if (string.IsNullOrWhiteSpace(txtFilterValue.Text))
             {
                 _dtUsersList.DefaultView.RowFilter = "";
-                _RefreshUsersListCount();
+                RefreshUsersListCount();
                 return;
             }
+
             switch (FilterColumn)
             {
                 case "PersonID":
                 case "UserID":
-                    {
-                        _dtUsersList.DefaultView.RowFilter =
-                            string.Format("[{0}] = {1}",
-                            FilterColumn, txtFilterValue.Text.Trim());
-                        break;
-                    }
+                case "Permissions":
+                    _dtUsersList.DefaultView.RowFilter = $"[{FilterColumn}] = {txtFilterValue.Text.Trim()}";
+                    break;
 
                 case "UserName":
                 case "FullName":
-                case "Permissions":
-                    {
-                        _dtUsersList.DefaultView.RowFilter =
-                             string.Format("[{0}] LIKE '%{1}%'",
-                             FilterColumn, txtFilterValue.Text.Trim());
-                        break;
-                    }
-                default://None or another thing (safe)
-                    {
-                        _dtUsersList.DefaultView.RowFilter = "";
-                        cbFilterColumn.SelectedIndex = cbFilterColumn.FindString("None");
-                        break;
-                    }
-            }
-            _RefreshUsersListCount();
+                    _dtUsersList.DefaultView.RowFilter = $"[{FilterColumn}] LIKE '%{txtFilterValue.Text.Trim()}%'";
+                    break;
 
+                default:
+                    _dtUsersList.DefaultView.RowFilter = "";
+                    cbFilterColumn.SelectedIndex = cbFilterColumn.FindString("None");
+                    break;
+            }
+
+            RefreshUsersListCount();
         }
 
         private void txtFilterValue_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (e.KeyChar == (char)Keys.Back)
-                e.Handled = false;
-            if (cbFilterColumn.Text == "Person ID" || cbFilterColumn.Text == "User ID")
-            {
+            if (e.KeyChar == (char)Keys.Back) return;
+
+            if (cbFilterColumn.Text is "Person ID" or "User ID" or "Permissions")
                 e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
-            }
         }
 
-        private void addNewUserToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.AddEditUser))
-                return;
-            frmAddEditUser frm = new frmAddEditUser();
-            frm.ShowDialog();
-            _RefreshForm();
-        }
-
-        private void showDetailsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ShowPersonCard))
-                return;
-            if (dgvUsers.CurrentRow == null)
-            {
-                MessageBox.Show("Error:An Unexpected Error happened while loading person details !", "Error",
-                       MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Loading Person Details DGV."));
-                return;
-            }
-
-            if (!(dgvUsers.CurrentRow.Cells[1].Value is int PersonID))
-            {
-                MessageBox.Show("Error:An Unexpected Error happened !", "Error",
-              MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Loading Parsing PersonID from DGV Row."));
-                return;
-            }
-
-
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.ShowPersonCard))
-                return;
-            frmShowPersonCard frm = new frmShowPersonCard(PersonID);
-            frm.ShowDialog();
-            _RefreshForm();
-
-        }
-
-        private void editToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.AddEditUser))
-                return;
-            if (dgvUsers.CurrentRow == null)
-            {
-                MessageBox.Show("Error:An Unexpected Error happened while loading User!", "Error",
-                       MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Loading User Row in DGV."));
-                return;
-            }
-            if (!(dgvUsers.CurrentRow.Cells[0].Value is int UserID))
-            {
-                MessageBox.Show("Error:An Unexpected Error happened !", "Error",
-                   MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Loading Parsing UserID from DGV Row."));
-                return;
-            }
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.AddEditUser))
-                return;
-            frmAddEditUser frm = new frmAddEditUser(UserID);
-            frm.ShowDialog();
-            _RefreshForm();
-        }
-
-        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.AddEditUser))
-                return;
-            if (MessageBox.Show(
-                "Are you sure you want to delete this User?",
-                "confirm", MessageBoxButtons.OKCancel, MessageBoxIcon.Question,
-                MessageBoxDefaultButton.Button2)
-                != DialogResult.OK)
-            {
-                return;
-            }
-            if (dgvUsers.CurrentRow == null)
-            {
-                MessageBox.Show("Error:An Unexpected Error happened while loading User!", "Error",
-                       MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Loading User Row in DGV."));
-                return;
-            }
-            if (!(dgvUsers.CurrentRow.Cells[0].Value is int UserID))
-            {
-                MessageBox.Show("Error:An Unexpected Error happened !", "Error",
-                   MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobal.LogError(new Exception($"Error when Loading Parsing UserID from DGV Row."));
-                return;
-            }
-            int LoggedUserID=clsGlobal.CurrentUser.UserID.Value;
-            if (clsUser.Delete(UserID, LoggedUserID))
-            {
-                MessageBox.Show("User was deleted successfully",
-                    "delete succeeded", MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
-                _RefreshForm();
-            }
-            else
-                MessageBox.Show(
-                    "User was not deleted successfully",
-                    "delete Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-        }
-        string _GetIsActiveCBFilterDBValue()
-        {
-            switch (cbIsActive.Text)
-            {
-
-                case "Yes":
-                    {
-                        return "1";
-
-                    }
-                case "No":
-                    {
-                        return "0";
-
-                    }
-                default:
-                    { return "-1"; }
-            }
-        }
         private void cbIsActive_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string FilterColumn = "IsActive";
-            string FilterValue = _GetIsActiveCBFilterDBValue();
+            string FilterValue = cbIsActive.Text switch
+            {
+                "Yes" => "1",
+                "No" => "0",
+                _ => "-1"
+            };
 
-            if (FilterValue == "-1")//All or another thing
+            if (FilterValue == "-1")
             {
                 _dtUsersList.DefaultView.RowFilter = "";
                 cbIsActive.SelectedIndex = 0;
-                _RefreshUsersListCount();
+                RefreshUsersListCount();
                 return;
             }
 
-            _dtUsersList.DefaultView.RowFilter =
-                  string.Format("[{0}] = {1}", FilterColumn, FilterValue);
-            _RefreshUsersListCount();
-
+            _dtUsersList.DefaultView.RowFilter = $"[IsActive] = {FilterValue}";
+            RefreshUsersListCount();
         }
-
-        private void sendEmailToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.AddEditUser))
-                return;
-            MessageBox.Show("This method is not implemented yet", "Stup",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-         
-
-        private void sendSMSToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.AddEditUser))
-                return;
-            MessageBox.Show("This method is not implemented yet", "Stup",
-          MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
-        private void dgvUsers_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
-        {
-            if (dgvUsers.Columns.Count == 6)
-            {
-                dgvUsers.Columns[0].HeaderText = "User ID";
-                dgvUsers.Columns[0].Width = 100;
-
-                dgvUsers.Columns[1].HeaderText = "Person ID";
-                dgvUsers.Columns[1].Width = 100;
-
-                dgvUsers.Columns[2].HeaderText = "Full Name";
-                dgvUsers.Columns[2].Width = 250;
-
-                dgvUsers.Columns[3].HeaderText = "User Name";
-                dgvUsers.Columns[3].Width = 150;
-
-                dgvUsers.Columns[4].HeaderText = "Is Active";
-                dgvUsers.Columns[4].Width = 80;
-
-                dgvUsers.Columns[5].HeaderText = "Permissions";
-                dgvUsers.Columns[5].Width = 150;
-            }
-        }
-
-
 
         private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
         {
@@ -359,13 +154,151 @@ namespace PresentationLayer.Users
                 e.Cancel = true;
         }
 
+        private void btnClose_Click(object sender, EventArgs e)
+            => Close();
+
         private void btnAddNewUser_Click(object sender, EventArgs e)
         {
-            if (!clsGlobal.CheckUserAccess(clsGlobal.enScreensPermission.AddEditUser))
+            frmAddEditUser frm = new frmAddEditUser();
+            frm.ShowDialogIfAuthorized(GetPermissions("Admin"), frm);
+            RefreshForm();
+        }
+
+        private void addNewUserToolStripMenuItem1_Click(object sender, EventArgs e)
+            => btnAddNewUser_Click(sender, e);
+
+        private void changePasswordToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (dgvUsers.CurrentRow?.Cells[0].Value is not int userID)
+            {
+                MessageBox.Show("Error: Cannot read UserID", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                WindownsEventLog.Log(new Exception("UserID parsing failed"));
                 return;
-            frmAddEditUser frm=new frmAddEditUser();
+            }
+
+            var frm = new frmChangePassword(userID);
+            frm.ShowDialogIfAuthorized(GetPermissions("AddEdit"), frm);
+            RefreshForm();
+        }
+
+        private void showDetailsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (dgvUsers.CurrentRow?.Cells[1].Value is not int personID)
+            {
+                MessageBox.Show("Error: Cannot read PersonID", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                WindownsEventLog.Log(new Exception("PersonID parsing failed"));
+                return;
+            }
+
+            var frm = new frmShowPersonCard(personID);
+            frm.ShowDialogIfAuthorized(GetPermissions("View"), frm);
+            RefreshForm();
+        }
+
+        private void editToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (dgvUsers.CurrentRow?.Cells[0].Value is not int userID)
+            {
+                MessageBox.Show("Error: Cannot read UserID", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                WindownsEventLog.Log(new Exception("UserID parsing failed"));
+                return;
+            }
+
+            var frm = new frmAddEditUser(userID);
+            frm.ShowDialogIfAuthorized(GetPermissions("Admin"), frm);
+            RefreshForm();
+        }
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!CheckUserAccess(GetPermissions("Admin"))) return;
+
+            if (MessageBox.Show("Are you sure you want to delete this User?", "Confirm",
+                MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
+                != DialogResult.OK) return;
+
+            if (dgvUsers.CurrentRow?.Cells[0].Value is not int userID)
+            {
+                MessageBox.Show("Error: Cannot read UserID", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                WindownsEventLog.Log(new Exception("UserID parsing failed"));
+                return;
+            }
+
+            int loggedUserID = CurrentUser.UserID.Value;
+
+            if (clsUser.Delete(userID, loggedUserID))
+            {
+                MessageBox.Show("User deleted successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                RefreshForm();
+            }
+            else
+            {
+                MessageBox.Show("Failed to delete user", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnSendEmailToAll_Click(object sender, EventArgs e)
+        {
+            string msg = txtEmail.Text.Trim();
+            if (string.IsNullOrEmpty(msg))
+            {
+                MessageBox.Show("Error: No message to send!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            bool allPeople = rbPeople.Checked;
+            _SentEmails = clsUser.SendEmailToAllPeopleOrAllUsers(allPeople, msg);
+
+            if (_SentEmails.Rows.Count > 0)
+            {
+                MessageBox.Show("Message sent successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                btnView.Visible = true;
+            }
+            else
+            {
+                MessageBox.Show("Message failed to send!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            txtEmail.Clear();
+        }
+
+        private void btnView_Click(object sender, EventArgs e)
+        {
+            var frm = new frmListSentEmails(_SentEmails);
             frm.ShowDialog();
-            _RefreshForm();
+        }
+
+        private void sendEmailToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("This method is not implemented yet", "Stub", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void sendSMSToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("This method is not implemented yet", "Stub", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void dgvUsers_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            if (dgvUsers.Columns.Count != 12) return;
+
+            dgvUsers.Columns[0].HeaderText = "User ID"; dgvUsers.Columns[0].Width = 80;
+            dgvUsers.Columns[1].HeaderText = "Person ID"; dgvUsers.Columns[1].Width = 80;
+            dgvUsers.Columns[2].HeaderText = "User Name"; dgvUsers.Columns[2].Width = 120;
+            dgvUsers.Columns[3].HeaderText = "Full Name"; dgvUsers.Columns[3].Width = 260;
+            dgvUsers.Columns[4].HeaderText = "Is Active"; dgvUsers.Columns[4].Width = 70;
+            dgvUsers.Columns[5].HeaderText = "Permissions"; dgvUsers.Columns[5].Width = 80;
+            dgvUsers.Columns[6].HeaderText = "Gender"; dgvUsers.Columns[6].Width = 70;
+            dgvUsers.Columns[7].HeaderText = "Hierarchy"; dgvUsers.Columns[7].Width = 250;
+            dgvUsers.Columns[8].HeaderText = "Level"; dgvUsers.Columns[8].Width = 60;
+            dgvUsers.Columns[9].HeaderText = "Manager ID"; dgvUsers.Columns[9].Width = 80;
+            dgvUsers.Columns[10].HeaderText = "User Permissions Rank \nWith Same Value"; dgvUsers.Columns[10].Width = 70;
+            dgvUsers.Columns[11].HeaderText = "Max Rank"; dgvUsers.Columns[11].Width = 70;
+        }
+
+        private void rbUsers_CheckedChanged(object sender, EventArgs e)
+        {
+            
         }
     }
 }

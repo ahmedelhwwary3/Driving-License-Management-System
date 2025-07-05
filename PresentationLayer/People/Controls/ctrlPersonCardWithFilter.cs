@@ -1,4 +1,5 @@
-﻿using BusinessLayer;
+﻿using BusinessLayer.Core;
+using PresentationLayer.Global;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,11 +9,14 @@ using System.Linq;
 using System.Media;
 using System.Text;
 using System.Threading.Tasks;
+using static BusinessLayer.Core.clsUsersPermissions;
 using System.Windows.Forms;
+using PresentationLayer.Helpers;
+using PresentationLayer.Helpers.BaseUI;
 
 namespace PresentationLayer.People
 {
-    public partial class ctrlPersonCardWithFilter : UserControl
+    public partial class ctrlPersonCardWithFilter : clsBaseCtrl
     {
         //(1) First Event of this Form(Publisher)
         #region OnPersonSelected event
@@ -50,7 +54,8 @@ namespace PresentationLayer.People
 
         public ctrlPersonCardWithFilter()
         {
-            InitializeComponent(); ;
+            InitializeComponent();
+            SetTheme(this);
         }
 
 
@@ -98,7 +103,6 @@ namespace PresentationLayer.People
         private void ctrlPersonCardWithFilter_Load(object sender, EventArgs e)
         {
             cbFilterBy.SelectedIndex = 0;//National No
-            txtFilterValue.Focus();
         }
 
         //(2) Another Event , this form is a subscriber
@@ -117,7 +121,7 @@ namespace PresentationLayer.People
 
 
 
-        bool _ValidatetxtFilter()
+        bool ValidatetxtFilter()
         {
             if (string.IsNullOrEmpty(txtFilterValue.Text.Trim()))
             {
@@ -134,7 +138,7 @@ namespace PresentationLayer.People
         private void btnFind_Click(object sender, EventArgs e)
         {
 
-            if (!_ValidatetxtFilter())
+            if (!ValidatetxtFilter())
             {
                 //Here we dont continue becuase the form is not valid
                 MessageBox.Show("Some fileds are not valid !" +
@@ -151,7 +155,7 @@ namespace PresentationLayer.People
         {
             frmAddEditPerson frm1 = new frmAddEditPerson();
             frm1.DataBack += RefreshCTRLWithDataBack;//Subscribe to the event
-            frm1.ShowDialog();
+            frm1.ShowDialogIfAuthorized(GetPermissions("AddEdit"), frm1);
         }
 
         private void txtFilterValue_KeyPress(object sender, KeyPressEventArgs e)
