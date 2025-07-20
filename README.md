@@ -36,7 +36,8 @@ A full-featured, maintainable desktop application for managing all driver licens
 
 - **UI Layer**: WinForms + modular `UserControls`.  
 - **Business Logic Layer**: Extension methods, casting utilities, serialization, reflection.  
-- **Data Access Layer**: `DBManager` + ADO.NET with stored procedures.  
+- **Data Access Layer**: `DBManager` + ADO.NET with stored procedures.
+- **SOLID (SRP , ISP , DIP)
 - **Database**: SQL Server with:
   - Triggers  
   - Views  
