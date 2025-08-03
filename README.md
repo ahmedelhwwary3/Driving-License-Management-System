@@ -1,94 +1,100 @@
 🚗🛂 Driving License Management System (DLMS)
-A robust, enterprise-grade desktop application for managing the entire lifecycle of driving licenses — from registration and testing to issuance, renewal, and auditing. Built with clean 3-tier architecture in C# (WinForms) and SQL Server, with modular design and real-world scalability.
+A robust, enterprise-grade desktop application for managing the full lifecycle of driving licenses — from registration and testing to issuance, renewal, and auditing.
+Built using C# (WinForms) and SQL Server with a clean 3-tier architecture, modular design, and real-world scalability.
 
 🔧 Core Features
 🎯 Functional Capabilities
-Driver registration with validation and dynamic filtering.
+Driver registration with validation and dynamic filtering
 
-Full license lifecycle (issuance, renewal, replacement, violations).
+Full license lifecycle (issuance, renewal, replacement, violations)
 
-Role-based access control via bitwise flags (Admin, Editor, Viewer).
+Role-based access control using bitwise flags (Admin, Editor, Viewer)
 
-File handling for driver photos and report exports.
+File handling for driver photos and report exports
 
-Outlook integration for employee email notifications.
+Outlook integration for email notifications
 
-Export reports (CRUD operations, users, etc.) via API to Word/Excel.
+Export reports to Word/Excel via API
 
 🔐 Security & Stability
-SHA-256 password hashing.
+SHA-256 password hashing
 
-Soft-delete logic (status flags instead of hard deletes).
+Soft-delete using status flags (no hard deletes)
 
-Error logging via triggers and centralized logging manager.
+Error logging via SQL triggers and centralized logging manager
 
-Safe SQL handling using SqlParameter (null and direction-safe).
+Safe SQL using SqlParameter (null- and direction-safe)
 
-Local storage (user settings, themes) via Windows Registry.
+Persistent local settings via Windows Registry
 
 📈 Performance & Data Management
-All DB operations via Stored Procedures with output params & custom error flows.
+All DB operations handled through Stored Procedures
 
-Efficient pagination (ROW_NUMBER() + OFFSET-FETCH).
+Efficient pagination using ROW_NUMBER() + OFFSET-FETCH
 
-MVTF (Multi-Value Table Functions) for reusable queries.
+Reusable queries via MVTF (Multi-Value Table Functions)
 
-QUOTENAME() used for secure dynamic SQL generation.
+Secure dynamic SQL using QUOTENAME()
 
-🏗 Architecture & Patterns
-3-Tier Architecture:
-
+🏗 Architecture & Design Patterns
+3-Tier Architecture
 UI Layer: WinForms + modular UserControls
 
-Business Logic Layer: Extension methods, serialization, validation
+Business Logic Layer: Extension methods, validation, serialization
 
-Data Access Layer: ADO.NET + stored procedures
+Data Access Layer: ADO.NET + Stored Procedures
 
-Dependency Injection:
+Dependency Injection
+Constructor injection using delegates to decouple logic and enhance testability
 
-Custom delegates passed via constructor injection to decouple business logic and improve testability.
-
-SOLID Principles:
-
-SRP, ISP, DIP applied across layers for maintainability.
+SOLID Principles
+SRP, ISP, DIP applied for scalable and maintainable code
 
 🧠 Engineering Highlights
 ⚙ Transactions & Data Integrity
-Atomic operations using BEGIN TRANSACTION (e.g., license auto-creation after driver registration).
+Atomic operations using BEGIN TRANSACTION
 
-License history and status tracking embedded in DB logic.
+License auto-creation post driver registration
+
+Embedded license history tracking at DB level
 
 🧾 Logging System
 Multi-layered logging:
 
-SQL Logs (ErrorLogs table via triggers)
+SQL Logs via triggers (ErrorLogs table)
 
-Windows Event Viewer (via manifest-elevated logging)
+Windows Event Viewer logs (manifest-elevated)
 
 Registry entries
 
-Text files for auditing
+Text file auditing
 
 🎨 UI & Theming
 Custom ThemeManager + IThemable interface
 
-Three modes: Admin, Dark, Default
+Supports three modes: Admin, Dark, Default
 
-Recursive styling applied across all nested controls
+Recursive styling for all nested controls
 
 ➕ Role Permissions
-Roles managed via bitwise flags
+Roles managed using bitwise flags
 
-Fast checks using bitwise operations (Add, Check, Remove)
+Efficient access checks (Add / Check / Remove)
 
 🛠 Utilities & Helpers
-HashSet<SqlParameter> to prevent duplicates
+HashSet<SqlParameter> to avoid duplicates
 
-Delegates + reflection for flexible execution
+Delegates + Reflection for dynamic execution
 
-Undo/Redo state management using serialized snapshots
+Undo/Redo using serialized state snapshots
 
-Custom extension methods (type casting, param binding, result retrieval)
+Custom extension methods for:
+
+Type casting
+
+Parameter binding
+
+Result retrieval
 
 🧪 Technologies Used
 Category	Tools / Technologies
@@ -100,13 +106,13 @@ Tools	Visual Studio 2022, Windows Registry, Outlook, Event Viewer
 Libraries	ADO.NET, System.IO, Reflection, Serialization, Office Interop, etc.
 
 🚀 How to Run
-Open solution in Visual Studio 2022.
+Open the solution in Visual Studio 2022
 
-Attach the SQL Server database.
+Attach the SQL Server database
 
-Run the application.
+Run the application
 
-Use one of the default accounts:
+Use one of the following default accounts:
 
 Role	Username	Password
 Admin	User1	1111
