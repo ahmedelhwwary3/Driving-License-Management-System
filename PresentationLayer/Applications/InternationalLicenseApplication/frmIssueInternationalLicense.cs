@@ -38,7 +38,7 @@ namespace PresentationLayer.Applications.InternationalLicenseApplication
         public frmIssueInternationalLicense()
         {
             InitializeComponent();
-            SetTheme(this);
+             
         }
         void SetFocusOntxtFilter()
         {
@@ -144,7 +144,7 @@ namespace PresentationLayer.Applications.InternationalLicenseApplication
             {
                 MessageBox.Show($"Error:Issue International License Failed !", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                   WindownsEventLog?.Log(ex);
+                   logExceptions?.AddLog(ex);
             }
 
         }

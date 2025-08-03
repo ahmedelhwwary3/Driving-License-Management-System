@@ -21,7 +21,7 @@ namespace PresentationLayer.Applications.ApplicationTypes
         public frmListApplicationTypes()
         {
             InitializeComponent();
-            SetTheme(this);
+         
         }
         
 
@@ -57,7 +57,7 @@ namespace PresentationLayer.Applications.ApplicationTypes
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
               MessageBoxButtons.OK, MessageBoxIcon.Error);
-                   clsGlobalData.WindownsEventLog.Log(new Exception($"Error when Loading Parsing ApplicationTypeID from DGV Row."));
+                   clsGlobalData.logExceptions?.AddLog(new Exception($"Error when Loading Parsing ApplicationTypeID from DGV Row."));
                 return;
             }
             frmEditApplicationType frm = new frmEditApplicationType(ApplicationTypeID);

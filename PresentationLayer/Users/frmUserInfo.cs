@@ -17,7 +17,7 @@ namespace PresentationLayer.Users
         private int? _UserID = null;
         public frmUserInfo(int UserID)
         {
-            SetTheme(this);
+ 
             InitializeComponent();
             _UserID=UserID; 
         }

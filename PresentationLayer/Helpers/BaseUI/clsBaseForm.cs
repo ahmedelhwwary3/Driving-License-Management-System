@@ -16,6 +16,7 @@ namespace PresentationLayer.Helpers.BaseUI
         {
             if (!CheckUserAccess(FormAccess.Value))
                 return;
+            SetTheme(frm);
             frm.ShowDialog();
         }
         internal static Boolean CheckUserAccess(byte Access)

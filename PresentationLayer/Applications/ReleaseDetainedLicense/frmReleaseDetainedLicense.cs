@@ -27,7 +27,7 @@ namespace PresentationLayer.Applications.ReleaseDetainedLicense
         public frmReleaseDetainedLicense()
         {
             InitializeComponent();
-            SetTheme(this);
+   
             _Mode = enMode.unKnown;
         }
         public frmReleaseDetainedLicense(int DetainID)
@@ -130,7 +130,7 @@ namespace PresentationLayer.Applications.ReleaseDetainedLicense
             {
                 MessageBox.Show("Error:Release Failed !", "Error",
                   MessageBoxButtons.OK, MessageBoxIcon.Error);
-                  WindownsEventLog?.Log(ex);
+                  logExceptions?.AddLog(ex);
             }
         }
          

@@ -37,7 +37,7 @@ namespace PresentationLayer.Applications.RenewLocalLicense
         public frmRenewLocalLicense()
         {
             InitializeComponent();
-            SetTheme(this);
+          
 
         }
 
@@ -125,7 +125,7 @@ namespace PresentationLayer.Applications.RenewLocalLicense
                 MessageBox.Show("Error:Renewing Old License Failed", "Error",
                    MessageBoxButtons.OK
                    , MessageBoxIcon.Error);
-                WindownsEventLog?.Log(ex);
+                logExceptions?.AddLog(ex);
             }
 
         }

@@ -18,7 +18,7 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
         public frmListHighRiskApplicants()
         {
             InitializeComponent();
-            SetTheme(this);
+      
         }
 
         private void frmListHighRiskApplicants_Load(object sender, EventArgs e)

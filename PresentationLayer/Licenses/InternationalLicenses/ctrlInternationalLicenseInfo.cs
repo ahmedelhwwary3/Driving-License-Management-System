@@ -53,7 +53,7 @@ namespace PresentationLayer.Licenses.InternationalLicenses
             }
             catch (FileLoadException ex)
             {
-                WindownsEventLog?.Log(ex);
+                logExceptions?.AddLog(ex);
                 return false;
             }
             return false;

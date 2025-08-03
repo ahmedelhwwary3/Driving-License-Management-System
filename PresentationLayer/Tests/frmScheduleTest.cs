@@ -21,7 +21,7 @@ namespace PresentationLayer.Tests
         public frmScheduleTest(int LocalDrivingLicenseApplicationID, enTestType testTypeID,int? TestAppointmentID=null)
         {
             InitializeComponent();
-            SetTheme(this);
+ 
             _LocalDrivingLicenseApplicationID = LocalDrivingLicenseApplicationID;
             _TestTypeID = testTypeID;
             _TestAppointmentID = TestAppointmentID;

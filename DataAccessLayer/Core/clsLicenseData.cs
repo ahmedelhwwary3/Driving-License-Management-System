@@ -51,7 +51,7 @@ namespace DataAccessLayer.Core
             Parameters?.AddSQLParameter("@IsActive", IsActive);
             Parameters?.AddSQLParameter("@IssueReason", IssueReason);
             Parameters?.AddSQLParameter("@CreatedByUserID", CreatedByUserID);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
 
             object ID = DBManager?.ExecuteScalar("sp_AddLicenseExistedDriver", Parameters);
             return ID.ToNullableInt32();
@@ -70,7 +70,7 @@ namespace DataAccessLayer.Core
             Parameters?.AddSQLParameter("@PaidFees", PaidFees);
             Parameters?.AddSQLParameter("@IsActive", IsActive);
             Parameters?.AddSQLParameter("@CreatedByUserID", CreatedByUserID);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
 
             object ID = DBManager?.ExecuteScalar("sp_AddLicenseFirstTime", Parameters);
             return ID.ToNullableInt32();
@@ -82,7 +82,7 @@ namespace DataAccessLayer.Core
             Parameters?.AddSQLParameter("@LicenseID", LicenseID);
             Parameters?.AddSQLParameter("@Notes", Notes);
             Parameters?.AddSQLParameter("@IsActive", IsActive);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
 
             return DBManager?.ExecuteNonQuery("sp_UpdateLicenseByID", Parameters) ?? false;
         }
@@ -91,7 +91,7 @@ namespace DataAccessLayer.Core
         {
             var Parameters = new HashSet<SqlParameter>();
             Parameters?.AddSQLParameter("@LicenseID", LicenseID);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
             return DBManager?.ExecuteNonQuery("sp_DeleteLicenseByID", Parameters) ?? false;
         }
 
@@ -106,7 +106,7 @@ namespace DataAccessLayer.Core
         {
             var Parameters = new HashSet<SqlParameter>();
             Parameters?.AddSQLParameter("@LicenseID", LicenseID);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
             return DBManager?.ExecuteNonQuery("sp_ActivateLicenseByID", Parameters) ?? false;
         }
 
@@ -114,7 +114,7 @@ namespace DataAccessLayer.Core
         {
             var Parameters = new HashSet<SqlParameter>();
             Parameters?.AddSQLParameter("@LicenseID", LicenseID);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
             return DBManager?.ExecuteNonQuery("sp_DeactivateLicenseByID", Parameters) ?? false;
         }
 
@@ -148,7 +148,7 @@ namespace DataAccessLayer.Core
             Parameters?.AddSQLParameter("@LicenseClass", LicenseClass);
             Parameters?.AddSQLParameter("@IssueReason", IssueReason);
             Parameters?.AddSQLParameter("@PenaltyPoints", PenaltyPoints);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
 
             object ID = DBManager?.ExecuteScalar("sp_RenewOrReplaceOldLicense", Parameters);
             return ID.ToNullableInt32();

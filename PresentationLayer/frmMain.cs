@@ -10,7 +10,7 @@ using PresentationLayer.Drivers;
 using PresentationLayer.Global;
 using PresentationLayer.Licenses.DetainLicense;
 using PresentationLayer.Licenses.InternationalLicenses;
-using PresentationLayer.Login;
+using PresentationLayer.AddLogin;
 using PresentationLayer.People;
 using PresentationLayer.Tests;
 using PresentationLayer.Tests.TestTypes;
@@ -26,20 +26,20 @@ using static BusinessLayer.Core.clsUsersPermissions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static PresentationLayer.Global.clsGlobalData;
-using static PresentationLayer.Helpers.Logger.clsRegistry;
+using static PresentationLayer.Helpers.AddLogs.Credentials.AddLogTypes.clsRegCredentialsLog;
 using PresentationLayer.Helpers.BaseUI;
 
 namespace PresentationLayer
 {
     public partial class frmMain : clsBaseForm
     {
-        private frmLogin _frmLogin;
-        public frmMain(frmLogin frmLogin)
+        private frmAddLogin _frmAddLogin;
+        public frmMain(frmAddLogin frmAddLogin)
         {
             InitializeComponent();
             SetTheme(this);
-            _frmLogin = frmLogin;
-            this.FormClosed += (sender, e) => _frmLogin.Show();
+            _frmAddLogin = frmAddLogin;
+            this.FormClosed += (sender, e) => _frmAddLogin.Show();
         }
 
         private void currentUserInfoToolStripMenuItem_Click(object sender, EventArgs e)
@@ -58,7 +58,7 @@ namespace PresentationLayer
         {
             CurrentUser = null;
             this.Close();
-            //Login Handled using FormClosed event
+            //AddLogin Handled using FormClosed event
         }
 
         private void changePasswordToolStripMenuItem_Click(object sender, EventArgs e)
@@ -212,14 +212,14 @@ namespace PresentationLayer
         private void usersToolStripMenuItem1_Click(object sender, EventArgs e)
         {
 
-            frmListUserLogins frm = new frmListUserLogins();
+            frmListUserAddLogins frm = new frmListUserAddLogins();
             frm.ShowDialogIfAuthorized(GetByAccessType("Admin")?.Permissions, frm);
         }
 
         private void operationsToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
-            frmListOperationLogs frm = new frmListOperationLogs();
+            frmListOperationAddLogs frm = new frmListOperationAddLogs();
             frm.ShowDialogIfAuthorized(GetByAccessType("Admin")?.Permissions, frm);
         }
 
@@ -240,7 +240,7 @@ namespace PresentationLayer
         private void defaultToolStripMenuItem_Click(object sender, EventArgs e)
         {
             CurrentTheme?.LoadTheme(enThemeMode.Default);
-            SetUserThemeInRegistry((int)enThemeMode.Default);
+            logThemeModes.AddLog((int)enThemeMode.Default);
             base.SetTheme(this);
 
         }
@@ -248,14 +248,14 @@ namespace PresentationLayer
         private void darkToolStripMenuItem_Click(object sender, EventArgs e)
         {
             CurrentTheme?.LoadTheme(enThemeMode.Dark);
-            SetUserThemeInRegistry((int)enThemeMode.Dark);
+            logThemeModes.AddLog((int)enThemeMode.Dark);
             base.SetTheme(this);
         }
 
         private void adminToolStripMenuItem_Click(object sender, EventArgs e)
         {
             CurrentTheme?.LoadTheme(enThemeMode.Admin);
-            SetUserThemeInRegistry((int)enThemeMode.Admin);
+            logThemeModes.AddLog((int)enThemeMode.Admin);
             base.SetTheme(this);
         }
         

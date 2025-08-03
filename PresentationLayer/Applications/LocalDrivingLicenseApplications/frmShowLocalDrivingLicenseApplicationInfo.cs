@@ -18,7 +18,7 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications.Control
         public frmShowLocalDrivingLicenseApplicationInfo(int LocalDrivingLicenseApplicationID)
         {
             InitializeComponent();
-            SetTheme(this);
+ 
             _LocalDrivingLicenseApplicationID =LocalDrivingLicenseApplicationID;
         }
 

@@ -72,7 +72,7 @@ namespace PresentationLayer.Licenses.LocalLicenses.Controls
             {
                 MessageBox.Show("Error:An unexpected error happened !", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                   WindownsEventLog?.Log(new FormatException("Error with parsing txtLicenseID to int ."));
+                   logExceptions?.AddLog(new FormatException("Error with parsing txtLicenseID to int ."));
                 return;
             }
             _LicenseID = LicenseID;

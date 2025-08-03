@@ -13,7 +13,7 @@ namespace BusinessLayer.Core
     /// Base Application class
     /// This class will be inherited fron the other sub applications
     /// </summary>
-    [Description("This class is for Any Application for any service.")]
+    [clsDescription("This class is for Any Application for any service.")]
     public class clsApplication
     {
         public enum enApplicationStatus { New = 1, Cancelled = 2, Completed = 3 };

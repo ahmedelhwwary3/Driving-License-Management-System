@@ -25,13 +25,12 @@ namespace PresentationLayer.Users
 
         void LoadUsersList()
         {
-            lock (GlobalLockObject)
+            lock (lockObject)
                 _dtUsersList = clsUser.GetAllUsersList();
         }
 
         private void frmUsersManagement_Load(object sender, EventArgs e)
         {
-            SetTheme(this);
             btnView.Visible = false;
             task = Task.Run(() => LoadUsersList());
             SetComboBoxesAsDefault();
@@ -89,31 +88,40 @@ namespace PresentationLayer.Users
         private void txtFilterValue_TextChanged(object sender, EventArgs e)
         {
             string FilterColumn = GetFilterColumnDBName();
-
-            if (string.IsNullOrWhiteSpace(txtFilterValue.Text))
+            try
             {
-                _dtUsersList.DefaultView.RowFilter = "";
-                RefreshUsersListCount();
-                return;
-            }
-
-            switch (FilterColumn)
-            {
-                case "PersonID":
-                case "UserID":
-                case "Permissions":
-                    _dtUsersList.DefaultView.RowFilter = $"[{FilterColumn}] = {txtFilterValue.Text.Trim()}";
-                    break;
-
-                case "UserName":
-                case "FullName":
-                    _dtUsersList.DefaultView.RowFilter = $"[{FilterColumn}] LIKE '%{txtFilterValue.Text.Trim()}%'";
-                    break;
-
-                default:
+                if (string.IsNullOrWhiteSpace(txtFilterValue.Text))
+                {
                     _dtUsersList.DefaultView.RowFilter = "";
-                    cbFilterColumn.SelectedIndex = cbFilterColumn.FindString("None");
-                    break;
+                    RefreshUsersListCount();
+                    return;
+                }
+                switch (FilterColumn)
+                {
+                    case "PersonID":
+                    case "UserID":
+                    case "Permissions":
+                        _dtUsersList.DefaultView.RowFilter = $"[{FilterColumn}] = {txtFilterValue.Text.Trim()}";
+                        break;
+
+                    case "UserName":
+                    case "FullName":
+                        _dtUsersList.DefaultView.RowFilter = $"[{FilterColumn}] LIKE '%{txtFilterValue.Text.Trim()}%'";
+                        break;
+
+                    default:
+                        _dtUsersList.DefaultView.RowFilter = "";
+                        cbFilterColumn.SelectedIndex = cbFilterColumn.FindString("None");
+                        break;
+                }
+            }
+            catch (FormatException ex)
+            {
+                logExceptions?.AddLog(ex);
+            }
+            catch(Exception ex)
+            {
+                logExceptions?.AddLog(ex);
             }
 
             RefreshUsersListCount();
@@ -136,16 +144,31 @@ namespace PresentationLayer.Users
                 _ => "-1"
             };
 
-            if (FilterValue == "-1")
+            try
             {
-                _dtUsersList.DefaultView.RowFilter = "";
-                cbIsActive.SelectedIndex = 0;
+
+                if (FilterValue == "-1")
+                {
+                    _dtUsersList.DefaultView.RowFilter = "";
+                    cbIsActive.SelectedIndex = 0;
+                    RefreshUsersListCount();
+                    return;
+                }
+
+                _dtUsersList.DefaultView.RowFilter = $"[IsActive] = {FilterValue}";
                 RefreshUsersListCount();
-                return;
+
+            }
+            catch (FormatException ex)
+            {
+                logExceptions?.AddLog(ex);
+            }
+            catch (Exception ex)
+            {
+                logExceptions?.AddLog(ex);
             }
 
-            _dtUsersList.DefaultView.RowFilter = $"[IsActive] = {FilterValue}";
-            RefreshUsersListCount();
+            
         }
 
         private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
@@ -172,7 +195,7 @@ namespace PresentationLayer.Users
             if (dgvUsers.CurrentRow?.Cells[0].Value is not int userID)
             {
                 MessageBox.Show("Error: Cannot read UserID", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new Exception("UserID parsing failed"));
+                logExceptions?.AddLog(new Exception("UserID parsing failed"));
                 return;
             }
 
@@ -186,7 +209,7 @@ namespace PresentationLayer.Users
             if (dgvUsers.CurrentRow?.Cells[1].Value is not int personID)
             {
                 MessageBox.Show("Error: Cannot read PersonID", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new Exception("PersonID parsing failed"));
+                logExceptions?.AddLog(new Exception("PersonID parsing failed"));
                 return;
             }
 
@@ -200,7 +223,7 @@ namespace PresentationLayer.Users
             if (dgvUsers.CurrentRow?.Cells[0].Value is not int userID)
             {
                 MessageBox.Show("Error: Cannot read UserID", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new Exception("UserID parsing failed"));
+                logExceptions?.AddLog(new Exception("UserID parsing failed"));
                 return;
             }
 
@@ -220,13 +243,13 @@ namespace PresentationLayer.Users
             if (dgvUsers.CurrentRow?.Cells[0].Value is not int userID)
             {
                 MessageBox.Show("Error: Cannot read UserID", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new Exception("UserID parsing failed"));
+                logExceptions?.AddLog(new Exception("UserID parsing failed"));
                 return;
             }
 
-            int loggedUserID = CurrentUser.UserID.Value;
+            int LoggedUserID = CurrentUser.UserID.Value;
 
-            if (clsUser.Delete(userID, loggedUserID))
+            if (clsUser.Delete(userID, LoggedUserID))
             {
                 MessageBox.Show("User deleted successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 RefreshForm();

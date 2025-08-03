@@ -30,7 +30,7 @@ namespace PresentationLayer.Applications.ReplacementForDamagedOrLostLicense
         public frmReplacementForDamagedOrLostLicenses()
         {
             InitializeComponent();
-            SetTheme(this);
+     
         }
         void SetFocusOntxtFilter()
         {
@@ -85,7 +85,8 @@ namespace PresentationLayer.Applications.ReplacementForDamagedOrLostLicense
                 MessageBox.Show(
                     "Error:License Replacement Failed !", "Error"
                     , MessageBoxButtons.OK, MessageBoxIcon.Error);
-                   WindownsEventLog?.Log(ex);
+                   logExceptions?.AddLog(ex);
+       
             }
         }
         int? _ReplaceAndGetNewLicenseID()

@@ -53,7 +53,7 @@
             manageApplicationTypesToolStripMenuItem = new ToolStripMenuItem();
             manageTestTypesToolStripMenuItem = new ToolStripMenuItem();
             manageUsersPermissionsToolStripMenuItem = new ToolStripMenuItem();
-            logsToolStripMenuItem = new ToolStripMenuItem();
+            AddLogsToolStripMenuItem = new ToolStripMenuItem();
             usersToolStripMenuItem1 = new ToolStripMenuItem();
             operationsToolStripMenuItem = new ToolStripMenuItem();
             updateUsersToolStripMenuItem = new ToolStripMenuItem();
@@ -93,7 +93,7 @@
             // 
             // applicationsToolStripMenuItem
             // 
-            applicationsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { drivingLicenseServicesToolStripMenuItem, toolStripMenuItem2, manageApplicatonsToolStripMenuItem, toolStripMenuItem3, detainLicensesToolStripMenuItem, manageApplicationTypesToolStripMenuItem, manageTestTypesToolStripMenuItem, manageUsersPermissionsToolStripMenuItem, logsToolStripMenuItem, updateUsersToolStripMenuItem });
+            applicationsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { drivingLicenseServicesToolStripMenuItem, toolStripMenuItem2, manageApplicatonsToolStripMenuItem, toolStripMenuItem3, detainLicensesToolStripMenuItem, manageApplicationTypesToolStripMenuItem, manageTestTypesToolStripMenuItem, manageUsersPermissionsToolStripMenuItem, AddLogsToolStripMenuItem, updateUsersToolStripMenuItem });
             applicationsToolStripMenuItem.Image = Properties.Resources.Applications_64;
             applicationsToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
             applicationsToolStripMenuItem.Name = "applicationsToolStripMenuItem";
@@ -279,14 +279,14 @@
             manageUsersPermissionsToolStripMenuItem.Text = "Manage Users Permissions";
             manageUsersPermissionsToolStripMenuItem.Click += manageUsersPermissionsToolStripMenuItem_Click;
             // 
-            // logsToolStripMenuItem
+            // AddLogsToolStripMenuItem
             // 
-            logsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { usersToolStripMenuItem1, operationsToolStripMenuItem });
-            logsToolStripMenuItem.Image = Properties.Resources.users_64;
-            logsToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
-            logsToolStripMenuItem.Name = "logsToolStripMenuItem";
-            logsToolStripMenuItem.Size = new Size(359, 70);
-            logsToolStripMenuItem.Text = "Logs";
+            AddLogsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { usersToolStripMenuItem1, operationsToolStripMenuItem });
+            AddLogsToolStripMenuItem.Image = Properties.Resources.users_64;
+            AddLogsToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
+            AddLogsToolStripMenuItem.Name = "AddLogsToolStripMenuItem";
+            AddLogsToolStripMenuItem.Size = new Size(359, 70);
+            AddLogsToolStripMenuItem.Text = "AddLogs";
             // 
             // usersToolStripMenuItem1
             // 
@@ -380,22 +380,28 @@
             // 
             // defaultToolStripMenuItem
             // 
+            defaultToolStripMenuItem.Image = (Image)resources.GetObject("defaultToolStripMenuItem.Image");
+            defaultToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
             defaultToolStripMenuItem.Name = "defaultToolStripMenuItem";
-            defaultToolStripMenuItem.Size = new Size(148, 30);
+            defaultToolStripMenuItem.Size = new Size(196, 38);
             defaultToolStripMenuItem.Text = "Default";
             defaultToolStripMenuItem.Click += defaultToolStripMenuItem_Click;
             // 
             // darkToolStripMenuItem
             // 
+            darkToolStripMenuItem.Image = Resource1.dark;
+            darkToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
             darkToolStripMenuItem.Name = "darkToolStripMenuItem";
-            darkToolStripMenuItem.Size = new Size(148, 30);
+            darkToolStripMenuItem.Size = new Size(196, 38);
             darkToolStripMenuItem.Text = "Dark";
             darkToolStripMenuItem.Click += darkToolStripMenuItem_Click;
             // 
             // adminToolStripMenuItem
             // 
+            adminToolStripMenuItem.Image = (Image)resources.GetObject("adminToolStripMenuItem.Image");
+            adminToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
             adminToolStripMenuItem.Name = "adminToolStripMenuItem";
-            adminToolStripMenuItem.Size = new Size(148, 30);
+            adminToolStripMenuItem.Size = new Size(196, 38);
             adminToolStripMenuItem.Text = "Admin";
             adminToolStripMenuItem.Click += adminToolStripMenuItem_Click;
             // 
@@ -530,7 +536,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem signOutToolStripMenuItem;
         private System.Windows.Forms.PictureBox pbImage;
-        private ToolStripMenuItem logsToolStripMenuItem;
+        private ToolStripMenuItem AddLogsToolStripMenuItem;
         private ToolStripMenuItem usersToolStripMenuItem1;
         private ToolStripMenuItem operationsToolStripMenuItem;
         private ToolStripMenuItem manageUsersPermissionsToolStripMenuItem;

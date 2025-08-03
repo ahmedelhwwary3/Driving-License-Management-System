@@ -7,7 +7,7 @@ using DataAccessLayer.Core;
 
 namespace BusinessLayer.Core
 {
-    [Description("Vision, Written, Street")]
+    [clsDescription("Vision, Written, Street")]
     public class clsTestType
     {
         protected enum enMode { AddNew, Update }

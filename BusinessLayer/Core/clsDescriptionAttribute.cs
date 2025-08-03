@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 namespace BusinessLayer.Core
 {
     [AttributeUsage(AttributeTargets.All,AllowMultiple =true)]
-    public class DescriptionAttribute:Attribute
+    public class clsDescriptionAttribute:Attribute
     {
         public string Text { get; set; }
-        public DescriptionAttribute(string text)
+        public clsDescriptionAttribute(string text)
             => this.Text = text;
 
 

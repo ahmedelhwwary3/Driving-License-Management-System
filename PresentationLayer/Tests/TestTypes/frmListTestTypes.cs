@@ -20,7 +20,7 @@ namespace PresentationLayer.Tests.TestTypes
         public frmListTestTypes()
         {
             InitializeComponent();
-            SetTheme(this);
+    
             this._bsTestTypesList.BindingComplete 
                 += (sender, e) => FormatDGVColumns();
         }

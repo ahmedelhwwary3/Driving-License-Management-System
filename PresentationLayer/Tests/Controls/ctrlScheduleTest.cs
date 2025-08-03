@@ -123,7 +123,7 @@ namespace PresentationLayer.Tests.Controls
             {
                 MessageBox.Show("Error:An unexpected error happened !","Error",
                     MessageBoxButtons.OK,MessageBoxIcon.Error);
-                   WindownsEventLog?.Log(new FormatException("Error while parsing lblFees or lblRetakeAppFees to decimal ."));
+                   logExceptions?.AddLog(new FormatException("Error while parsing lblFees or lblRetakeAppFees to decimal ."));
                 return;
             }
             lblTotalFees.Text = (TestFees + RetakeFees).ToString();
@@ -283,7 +283,7 @@ namespace PresentationLayer.Tests.Controls
             {
                 MessageBox.Show("Error:Some thing wrong happened !", "Error"
                    , MessageBoxButtons.OK, MessageBoxIcon.Error);
-                   WindownsEventLog?.Log(new FormatException(
+                   logExceptions?.AddLog(new FormatException(
                     "Error with Test Fees Parsing."));
                 return;
             }
@@ -319,7 +319,7 @@ namespace PresentationLayer.Tests.Controls
             }
             catch (Exception ex)
             {
-                WindownsEventLog?.Log(ex);
+                logExceptions?.AddLog(ex);
                 MessageBox.Show("Error:An unexpected error occurred while saving. " +
                  "Please try again later.", "Save failed", MessageBoxButtons.OK
                 , MessageBoxIcon.Error);

@@ -33,7 +33,7 @@ namespace DataAccessLayer.Helpers
                 return false;
             return Convert.ToBoolean(value);
         }
-        public static void AddLoggedUserID(this HashSet<SqlParameter> Parameters,int LoggedUserID)
+        public static void LoggedUserID(this HashSet<SqlParameter> Parameters,int LoggedUserID)
         {
             Parameters?.Add(new SqlParameter("@key", "LoggedUserID"));
             Parameters?.Add(new SqlParameter("@value", LoggedUserID));

@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static BusinessLayer.Core.clsPerson;
 using static BusinessLayer.Core.clsUsersPermissions;
 using static PresentationLayer.Global.clsGlobalData;
 namespace PresentationLayer.Drivers
@@ -24,7 +25,7 @@ namespace PresentationLayer.Drivers
         DataTable _dtAllDriversList = new DataTable();
         void LoadAllDriversList()
         {
-            lock (GlobalLockObject)
+            lock (lockObject)
             {
                 _dtAllDriversList = clsDriver.GetAllDriversList();
             }
@@ -33,7 +34,7 @@ namespace PresentationLayer.Drivers
         public frmListDrivers()
         {
             InitializeComponent();
-            SetTheme(this);
+ 
         }
            
 
@@ -76,7 +77,7 @@ namespace PresentationLayer.Drivers
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
-                   clsGlobalData.WindownsEventLog.Log(new Exception($"Error when Loading Parsing PersonID from DGV Row."));
+                logExceptions?.AddLog(new Exception($"Error when Loading Parsing PersonID from DGV Row."));
                 return;
             }
             frmShowPersonCard frm = new frmShowPersonCard(PersonID);
@@ -98,7 +99,7 @@ namespace PresentationLayer.Drivers
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
-                   clsGlobalData.WindownsEventLog.Log(new Exception($"Error when Loading Parsing PersonID from DGV Row."));
+                logExceptions?.AddLog(new Exception($"Error when Loading Parsing PersonID from DGV Row."));
                 return;
             }
             frmShowLicenseHistory frm = new frmShowLicenseHistory(PersonID);
@@ -107,48 +108,55 @@ namespace PresentationLayer.Drivers
         }
         string GetFilterColumnDBName()
         {
-            switch (cbFilterBy.Text)
+            return cbFilterBy.Text switch
             {
-                case "Driver ID":
-                    return "DriverID";
-                case "Person ID":
-                    return "PersonID";
-                case "National No.":
-                    return "NationalNo";
-                case "Full Name":
-                    return "FullName";
-                case "Active Licenses":
-                    return "ActiveLicenses";
-                case "Penalty Points":
-                    return "PenaltyPoints";
-                default:
-                    return "None";
-            }
+                "Driver ID" => "DriverID",
+                "Person ID" => "PersonID",
+                "National No." => "NationalNo",
+                "Full Name" => "FullName",
+                "Active Licenses" => "ActiveLicenses",
+                "Penalty Points" => "PenaltyPoints",
+                _ => "None"
+            };
         }
         private void txtFilterValue_TextChanged(object sender, EventArgs e)
         {
             string FilterColumn = GetFilterColumnDBName();
-            if (txtFilterValue.Text.Trim() == "")
+            try
             {
-                _dtAllDriversList.DefaultView.RowFilter = "";
+                if (txtFilterValue.Text.Trim() == "")
+                {
+                    _dtAllDriversList.DefaultView.RowFilter = "";
+                    RefreshTotalCount();
+                    return;
+                }
+                if (txtFilterValue.Text.Trim() == "None")
+                {
+                    //Fire cb Event
+                    cbFilterBy.SelectedIndex = cbFilterBy.FindString("None");
+                    _dtAllDriversList.DefaultView.RowFilter = "";
+                    RefreshTotalCount();
+                    return;
+                }
+
+                if (FilterColumn != "FullName" && FilterColumn != "NationalNo")
+                    //in this case we deal with numbers not string.
+                    _dtAllDriversList.DefaultView.RowFilter = string.Format("[{0}] = {1}", FilterColumn, txtFilterValue.Text.Trim());
+                else
+                    _dtAllDriversList.DefaultView.RowFilter = string.Format("[{0}] LIKE '%{1}%'", FilterColumn, txtFilterValue.Text.Trim());
                 RefreshTotalCount();
-                return;
+
             }
-            if (txtFilterValue.Text.Trim() == "None")
+            catch (FormatException ex)
             {
-                //Fire cb Event
-                cbFilterBy.SelectedIndex = cbFilterBy.FindString("None");
-                _dtAllDriversList.DefaultView.RowFilter = "";
-                RefreshTotalCount();
-                return;
+                logExceptions?.AddLog(ex);
+            }
+            catch (Exception ex)
+            {
+                logExceptions?.AddLog(ex);
             }
 
-            if (FilterColumn != "FullName" && FilterColumn != "NationalNo")
-                //in this case we deal with numbers not string.
-                _dtAllDriversList.DefaultView.RowFilter = string.Format("[{0}] = {1}", FilterColumn, txtFilterValue.Text.Trim());
-            else
-                _dtAllDriversList.DefaultView.RowFilter = string.Format("[{0}] LIKE '%{1}%'", FilterColumn, txtFilterValue.Text.Trim());
-            RefreshTotalCount();
+            
         }
 
         private void cbFilterBy_SelectedIndexChanged(object sender, EventArgs e)

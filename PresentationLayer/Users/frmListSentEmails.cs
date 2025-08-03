@@ -22,7 +22,7 @@ namespace PresentationLayer.Users
 
         private void frmListSentEmails_Load(object sender, EventArgs e)
         {
-            SetTheme(this);
+     
             dgvSentMails.DataSource = _dtSentMails;
             lblRecords.Text=dgvSentMails?.Rows?.Count.ToString()??string.Empty;
         }

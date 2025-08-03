@@ -1,6 +1,6 @@
-﻿namespace PresentationLayer.Login
+﻿namespace PresentationLayer.AddLogin
 {
-    partial class frmLogin
+    partial class frmAddLogin
     {
         /// <summary>
         /// Required designer variable.
@@ -29,13 +29,13 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmLogin));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmAddLogin));
             chkRemember = new CheckBox();
             label6 = new Label();
             label5 = new Label();
             txtPassword = new TextBox();
             txtUserName = new TextBox();
-            btnLogin = new Button();
+            btnAddLogin = new Button();
             btnClose = new Button();
             label4 = new Label();
             label3 = new Label();
@@ -103,18 +103,18 @@
             txtUserName.TabIndex = 0;
             txtUserName.KeyPress += txtUserName_KeyPress;
             // 
-            // btnLogin
+            // btnAddLogin
             // 
-            btnLogin.Image = Properties.Resources.User_32__23;
-            btnLogin.Location = new Point(856, 392);
-            btnLogin.Margin = new Padding(4, 3, 4, 3);
-            btnLogin.Name = "btnLogin";
-            btnLogin.Size = new Size(133, 54);
-            btnLogin.TabIndex = 2;
-            btnLogin.Text = "Login";
-            btnLogin.TextImageRelation = TextImageRelation.ImageBeforeText;
-            btnLogin.UseVisualStyleBackColor = true;
-            btnLogin.Click += btnLogin_Click;
+            btnAddLogin.Image = Properties.Resources.User_32__23;
+            btnAddLogin.Location = new Point(856, 392);
+            btnAddLogin.Margin = new Padding(4, 3, 4, 3);
+            btnAddLogin.Name = "btnAddLogin";
+            btnAddLogin.Size = new Size(133, 54);
+            btnAddLogin.TabIndex = 2;
+            btnAddLogin.Text = "Login";
+            btnAddLogin.TextImageRelation = TextImageRelation.ImageBeforeText;
+            btnAddLogin.UseVisualStyleBackColor = true;
+            btnAddLogin.Click += btnAddLogin_Click;
             // 
             // btnClose
             // 
@@ -219,9 +219,9 @@
             pictureBox1.TabIndex = 15;
             pictureBox1.TabStop = false;
             // 
-            // frmLogin
+            // frmAddLogin
             // 
-            AcceptButton = btnLogin;
+            AcceptButton = btnAddLogin;
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
@@ -233,7 +233,7 @@
             Controls.Add(label5);
             Controls.Add(txtPassword);
             Controls.Add(txtUserName);
-            Controls.Add(btnLogin);
+            Controls.Add(btnAddLogin);
             Controls.Add(btnClose);
             Controls.Add(label4);
             Controls.Add(label3);
@@ -243,11 +243,11 @@
             Controls.Add(splitter1);
             FormBorderStyle = FormBorderStyle.None;
             Margin = new Padding(4, 3, 4, 3);
-            Name = "frmLogin";
+            Name = "frmAddLogin";
             StartPosition = FormStartPosition.CenterScreen;
             Tag = "MainTitle";
-            Text = "frmLogin";
-            Load += frmLogin_Load;
+            Text = "frmAddLogin";
+            Load += frmAddLogin_Load;
             ((System.ComponentModel.ISupportInitialize)errorProvider1).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
@@ -261,7 +261,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox txtPassword;
         private System.Windows.Forms.TextBox txtUserName;
-        private System.Windows.Forms.Button btnLogin;
+        private System.Windows.Forms.Button btnAddLogin;
         private System.Windows.Forms.Button btnClose;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;

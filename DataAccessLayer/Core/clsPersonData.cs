@@ -76,7 +76,7 @@ namespace DataAccessLayer.Core
             parameters.AddSQLParameter("@Email", Email);
             parameters.AddSQLParameter("@NationalityCountryID", NationalityCountryID);
             parameters.AddSQLParameter("@ImagePath", ImagePath);
-            parameters.AddLoggedUserID(LoggedUserID);
+            parameters.LoggedUserID(LoggedUserID);
 
             object ID = DBManager.ExecuteScalar("sp_AddPerson", parameters);
             return ID.ToNullableInt32();
@@ -102,7 +102,7 @@ namespace DataAccessLayer.Core
             parameters.AddSQLParameter("@NationalityCountryID", NationalityCountryID);
             parameters.AddSQLParameter("@ImagePath", ImagePath);
             parameters.AddSQLParameter("@PersonID", PersonID);
-            parameters.AddLoggedUserID(LoggedUserID);
+            parameters.LoggedUserID(LoggedUserID);
 
             return DBManager.ExecuteNonQuery("sp_UpdatePersonByID", parameters);
         }
@@ -111,7 +111,7 @@ namespace DataAccessLayer.Core
         {
             var parameters = new HashSet<SqlParameter>();
             parameters.AddSQLParameter("@PersonID", PersonID);
-            parameters.AddLoggedUserID(LoggedUserID);
+            parameters.LoggedUserID(LoggedUserID);
             return DBManager.ExecuteNonQuery("sp_DeletePersonByID", parameters);
         }
     }

@@ -19,7 +19,7 @@ namespace DataAccessLayer.Core
             parameters.AddSQLParameter("@Permissions", Permissions);
             parameters.AddSQLParameter("@Access", Access);
             parameters.AddSQLParameter("@IsSystem", IsSystem);
-            parameters.AddLoggedUserID(LoggedUserID);
+            parameters.LoggedUserID(LoggedUserID);
 
             return DBManager.ExecuteNonQuery("sp_AddNewPermissions", parameters);
         }
@@ -31,7 +31,7 @@ namespace DataAccessLayer.Core
             parameters.AddSQLParameter("@Permissions", Permissions);
             parameters.AddSQLParameter("@Access", Access);
             parameters.AddSQLParameter("@IsSystem", IsSystem);
-            parameters.AddLoggedUserID(LoggedUserID);
+            parameters.LoggedUserID(LoggedUserID);
 
             return DBManager.ExecuteNonQuery("sp_UpdatePermissionsByID", parameters);
         }
@@ -43,7 +43,7 @@ namespace DataAccessLayer.Core
             parameters.AddSQLParameter("@Permissions", Permissions);
             parameters.AddSQLParameter("@Access", Access);
             parameters.AddSQLParameter("@IsSystem", IsSystem);
-            parameters.AddLoggedUserID(LoggedUserID);
+            parameters.LoggedUserID(LoggedUserID);
 
             return DBManager.ExecuteNonQuery("sp_UpdatePermissionsByAccess", parameters);
         }
@@ -83,7 +83,7 @@ namespace DataAccessLayer.Core
         {
             var parameters = new HashSet<SqlParameter>();
             parameters.AddSQLParameter("@Permissions", Permissions);
-            parameters.AddLoggedUserID(LoggedUserID);
+            parameters.LoggedUserID(LoggedUserID);
 
             return DBManager.ExecuteNonQuery("sp_DeletePermissionsByNumber", parameters);
         }

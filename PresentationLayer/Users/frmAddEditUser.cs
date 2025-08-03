@@ -37,14 +37,14 @@ namespace PresentationLayer.Users
         {
             InitializeComponent();
             _Mode = enMode.AddNew;
-            SetTheme(this);
+      
         }
         public frmAddEditUser(int UserID)
         {
             InitializeComponent();
             _UserID = UserID;
             _Mode = enMode.Update;
-            SetTheme(this);
+ 
         }
         void SetFocusOntxtFilter()
         {
@@ -114,8 +114,8 @@ namespace PresentationLayer.Users
             TreeNode ndFrmRenewLocalLicense = new TreeNode("RenewLocalLicense");
             TreeNode ndFrmReplacementForDamagedOrLostLicenses = new TreeNode("ReplacementForDamagedOrLostLicenses");
             //Admin
-            TreeNode ndfrmListLogins = new TreeNode("ListLogins");
-            TreeNode ndfrmOperationLogs = new TreeNode("OperationLogs");
+            TreeNode ndfrmListAddLogins = new TreeNode("ListAddLogins");
+            TreeNode ndfrmOperationAddLogs = new TreeNode("OperationAddLogs");
             TreeNode frmEditTestType = new TreeNode("EditTestType");
             //Filling Tree With Nodes....
             TreeNode[] BasicNodes = new TreeNode[] { ndAdmin, ndAddEdit, ndDelete, ndView };
@@ -125,7 +125,7 @@ namespace PresentationLayer.Users
               ndFrmShowLicenseHistory,ndFrmListDrivers,ndFrmListApplicationTypes,ndFrmListInternationalLicenses,
               ndFrmListHighRiskApplicants,ndFrmListLocalDrivingLicenseApplications,ndFrmShowLocalDrivingLicenseApplicationInfo,ndFrmListDetainedLicenses
             };
-            TreeNode[] AdminNodes = new TreeNode[] { frmEditTestType, ndfrmListLogins, ndfrmOperationLogs };
+            TreeNode[] AdminNodes = new TreeNode[] { frmEditTestType, ndfrmListAddLogins, ndfrmOperationAddLogs };
             TreeNode[] AddEditNodes = new TreeNode[]
             { ndFrmAddEditUser, ndFrmChangePassword, ndFrmEditUsersPermissions ,ndFrmUpdateUsers,ndFrmRenewLocalLicense,ndFrmReplacementForDamagedOrLostLicenses,
             ndFrmScheduleTest,ndFrmTakeScheduledTest,ndFrmAddEditPerson,ndFrmDetainLicense,ndFrmEditApplicationType
@@ -154,8 +154,8 @@ namespace PresentationLayer.Users
             if (_Mode == enMode.Update)
             {
                 bool IsUserModifyAnotherOne = (_UserID.Value != CurrentUser.UserID.Value);
-                bool IsLoggedUserAdmin = (CurrentUser.Permissions == GetPermissions("Admin"));
-                _AdminModifiesHimself = IsLoggedUserAdmin && !IsUserModifyAnotherOne;
+                bool IsAddLoggedUserAdmin = (CurrentUser.Permissions == GetPermissions("Admin"));
+                _AdminModifiesHimself = IsAddLoggedUserAdmin && !IsUserModifyAnotherOne;
             }
 
             this.ctrlPersonCardWithFilter1.OnPersonSelected += (PersonID) =>
@@ -168,7 +168,7 @@ namespace PresentationLayer.Users
             {
                 ctrlPersonCardWithFilter1.FilterFocus();
                 btnSave.Enabled = false;
-                tcAddNewUser.TabPages[1].Enabled = false;//Disable Login Info 
+                tcAddNewUser.TabPages[1].Enabled = false;//Disable AddLogin Info 
             }
         }
         void FillHierarckyComboBox()
@@ -195,7 +195,7 @@ namespace PresentationLayer.Users
             btnSave.Enabled = true;
             txtUserName.Text = _User.UserName;
             txtUserName.Focus();
-            tcAddNewUser.SelectedTab = tcAddNewUser.TabPages["tpLoginInfo"];
+            tcAddNewUser.SelectedTab = tcAddNewUser.TabPages["tpAddLoginInfo"];
             txtManagerID.Text = _User.ManagerID.ToString() ?? "N/A";
             cbHierarcky.SelectedIndex = cbHierarcky.FindString(clsUsersHierarcky.GetHierarchyNameByID(_User.HierarchyID));
             BeginInvoke(new Action(() => treePermissions.Nodes["ndAdmin"].Checked = _AdminModifiesHimself));
@@ -234,7 +234,7 @@ namespace PresentationLayer.Users
             BeginInvoke(new Action(() => AcceptButton = btnSave));
             tcAddNewUser.TabPages[1].Enabled = true;
             btnSave.Enabled = true;
-            tcAddNewUser.SelectedTab = tcAddNewUser.TabPages["tpLoginInfo"];
+            tcAddNewUser.SelectedTab = tcAddNewUser.TabPages["tpAddLoginInfo"];
         }
         byte CalculateUserPermissions()
         {
@@ -300,7 +300,7 @@ namespace PresentationLayer.Users
                 MessageBox.Show("Error:An unexpected error occurred while saving. " +
                       "Please try again later.", "Save failed", MessageBoxButtons.OK
                       , MessageBoxIcon.Error);
-                WindownsEventLog?.Log(ex);
+                logExceptions?.AddLog(ex);
             }
         }
 

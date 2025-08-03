@@ -31,7 +31,7 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
         public frmAddEditLocalDrivingLicenseApplication()
         {
             InitializeComponent();
-            SetTheme(this);
+ 
             _Mode = enMode.AddNew;
         }
 
@@ -39,7 +39,7 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
         {
             InitializeComponent();
             _LocalDrivingLicenseApplicationID = LocalDrivingLicenseApplicationID;
-            SetTheme(this);
+ 
             _Mode = enMode.Update;
         }
 
@@ -190,7 +190,7 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
                  out DateTime date))
             {
                 MessageBox.Show("Error:An unexpected error happened!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobalData.WindownsEventLog?.Log(new FormatException("Error while parsing lblApplicationDate to date."));
+                logExceptions?.AddLog(new FormatException("Error while parsing lblApplicationDate to date."));
                 return;
             }
 
@@ -220,7 +220,7 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
             {
                 MessageBox.Show("Error:Local Driving License Application Save Failed!", 
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobalData.WindownsEventLog?.Log(ex);
+                logExceptions?.AddLog(ex);
             }
         }
 

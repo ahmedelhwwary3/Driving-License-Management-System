@@ -17,14 +17,14 @@ namespace PresentationLayer.People
         public frmShowPersonCard(int PersonID)
         {
             InitializeComponent();
-            SetTheme(this);
+ 
             ctrlPersonCard1.LoadPerson(PersonID);
             SetTitle("Show Person Details");
         }
         public frmShowPersonCard(string NationalNo)
         {
             InitializeComponent();
-            SetTheme(this);
+ 
             ctrlPersonCard1?.LoadPerson(NationalNo);
             SetTitle("Show Person Details");
         }

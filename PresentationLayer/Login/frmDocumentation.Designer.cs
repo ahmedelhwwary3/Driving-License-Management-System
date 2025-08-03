@@ -1,4 +1,4 @@
-﻿namespace PresentationLayer.Login
+﻿namespace PresentationLayer.AddLogin
 {
     partial class frmDocumentation
     {

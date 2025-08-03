@@ -35,7 +35,7 @@
             tpPersonInfo = new TabPage();
             ctrlPersonCardWithFilter1 = new People.ctrlPersonCardWithFilter();
             btnNext = new Button();
-            tpLoginInfo = new TabPage();
+            tpAddLoginInfo = new TabPage();
             btnGiveAdministrator = new Button();
             txtConfirmPassword = new TextBox();
             txtPassword = new TextBox();
@@ -65,7 +65,7 @@
             btnSave = new Button();
             tcAddNewUser.SuspendLayout();
             tpPersonInfo.SuspendLayout();
-            tpLoginInfo.SuspendLayout();
+            tpAddLoginInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox4).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox7).BeginInit();
@@ -92,7 +92,7 @@
             // tcAddNewUser
             // 
             tcAddNewUser.Controls.Add(tpPersonInfo);
-            tcAddNewUser.Controls.Add(tpLoginInfo);
+            tcAddNewUser.Controls.Add(tpAddLoginInfo);
             tcAddNewUser.Location = new Point(22, 57);
             tcAddNewUser.Margin = new Padding(4, 3, 4, 3);
             tcAddNewUser.Name = "tcAddNewUser";
@@ -137,39 +137,39 @@
             btnNext.UseVisualStyleBackColor = true;
             btnNext.Click += btnNext_Click;
             // 
-            // tpLoginInfo
+            // tpAddLoginInfo
             // 
-            tpLoginInfo.BackColor = Color.White;
-            tpLoginInfo.Controls.Add(btnGiveAdministrator);
-            tpLoginInfo.Controls.Add(txtConfirmPassword);
-            tpLoginInfo.Controls.Add(txtPassword);
-            tpLoginInfo.Controls.Add(label5);
-            tpLoginInfo.Controls.Add(label4);
-            tpLoginInfo.Controls.Add(pictureBox4);
-            tpLoginInfo.Controls.Add(pictureBox3);
-            tpLoginInfo.Controls.Add(txtManagerID);
-            tpLoginInfo.Controls.Add(label8);
-            tpLoginInfo.Controls.Add(pictureBox7);
-            tpLoginInfo.Controls.Add(label7);
-            tpLoginInfo.Controls.Add(pictureBox6);
-            tpLoginInfo.Controls.Add(cbHierarcky);
-            tpLoginInfo.Controls.Add(treePermissions);
-            tpLoginInfo.Controls.Add(label1);
-            tpLoginInfo.Controls.Add(pictureBox5);
-            tpLoginInfo.Controls.Add(chkIsActive);
-            tpLoginInfo.Controls.Add(txtUserName);
-            tpLoginInfo.Controls.Add(label6);
-            tpLoginInfo.Controls.Add(label3);
-            tpLoginInfo.Controls.Add(label2);
-            tpLoginInfo.Controls.Add(pictureBox2);
-            tpLoginInfo.Controls.Add(pictureBox1);
-            tpLoginInfo.Location = new Point(4, 24);
-            tpLoginInfo.Margin = new Padding(4, 3, 4, 3);
-            tpLoginInfo.Name = "tpLoginInfo";
-            tpLoginInfo.Padding = new Padding(4, 3, 4, 3);
-            tpLoginInfo.Size = new Size(1202, 633);
-            tpLoginInfo.TabIndex = 1;
-            tpLoginInfo.Text = "Login Info";
+            tpAddLoginInfo.BackColor = Color.White;
+            tpAddLoginInfo.Controls.Add(btnGiveAdministrator);
+            tpAddLoginInfo.Controls.Add(txtConfirmPassword);
+            tpAddLoginInfo.Controls.Add(txtPassword);
+            tpAddLoginInfo.Controls.Add(label5);
+            tpAddLoginInfo.Controls.Add(label4);
+            tpAddLoginInfo.Controls.Add(pictureBox4);
+            tpAddLoginInfo.Controls.Add(pictureBox3);
+            tpAddLoginInfo.Controls.Add(txtManagerID);
+            tpAddLoginInfo.Controls.Add(label8);
+            tpAddLoginInfo.Controls.Add(pictureBox7);
+            tpAddLoginInfo.Controls.Add(label7);
+            tpAddLoginInfo.Controls.Add(pictureBox6);
+            tpAddLoginInfo.Controls.Add(cbHierarcky);
+            tpAddLoginInfo.Controls.Add(treePermissions);
+            tpAddLoginInfo.Controls.Add(label1);
+            tpAddLoginInfo.Controls.Add(pictureBox5);
+            tpAddLoginInfo.Controls.Add(chkIsActive);
+            tpAddLoginInfo.Controls.Add(txtUserName);
+            tpAddLoginInfo.Controls.Add(label6);
+            tpAddLoginInfo.Controls.Add(label3);
+            tpAddLoginInfo.Controls.Add(label2);
+            tpAddLoginInfo.Controls.Add(pictureBox2);
+            tpAddLoginInfo.Controls.Add(pictureBox1);
+            tpAddLoginInfo.Location = new Point(4, 24);
+            tpAddLoginInfo.Margin = new Padding(4, 3, 4, 3);
+            tpAddLoginInfo.Name = "tpAddLoginInfo";
+            tpAddLoginInfo.Padding = new Padding(4, 3, 4, 3);
+            tpAddLoginInfo.Size = new Size(1202, 633);
+            tpAddLoginInfo.TabIndex = 1;
+            tpAddLoginInfo.Text = "AddLogin Info";
             // 
             // btnGiveAdministrator
             // 
@@ -480,8 +480,8 @@
             Load += frmAddEditUser_Load;
             tcAddNewUser.ResumeLayout(false);
             tpPersonInfo.ResumeLayout(false);
-            tpLoginInfo.ResumeLayout(false);
-            tpLoginInfo.PerformLayout();
+            tpAddLoginInfo.ResumeLayout(false);
+            tpAddLoginInfo.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox4).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox7).EndInit();
@@ -502,7 +502,7 @@
         private System.Windows.Forms.TabControl tcAddNewUser;
         private System.Windows.Forms.TabPage tpPersonInfo;
         private System.Windows.Forms.Button btnNext;
-        private System.Windows.Forms.TabPage tpLoginInfo;
+        private System.Windows.Forms.TabPage tpAddLoginInfo;
         private System.Windows.Forms.CheckBox chkIsActive;
         private System.Windows.Forms.TextBox txtUserName;
         private System.Windows.Forms.Label label6;

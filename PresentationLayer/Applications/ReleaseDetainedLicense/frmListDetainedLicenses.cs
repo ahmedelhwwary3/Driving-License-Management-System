@@ -28,7 +28,7 @@ namespace PresentationLayer.Applications.ReleaseDetainedLicense
         public frmListDetainedLicenses()
         {
             InitializeComponent();
-            SetTheme(this);
+  
             dgvDetainedLicenses.DataBindingComplete += (sender, e)
                 => FormatDGVColumns();
         }
@@ -95,7 +95,7 @@ namespace PresentationLayer.Applications.ReleaseDetainedLicense
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog?.Log(new Exception($"Error when Loading Parsing DetainID from DGV Row."));
+                logExceptions?.AddLog(new Exception($"Error when Loading Parsing DetainID from DGV Row."));
                 return;
             }
             clsDetainedLicense DetainedLicense = clsDetainedLicense.GetByDetainID(DetainID);
@@ -131,7 +131,7 @@ namespace PresentationLayer.Applications.ReleaseDetainedLicense
             {
                 MessageBox.Show("Detained License is not existed !", "Error",
                  MessageBoxButtons.OK, MessageBoxIcon.Error);
-                   clsGlobalData.WindownsEventLog.Log(new Exception($"Error when Loading Detained License through DGV"));
+                   logExceptions?.AddLog(new Exception($"Error when Loading Detained License through DGV"));
                 return;
             }
             if (!(dgvDetainedLicenses.CurrentRow.Cells[3].Value is bool IsReleased))
@@ -139,7 +139,7 @@ namespace PresentationLayer.Applications.ReleaseDetainedLicense
                 releaseDetainedLicenseToolStripMenuItem.Enabled = false;
                 MessageBox.Show("Error:An unexpected error happened !", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                   clsGlobalData.WindownsEventLog.Log(new FormatException($"Error with parsing IsReleased Value To boolean ."));
+                   logExceptions?.AddLog(new FormatException($"Error with parsing IsReleased Value To boolean ."));
                 return;
             }
             releaseDetainedLicenseToolStripMenuItem.Enabled = IsReleased;
@@ -267,14 +267,14 @@ namespace PresentationLayer.Applications.ReleaseDetainedLicense
             {
                 MessageBox.Show("Detained License is not existed !", "Error",
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
-                   clsGlobalData.WindownsEventLog.Log(new Exception($"Error when Loading Detained License through DGV"));
+                   logExceptions?.AddLog(new Exception($"Error when Loading Detained License through DGV"));
                 return;
             }
             if (!(dgvDetainedLicenses.CurrentRow.Cells[1].Value is int LicenseID))
             {
                 MessageBox.Show("Error:An unexpected error happened !", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                   clsGlobalData.WindownsEventLog.Log(new FormatException($"Error with parsing LicenseID Value To int ."));
+                   logExceptions?.AddLog(new FormatException($"Error with parsing LicenseID Value To int ."));
                 return;
             }
 
@@ -291,14 +291,14 @@ namespace PresentationLayer.Applications.ReleaseDetainedLicense
             {
                 MessageBox.Show("Detained License is not existed !", "Error",
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
-                   clsGlobalData.WindownsEventLog.Log(new Exception($"Error when Loading Detained License through DGV"));
+                   logExceptions?.AddLog(new Exception($"Error when Loading Detained License through DGV"));
                 return;
             }
             if (!(dgvDetainedLicenses.CurrentRow.Cells[1].Value is int LicenseID))
             {
                 MessageBox.Show("Error:An unexpected error happened !", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                   clsGlobalData.WindownsEventLog.Log(new FormatException($"Error with parsing LicenseID Value To int ."));
+                   logExceptions?.AddLog(new FormatException($"Error with parsing LicenseID Value To int ."));
                 return;
             }
 
@@ -313,14 +313,14 @@ namespace PresentationLayer.Applications.ReleaseDetainedLicense
             {
                 MessageBox.Show("Detained License is not existed !", "Error",
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
-                   clsGlobalData.WindownsEventLog.Log(new Exception($"Error when Loading Detained License through DGV"));
+                   logExceptions?.AddLog(new Exception($"Error when Loading Detained License through DGV"));
                 return;
             }
             if (!(dgvDetainedLicenses.CurrentRow.Cells[1].Value is int LicenseID))
             {
                 MessageBox.Show("Error:An unexpected error happened !", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                   clsGlobalData.WindownsEventLog.Log(new FormatException($"Error with parsing LicenseID Value To int ."));
+                    logExceptions?.AddLog(new FormatException($"Error with parsing LicenseID Value To int ."));
                 return;
             }
             clsLicense License=clsLicense.GetByID(LicenseID);

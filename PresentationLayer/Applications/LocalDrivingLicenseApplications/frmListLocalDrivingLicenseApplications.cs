@@ -27,7 +27,7 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
 
         void LoadLocalDrivingLicenseApplications()
         {
-            lock (GlobalLockObject)
+            lock (lockObject)
             {
                 _dtLocalDrivingLicenseApplications = clsLocalDrivingLicenseApplication.GetAllLocalDrivingLicenseApplicationsList();
             }
@@ -37,7 +37,7 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
         public frmListLocalDrivingLicenseApplications()
         {
             InitializeComponent();
-            SetTheme(this);
+          
             dgvLocalApplications.DataBindingComplete += (sender, e)
                 => FormatDGV();
         }
@@ -171,26 +171,38 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
         {
 
             string FilterColumn = GetFitlerColumnDBName();
-            if (FilterColumn == "None")
+            try
             {
-                _dtLocalDrivingLicenseApplications.DefaultView.RowFilter = "";
-                txtFilterValue.Visible = false;
+                if (FilterColumn == "None")
+                {
+                    _dtLocalDrivingLicenseApplications.DefaultView.RowFilter = "";
+                    txtFilterValue.Visible = false;
+                    RefreshTotalCount();
+                    return;
+                }
+                if (txtFilterValue.Text.Trim() == "")
+                {
+                    _dtLocalDrivingLicenseApplications.DefaultView.RowFilter = "";
+                    RefreshTotalCount();
+                    return;
+                }
+                if (FilterColumn == "PassedTests" || FilterColumn == "LocalDrivingLicenseApplicationID")
+                    _dtLocalDrivingLicenseApplications.DefaultView.RowFilter =
+                        string.Format("[{0}] = {1}", FilterColumn, txtFilterValue.Text.Trim());
+                else
+                    _dtLocalDrivingLicenseApplications.DefaultView.RowFilter =
+                        string.Format("[{0}] LIKE '%{1}%'", FilterColumn, txtFilterValue.Text.Trim());
                 RefreshTotalCount();
-                return;
             }
-            if (txtFilterValue.Text.Trim() == "")
+            catch (FormatException ex)
             {
-                _dtLocalDrivingLicenseApplications.DefaultView.RowFilter = "";
-                RefreshTotalCount();
-                return;
+                logExceptions?.AddLog(ex);
             }
-            if (FilterColumn == "PassedTests" || FilterColumn == "LocalDrivingLicenseApplicationID")
-                _dtLocalDrivingLicenseApplications.DefaultView.RowFilter =
-                    string.Format("[{0}] = {1}", FilterColumn, txtFilterValue.Text.Trim());
-            else
-                _dtLocalDrivingLicenseApplications.DefaultView.RowFilter =
-                    string.Format("[{0}] LIKE '%{1}%'", FilterColumn, txtFilterValue.Text.Trim());
-            RefreshTotalCount();
+            catch (Exception ex)
+            {
+                logExceptions?.AddLog(ex);
+            }
+            
         }
 
         private void txtFilterValue_KeyPress(object sender, KeyPressEventArgs e)
@@ -211,7 +223,7 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
             {
                 MessageBox.Show("Error:Driving License Application is not existed !", "Error",
                  MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new Exception($"Error when Loading Driving License Application through DGV"));
+                logExceptions?.AddLog(new Exception($"Error when Loading Driving License Application through DGV"));
                 return;
             }
             if (MessageBox.Show("Are you sure you want to Delete this application?", "Confirm Delete"
@@ -222,7 +234,7 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
                 {
                     MessageBox.Show($"Error:An unexpected error happened !", "Error",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    WindownsEventLog.Log(new FormatException("Error with parsing LocalApplicationID in DGV Row."));
+                    logExceptions?.AddLog(new FormatException("Error with parsing LocalApplicationID in DGV Row."));
                     return;
                 }
                 if (!clsLocalDrivingLicenseApplication.IsExistByID(LocalApplicationID))
@@ -255,14 +267,14 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
             {
                 MessageBox.Show("Error:Driving License Application is not existed !", "Error",
                  MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new Exception($"Error when Loading Driving License Application through DGV"));
+                logExceptions?.AddLog(new Exception($"Error when Loading Driving License Application through DGV"));
                 return;
             }
             if (!(dgvLocalApplications.CurrentRow.Cells[0].Value is int LocalApplicationID))
             {
                 MessageBox.Show($"Error:An unexpected error happened !", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new FormatException("Error with parsing LocalApplicationID in DGV Row."));
+                logExceptions?.AddLog(new FormatException("Error with parsing LocalApplicationID in DGV Row."));
                 return;
             }
             clsLocalDrivingLicenseApplication LocalApp = clsLocalDrivingLicenseApplication.GetLocalApplicationByID(LocalApplicationID);
@@ -272,7 +284,7 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
                 MessageBox.Show($"Error:Driving License Application with ID " +
                     $"{LocalApplicationID} is not existed !", "Error",
                  MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new Exception($"Error when Loading Driving License Application ID {LocalApplicationID} through DGV"));
+                logExceptions?.AddLog(new Exception($"Error when Loading Driving License Application ID {LocalApplicationID} through DGV"));
                 return;
             }
 
@@ -310,7 +322,7 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
             {
                 MessageBox.Show($"Error:An unexpected error happened !",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new FormatException("Error while parsing dgvLocalApplications_LocalApplicationID to int."));
+                logExceptions?.AddLog(new FormatException("Error while parsing dgvLocalApplications_LocalApplicationID to int."));
                 e.Cancel = true;
                 return;
             }
@@ -327,7 +339,7 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
             {
                 MessageBox.Show($"Error:An unexpected error happened !",
                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new FormatException("Error while parsing dgvLocalApplications_PassedTestCount to int."));
+                logExceptions?.AddLog(new FormatException("Error while parsing dgvLocalApplications_PassedTestCount to int."));
                 e.Cancel = true;
                 return;
             }
@@ -366,14 +378,14 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
             {
                 MessageBox.Show("Error:Driving License Application is not existed !", "Error",
                  MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new Exception($"Error when Loading Driving License Application through DGV"));
+                logExceptions?.AddLog(new Exception($"Error when Loading Driving License Application through DGV"));
                 return;
             }
             if (!(dgvLocalApplications.CurrentRow.Cells[0].Value is int LocalApplicationID))
             {
                 MessageBox.Show($"Error:An unexpected error happened !", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new FormatException("Error with parsing LocalApplicationID in DGV Row."));
+                logExceptions?.AddLog(new FormatException("Error with parsing LocalApplicationID in DGV Row."));
                 return;
             }
 
@@ -389,14 +401,14 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
             {
                 MessageBox.Show("Error:Driving License Application is not existed !", "Error",
                  MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new Exception($"Error when Loading Driving License Application through DGV"));
+                logExceptions?.AddLog(new Exception($"Error when Loading Driving License Application through DGV"));
                 return;
             }
             if (!(dgvLocalApplications.CurrentRow.Cells[0].Value is int LocalApplicationID))
             {
                 MessageBox.Show($"Error:An unexpected error happened !", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new FormatException("Error with parsing LocalApplicationID in DGV Row."));
+                logExceptions?.AddLog(new FormatException("Error with parsing LocalApplicationID in DGV Row."));
                 return;
             }
 
@@ -412,14 +424,14 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
             {
                 MessageBox.Show("Error:Driving License Application is not existed !", "Error",
                  MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new Exception($"Error when Loading Driving License Application through DGV"));
+                logExceptions?.AddLog(new Exception($"Error when Loading Driving License Application through DGV"));
                 return;
             }
             if (!(dgvLocalApplications.CurrentRow.Cells[0].Value is int LocalApplicationID))
             {
                 MessageBox.Show($"Error:An unexpected error happened !", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new FormatException("Error with parsing LocalApplicationID in DGV Row."));
+                logExceptions?.AddLog(new FormatException("Error with parsing LocalApplicationID in DGV Row."));
                 return;
             }
 
@@ -437,14 +449,14 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
             {
                 MessageBox.Show("Error:Driving License Application is not existed !", "Error",
                  MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new Exception($"Error when Loading Driving License Application through DGV"));
+                logExceptions?.AddLog(new Exception($"Error when Loading Driving License Application through DGV"));
                 return;
             }
             if (!(dgvLocalApplications.CurrentRow.Cells[0].Value is int LocalApplicationID))
             {
                 MessageBox.Show($"Error:An unexpected error happened !", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new FormatException("Error with parsing LocalApplicationID in DGV Row."));
+                logExceptions?.AddLog(new FormatException("Error with parsing LocalApplicationID in DGV Row."));
                 return;
             }
             if (!clsLocalDrivingLicenseApplication.HasPassedAllTestTypes(LocalApplicationID))
@@ -465,14 +477,14 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
             {
                 MessageBox.Show("Error:Driving License Application is not existed !", "Error",
                  MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new Exception($"Error when Loading Driving License Application through DGV"));
+                logExceptions?.AddLog(new Exception($"Error when Loading Driving License Application through DGV"));
                 return;
             }
             if (!(dgvLocalApplications.CurrentRow.Cells[0].Value is int LocalApplicationID))
             {
                 MessageBox.Show($"Error:An unexpected error happened !", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog?.Log(new FormatException("Error with parsing LocalApplicationID in DGV Row."));
+                logExceptions?.AddLog(new FormatException("Error with parsing LocalApplicationID in DGV Row."));
                 return;
             }
 
@@ -490,14 +502,14 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
             {
                 MessageBox.Show("Error:Driving License Application is not existed !", "Error",
                  MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new Exception($"Error when Loading Driving License Application through DGV"));
+                logExceptions?.AddLog(new Exception($"Error when Loading Driving License Application through DGV"));
                 return;
             }
             if (!(dgvLocalApplications.CurrentRow.Cells[0].Value is int LocalApplicationID))
             {
                 MessageBox.Show($"Error:An unexpected error happened !", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new FormatException("Error with parsing LocalApplicationID in DGV Row."));
+                logExceptions?.AddLog(new FormatException("Error with parsing LocalApplicationID in DGV Row."));
                 return;
             }
 
@@ -538,15 +550,28 @@ namespace PresentationLayer.Applications.LocalDrivingLicenseApplications
             //new,2 can
             string FilterColumn = "Status";
             string FilterValue=cbStatus.Text;
-            if (FilterValue == "All")
+
+            try
             {
-                _dtLocalDrivingLicenseApplications.DefaultView.RowFilter = "";
+                if (FilterValue == "All")
+                {
+                    _dtLocalDrivingLicenseApplications.DefaultView.RowFilter = "";
+                    RefreshTotalCount();
+                    return;
+                }
+                _dtLocalDrivingLicenseApplications.DefaultView.RowFilter =
+                    string.Format("[{0}] like '{1}'", FilterColumn, FilterValue);
                 RefreshTotalCount();
-                return;
             }
-            _dtLocalDrivingLicenseApplications.DefaultView.RowFilter =
-                string.Format("[{0}] like '{1}'", FilterColumn, FilterValue);
-            RefreshTotalCount();
+            catch (FormatException ex)
+            {
+                logExceptions?.AddLog(ex);
+            }
+            catch (Exception ex)
+            {
+                logExceptions?.AddLog(ex);
+            }
+         
         }
     }
 }

@@ -5,37 +5,64 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using Microsoft.Win32;
-using System.Diagnostics;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text.Json;
-using System.Runtime.Serialization.Json;
+
 using BusinessLayer.Core;
-using System.ComponentModel.DataAnnotations;
-using PresentationLayer.Login;
-using System.Data;
-using System.Reflection.Metadata;
-using System.Reflection;
-using static BusinessLayer.Core.clsUsersPermissions;
-using System.Windows.Forms;
-using PresentationLayer.Helpers.Logs;
-using static PresentationLayer.Helpers.Logger.clsEventLogger;
-using static PresentationLayer.Global.clsUtil;
+using static PresentationLayer.Helpers.AddLogs.Exceptions.AddLogTypes.clsEventLog;
+
 using PresentationLayer.Helpers.Colors;
+using PresentationLayer.Helpers.AddLogger;
+using PresentationLayer.Helpers.AddLogger.Exceptions;
+using PresentationLayer.Helpers.AddLogs.Theme_Mode;
+using PresentationLayer.Helpers.AddLogs.Credentials;
+using PresentationLayer.Helpers.AddLogs.Credentials.AddLogTypes;
+using PresentationLayer.Helpers.AddLogs.Exceptions.AddLogTypes;
+using PresentationLayer.Helpers.AddLogs.AddLogin_Data;
+
 
 namespace PresentationLayer.Global
 {
-    public static class clsGlobalData
+    internal static class clsGlobalData
     {
-        internal static clsUser CurrentUser=new clsUser();
-        internal static clsLoggerManager WindownsEventLog = new clsLoggerManager(LogErrorInEventLog);
-        internal static Object GlobalLockObject=new object();
+        internal static clsUser CurrentUser;
+
+        internal static Object lockObject;
+
+
+      
+        internal static clsExceptionLogManager logExceptions;
+        internal static clsCredentialsLogManager logUsersCredentials;
+        internal static clsThemeLogManager logThemeModes;
+        internal static clsLoginLogManager logUsersLogins;
+
+
+
         public enum enThemeMode
-        { Default, Dark, Admin  }
-        public static enThemeMode Theme =enThemeMode.Default;
-        public static clsThemeManager CurrentTheme=new clsThemeManager();
-       
-       
-       
-     
+        { Default, Dark, Admin }
+        internal static enThemeMode Theme = enThemeMode.Default;
+        internal static clsThemeManager CurrentTheme;
+        /// <summary>
+        /// To Control The Initialization Order
+        /// </summary>
+        static clsGlobalData()
+        {
+            try
+            {
+                logExceptions = new clsExceptionLogManager(clsEventLog.AddLogStatic);
+                logUsersCredentials = new clsCredentialsLogManager(new clsRegCredentialsLog());
+                logThemeModes = new clsThemeLogManager(new clsRegThemeLog());
+                logUsersLogins = new clsLoginLogManager(new clsLoginDBLog());
+
+
+                CurrentTheme = new clsThemeManager();
+                CurrentUser = new clsUser();
+                lockObject = new object();
+            }
+            catch (Exception ex)
+            {
+                AddLogStatic(ex);
+            }
+        }
     }
+
+
 }

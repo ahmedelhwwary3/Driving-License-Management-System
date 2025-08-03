@@ -49,7 +49,7 @@ namespace DataAccessLayer.Core
             parameters?.AddSQLParameter("@TestResult", TestResult);
             parameters?.AddSQLParameter("@Notes", Notes);
             parameters?.AddSQLParameter("@CreatedByUserID", CreatedByUserID);
-            parameters?.AddLoggedUserID(LoggedUserID);
+            parameters?.LoggedUserID(LoggedUserID);
 
             object id = DBManager?.ExecuteScalar("sp_AddTest", parameters);
             return id.ToNullableInt32();
@@ -63,7 +63,7 @@ namespace DataAccessLayer.Core
             parameters?.AddSQLParameter("@TestResult", TestResult);
             parameters?.AddSQLParameter("@Notes", Notes);
             parameters?.AddSQLParameter("@CreatedByUserID", CreatedByUserID);
-            parameters?.AddLoggedUserID(LoggedUserID);
+            parameters?.LoggedUserID(LoggedUserID);
 
             return DBManager?.ExecuteNonQuery("sp_UpdateTestByID", parameters) ?? false;
         }
@@ -72,7 +72,7 @@ namespace DataAccessLayer.Core
         {
             var parameters = new HashSet<SqlParameter>();
             parameters?.AddSQLParameter("@TestID", TestID);
-            parameters?.AddLoggedUserID(LoggedUserID);
+            parameters?.LoggedUserID(LoggedUserID);
 
             return DBManager?.ExecuteNonQuery("sp_DeleteTestByID", parameters) ?? false;
         }

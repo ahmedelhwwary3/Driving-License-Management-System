@@ -66,7 +66,7 @@
             groupBox1.Size = new Size(1134, 162);
             groupBox1.TabIndex = 2;
             groupBox1.TabStop = false;
-            groupBox1.Text = "Login Information";
+            groupBox1.Text = "AddLogin Information";
             // 
             // lblHierarchy
             // 

@@ -41,7 +41,7 @@ namespace DataAccessLayer.Core
             Parameters?.AddSQLParameter("@ReleaseDate", DBNull.Value);
             Parameters?.AddSQLParameter("@ReleasedByUserID", DBNull.Value);
             Parameters?.AddSQLParameter("@ReleaseApplicationID", DBNull.Value);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
 
             object id = DBManager?.ExecuteScalar("sp_AddNewDetainedLicense", Parameters);
             return id.ToNullableInt32();
@@ -60,7 +60,7 @@ namespace DataAccessLayer.Core
             Parameters?.AddSQLParameter("@ReleaseApplicationID", ReleaseApplicationID, false);
             Parameters?.AddSQLParameter("@ReleaseDate", ReleaseDate);
             Parameters?.AddSQLParameter("@FineFees", FineFees);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
 
             bool result = DBManager.ExecuteNonQuery("sp_ReleaseDetainedLicenseByID", Parameters);
 
@@ -82,7 +82,7 @@ namespace DataAccessLayer.Core
             Parameters?.AddSQLParameter("@ReleaseApplicationID",ReleaseApplicationID,false);
             Parameters?.AddSQLParameter("@ReleaseDate", ReleaseDate);
             Parameters?.AddSQLParameter("@PaidFees", PaidFees);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
             bool result = DBManager?.ExecuteNonQuery("sp_ReleaseDetainedLicenseByID", Parameters) ?? false;
             object OutValue = Parameters.ElementAt(2).Value;
             if (OutValue != DBNull.Value && OutValue != null)

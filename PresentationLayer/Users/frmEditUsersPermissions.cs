@@ -22,7 +22,7 @@ namespace PresentationLayer.Users
 
         private void frmEditUsersPermissions_Load(object sender, EventArgs e)
         {
-            SetTheme(this);
+ 
             ResetDefaultValues();
         }
 
@@ -133,7 +133,7 @@ namespace PresentationLayer.Users
             }
             catch (Exception ex)
             {
-                clsGlobalData.WindownsEventLog.Log(ex);
+                clsGlobalData.logExceptions?.AddLog(ex);
                 MessageBox.Show("Error: Save Failed!", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }

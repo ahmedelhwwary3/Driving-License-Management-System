@@ -11,34 +11,34 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
-namespace PresentationLayer.Login
+namespace PresentationLayer.AddLogin
 {
-    public partial class frmListUserLogins : clsBaseForm
+    public partial class frmListUserAddLogins : clsBaseForm
     {
         Task task;
-        public frmListUserLogins()
+        public frmListUserAddLogins()
         {
             InitializeComponent();
-            SetTheme(this);
+ 
         }
 
-        private static DataTable _dtAllUsersLogs = new DataTable();
+        private static DataTable _dtAllUsersAddLogs = new DataTable();
         void RefreshList()
         {
-            _dtAllUsersLogs = clsUserLogin.GetAllUsersLogins();
-            dgvLogs.DataSource = _dtAllUsersLogs;
+            _dtAllUsersAddLogs = clsUserLogin.GetAllUsersLogins();
+            dgvAddLogs.DataSource = _dtAllUsersAddLogs;
             RefreshListCount();
 
         }
         private void RefreshListCount()
-            => lblTotalRecords.Text = dgvLogs.Rows.Count.ToString();
+            => lblTotalRecords.Text = dgvAddLogs.Rows.Count.ToString();
         string GetFilterColumnDBName()
         {
             switch (cbFilterBy.Text)
             {
-                case "Login ID":
+                case "AddLogin ID":
                     {
-                        return "LoginID";
+                        return "AddLoginID";
 
                     }
                 case "User ID":
@@ -51,9 +51,9 @@ namespace PresentationLayer.Login
                         return "UserName";
 
                     }
-                case "Login Date":
+                case "AddLogin Date":
                     {
-                        return "LoginDate";
+                        return "AddLoginDate";
 
                     }
 
@@ -70,25 +70,25 @@ namespace PresentationLayer.Login
 
             if (txtFilterValue.Text.Trim() == "")
             {
-                _dtAllUsersLogs.DefaultView.RowFilter = "";
+                _dtAllUsersAddLogs.DefaultView.RowFilter = "";
                 RefreshListCount();
                 return;
             }
             if (FilterColumn == "None")
             {
-                _dtAllUsersLogs.DefaultView.RowFilter = "";
+                _dtAllUsersAddLogs.DefaultView.RowFilter = "";
                 cbFilterBy.SelectedIndex = cbFilterBy.FindString("None");
                 return;
             }
             if (FilterColumn != "UserName")
             {
-                _dtAllUsersLogs.DefaultView.RowFilter =
+                _dtAllUsersAddLogs.DefaultView.RowFilter =
                                     string.Format("[{0}] = {1}", FilterColumn,
                                      txtFilterValue.Text.Trim());
             }
             else
             {
-                _dtAllUsersLogs.DefaultView.RowFilter =
+                _dtAllUsersAddLogs.DefaultView.RowFilter =
                                 string.Format("[{0}] like '%{1}%'", FilterColumn,
                                  txtFilterValue.Text.Trim());
             }
@@ -120,33 +120,33 @@ namespace PresentationLayer.Login
 
         }
 
-        private void frmListLogins_Load(object sender, EventArgs e)
+        private void frmListAddLogins_Load(object sender, EventArgs e)
         {
-            task = Task.Run(() => _dtAllUsersLogs = clsUserLogin.GetAllUsersLogins());
+            task = Task.Run(() => _dtAllUsersAddLogs = clsUserLogin.GetAllUsersLogins());
             cbFilterBy.SelectedIndex = cbFilterBy.FindString("None");
-            SetTitle("List Users Logins");
+            SetTitle("List Users AddLogins");
             Task.WaitAll(task);
-            dgvLogs.DataSource = _dtAllUsersLogs;
+            dgvAddLogs.DataSource = _dtAllUsersAddLogs;
             RefreshListCount();
         }
 
-        private void dgvLogs_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        private void dgvAddLogs_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
-            if (dgvLogs.Columns.Count == 4)
+            if (dgvAddLogs.Columns.Count == 4)
             {
-                dgvLogs.Columns[0].Width = 110;
-                dgvLogs.Columns[0].HeaderText = "Login ID";
+                dgvAddLogs.Columns[0].Width = 110;
+                dgvAddLogs.Columns[0].HeaderText = "AddLogin ID";
 
-                dgvLogs.Columns[1].Width = 110;
-                dgvLogs.Columns[1].HeaderText = "User ID";
+                dgvAddLogs.Columns[1].Width = 110;
+                dgvAddLogs.Columns[1].HeaderText = "User ID";
 
-                dgvLogs.Columns[2].Width = 180;
-                dgvLogs.Columns[2].HeaderText = "User Name";
+                dgvAddLogs.Columns[2].Width = 180;
+                dgvAddLogs.Columns[2].HeaderText = "User Name";
 
-                dgvLogs.Columns[3].Width = 170;
-                dgvLogs.Columns[3].HeaderText = "Login Date";
+                dgvAddLogs.Columns[3].Width = 170;
+                dgvAddLogs.Columns[3].HeaderText = "AddLogin Date";
 
-                dgvLogs.Columns["LoginDate"].DefaultCellStyle.Format = "yyyy-MM-dd HH:mm:ss";
+                dgvAddLogs.Columns["AddLoginDate"].DefaultCellStyle.Format = "yyyy-MM-dd HH:mm:ss";
             }
         }
 

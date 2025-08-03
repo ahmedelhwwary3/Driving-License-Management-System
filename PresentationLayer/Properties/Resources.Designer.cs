@@ -343,9 +343,9 @@ namespace PresentationLayer.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap IconLogo {
+        internal static System.Drawing.Bitmap IconAddLogo {
             get {
-                object obj = ResourceManager.GetObject("IconLogo", resourceCulture);
+                object obj = ResourceManager.GetObject("IconAddLogo", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -463,9 +463,9 @@ namespace PresentationLayer.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Logo_Final {
+        internal static System.Drawing.Bitmap AddLogo_Final {
             get {
-                object obj = ResourceManager.GetObject("Logo Final", resourceCulture);
+                object obj = ResourceManager.GetObject("AddLogo Final", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

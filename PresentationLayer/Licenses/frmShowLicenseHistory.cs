@@ -17,7 +17,7 @@ namespace PresentationLayer.Licenses
         public frmShowLicenseHistory(int PersonID)
         {
             InitializeComponent();
-            SetTheme(this);
+ 
             _PersonID = PersonID;
         }
 
@@ -75,7 +75,7 @@ namespace PresentationLayer.Licenses
             {
                 MessageBox.Show("Error:An unexpected error happened!", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog?.Log(new FormatException("Error while parsing " +
+                logExceptions?.AddLog(new FormatException("Error while parsing " +
                     "InternationalLicenseID in dgvInternationalLicensesHistory cell[0] to int."));
                 return;
             }
@@ -97,7 +97,7 @@ namespace PresentationLayer.Licenses
             {
                 MessageBox.Show("Error:An unexpected error happened!", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog?.Log(new FormatException("Error while parsing LicenseID in dgvLocalLicensesHistory cell[0] to int."));
+                logExceptions?.AddLog(new FormatException("Error while parsing LicenseID in dgvLocalLicensesHistory cell[0] to int."));
                 return;
             }
 

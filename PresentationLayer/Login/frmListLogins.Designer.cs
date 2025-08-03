@@ -1,6 +1,6 @@
-﻿namespace PresentationLayer.Login
+﻿namespace PresentationLayer.AddLogin
 {
-    partial class frmListUserLogins
+    partial class frmListUserAddLogins
     {
         /// <summary>
         /// Required designer variable.
@@ -28,17 +28,17 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmListUserLogins));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmListUserAddLogins));
             btnClose = new Button();
             txtFilterValue = new TextBox();
-            dgvLogs = new DataGridView();
+            dgvAddLogs = new DataGridView();
             lblTotalRecords = new Label();
             label3 = new Label();
             label2 = new Label();
             label1 = new Label();
             pictureBox1 = new PictureBox();
             cbFilterBy = new ComboBox();
-            ((System.ComponentModel.ISupportInitialize)dgvLogs).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)dgvAddLogs).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
@@ -65,19 +65,19 @@
             txtFilterValue.TextChanged += txtFilterValue_TextChanged;
             txtFilterValue.KeyPress += txtFilterValue_KeyPress;
             // 
-            // dgvLogs
+            // dgvAddLogs
             // 
-            dgvLogs.AllowUserToAddRows = false;
-            dgvLogs.AllowUserToDeleteRows = false;
-            dgvLogs.Anchor = AnchorStyles.None;
-            dgvLogs.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvLogs.Location = new Point(13, 359);
-            dgvLogs.Margin = new Padding(4, 3, 4, 3);
-            dgvLogs.Name = "dgvLogs";
-            dgvLogs.ReadOnly = true;
-            dgvLogs.Size = new Size(1266, 396);
-            dgvLogs.TabIndex = 29;
-            dgvLogs.DataBindingComplete += dgvLogs_DataBindingComplete;
+            dgvAddLogs.AllowUserToAddRows = false;
+            dgvAddLogs.AllowUserToDeleteRows = false;
+            dgvAddLogs.Anchor = AnchorStyles.None;
+            dgvAddLogs.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvAddLogs.Location = new Point(13, 359);
+            dgvAddLogs.Margin = new Padding(4, 3, 4, 3);
+            dgvAddLogs.Name = "dgvAddLogs";
+            dgvAddLogs.ReadOnly = true;
+            dgvAddLogs.Size = new Size(1266, 396);
+            dgvAddLogs.TabIndex = 29;
+            dgvAddLogs.DataBindingComplete += dgvAddLogs_DataBindingComplete;
             // 
             // lblTotalRecords
             // 
@@ -128,7 +128,7 @@
             label1.Size = new Size(163, 33);
             label1.TabIndex = 24;
             label1.Tag = "MainTitle";
-            label1.Text = "Users Logs";
+            label1.Text = "Users AddLogs";
             // 
             // pictureBox1
             // 
@@ -146,7 +146,7 @@
             // 
             cbFilterBy.Anchor = AnchorStyles.Left;
             cbFilterBy.FormattingEnabled = true;
-            cbFilterBy.Items.AddRange(new object[] { "None", "Login ID", "User Name", "User ID" });
+            cbFilterBy.Items.AddRange(new object[] { "None", "AddLogin ID", "User Name", "User ID" });
             cbFilterBy.Location = new Point(172, 312);
             cbFilterBy.Margin = new Padding(4, 3, 4, 3);
             cbFilterBy.Name = "cbFilterBy";
@@ -154,7 +154,7 @@
             cbFilterBy.TabIndex = 26;
             cbFilterBy.SelectedIndexChanged += cbFilterBy_SelectedIndexChanged;
             // 
-            // frmListUserLogins
+            // frmListUserAddLogins
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -163,7 +163,7 @@
             ClientSize = new Size(1294, 819);
             Controls.Add(btnClose);
             Controls.Add(txtFilterValue);
-            Controls.Add(dgvLogs);
+            Controls.Add(dgvAddLogs);
             Controls.Add(lblTotalRecords);
             Controls.Add(label3);
             Controls.Add(cbFilterBy);
@@ -171,10 +171,10 @@
             Controls.Add(label1);
             Controls.Add(pictureBox1);
             FormBorderStyle = FormBorderStyle.SizableToolWindow;
-            Name = "frmListUserLogins";
-            Text = "frmListLogins";
-            Load += frmListLogins_Load;
-            ((System.ComponentModel.ISupportInitialize)dgvLogs).EndInit();
+            Name = "frmListUserAddLogins";
+            Text = "frmListAddLogins";
+            Load += frmListAddLogins_Load;
+            ((System.ComponentModel.ISupportInitialize)dgvAddLogs).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
             PerformLayout();
@@ -186,7 +186,7 @@
         private Button btnAddNewPerson;
         private Button btnClose;
         private TextBox txtFilterValue;
-        private DataGridView dgvLogs;
+        private DataGridView dgvAddLogs;
         private Label lblTotalRecords;
         private Label label3;
         private Label label2;

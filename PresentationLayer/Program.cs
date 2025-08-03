@@ -1,4 +1,4 @@
-using PresentationLayer.Login;
+using PresentationLayer.AddLogin;
 using PresentationLayer.Users;
 using static PresentationLayer.Global.clsGlobalData;
 namespace PresentationLayer
@@ -15,7 +15,7 @@ namespace PresentationLayer
              
 
             ApplicationConfiguration.Initialize();
-            Application.Run(new frmLogin());
+            Application.Run(new frmAddLogin());
         }
     }
 }

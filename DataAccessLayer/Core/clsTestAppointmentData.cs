@@ -69,7 +69,7 @@ namespace DataAccessLayer.Core
                 parameters?.AddSQLParameter("@RetakeTestApplicationID", RetakeTestApplicationID.Value);
             else
                 parameters?.AddSQLParameter("@RetakeTestApplicationID", DBNull.Value);
-            parameters?.AddLoggedUserID(LoggedUserID);
+            parameters?.LoggedUserID(LoggedUserID);
 
             object ID = DBManager?.ExecuteScalar("sp_AddTestAppointment", parameters);
             return ID.ToNullableInt32();
@@ -91,7 +91,7 @@ namespace DataAccessLayer.Core
                 parameters?.AddSQLParameter("@RetakeTestApplicationID", RetakeTestApplicationID.Value);
             else
                 parameters?.AddSQLParameter("@RetakeTestApplicationID", DBNull.Value);
-            parameters?.AddLoggedUserID(LoggedUserID);
+            parameters?.LoggedUserID(LoggedUserID);
 
             return DBManager.ExecuteNonQuery("sp_UpdateTestAppointmentByID", parameters) ;
         }
@@ -100,7 +100,7 @@ namespace DataAccessLayer.Core
         {
             var parameters = new HashSet<SqlParameter>();
             parameters?.AddSQLParameter("@TestAppointmentID", TestAppointmentID);
-            parameters?.AddLoggedUserID(LoggedUserID);
+            parameters?.LoggedUserID(LoggedUserID);
 
             return DBManager.ExecuteNonQuery("sp_DeleteTestAppointmentByID", parameters);
         }

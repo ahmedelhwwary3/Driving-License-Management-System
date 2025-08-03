@@ -22,7 +22,7 @@ namespace PresentationLayer.People
         public frmFindPerson()
         {
             InitializeComponent();
-            SetTheme(this);
+ 
         }
 
         private void btnClose_Click(object sender, EventArgs e)

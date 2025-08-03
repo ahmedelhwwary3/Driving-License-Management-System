@@ -18,7 +18,7 @@ namespace PresentationLayer.Tests.TestTypes
         public frmEditTestType(clsTestType.enTestType TestTypeID)
         {
             InitializeComponent();
-            SetTheme(this);
+ 
             _TestTypeID = TestTypeID;
         }
 
@@ -56,7 +56,7 @@ namespace PresentationLayer.Tests.TestTypes
             {
                 MessageBox.Show("Error: Invalid number format!", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(new FormatException("Test Fees Parsing failed."));
+                logExceptions?.AddLog(new FormatException("Test Fees Parsing failed."));
                 return;
             }
 
@@ -72,7 +72,7 @@ namespace PresentationLayer.Tests.TestTypes
             }
             catch (Exception ex)
             {
-                WindownsEventLog?.Log(ex);
+                logExceptions?.AddLog(ex);
                 MessageBox.Show("An unexpected error occurred while saving. Please try again later.",
                     "Save Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }

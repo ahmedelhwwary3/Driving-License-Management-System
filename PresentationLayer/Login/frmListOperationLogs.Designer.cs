@@ -1,6 +1,6 @@
-﻿namespace PresentationLayer.Login
+﻿namespace PresentationLayer.AddLogin
 {
-    partial class frmListOperationLogs
+    partial class frmListOperationAddLogs
     {
         /// <summary>
         /// Required designer variable.
@@ -29,12 +29,18 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmListOperationLogs));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmListOperationAddLogs));
             txtFilterValue = new TextBox();
-            dgvLogs = new DataGridView();
+            dgvAddLogs = new DataGridView();
             contextMenuStrip1 = new ContextMenuStrip(components);
             downloadAllRecordToolStripMenuItem = new ToolStripMenuItem();
+            textToolStripMenuItem = new ToolStripMenuItem();
+            excelToolStripMenuItem = new ToolStripMenuItem();
+            wordToolStripMenuItem = new ToolStripMenuItem();
             downloadAllRecordsToolStripMenuItem = new ToolStripMenuItem();
+            textToolStripMenuItem1 = new ToolStripMenuItem();
+            excelToolStripMenuItem1 = new ToolStripMenuItem();
+            wordToolStripMenuItem1 = new ToolStripMenuItem();
             lblTotalRecords = new Label();
             label3 = new Label();
             cbFilterBy = new ComboBox();
@@ -45,7 +51,7 @@
             cbAction = new ComboBox();
             notifyIcon1 = new NotifyIcon(components);
             btncLose = new Button();
-            ((System.ComponentModel.ISupportInitialize)dgvLogs).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)dgvAddLogs).BeginInit();
             contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
@@ -61,45 +67,87 @@
             txtFilterValue.TextChanged += txtFilterValue_TextChanged;
             txtFilterValue.KeyPress += txtFilterValue_KeyPress;
             // 
-            // dgvLogs
+            // dgvAddLogs
             // 
-            dgvLogs.AllowUserToAddRows = false;
-            dgvLogs.AllowUserToDeleteRows = false;
-            dgvLogs.Anchor = AnchorStyles.None;
-            dgvLogs.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvLogs.ContextMenuStrip = contextMenuStrip1;
-            dgvLogs.Location = new Point(7, 343);
-            dgvLogs.Margin = new Padding(4, 3, 4, 3);
-            dgvLogs.Name = "dgvLogs";
-            dgvLogs.ReadOnly = true;
-            dgvLogs.Size = new Size(1266, 396);
-            dgvLogs.TabIndex = 74;
-            dgvLogs.DataBindingComplete += dgvLogs_DataBindingComplete;
+            dgvAddLogs.AllowUserToAddRows = false;
+            dgvAddLogs.AllowUserToDeleteRows = false;
+            dgvAddLogs.Anchor = AnchorStyles.None;
+            dgvAddLogs.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvAddLogs.ContextMenuStrip = contextMenuStrip1;
+            dgvAddLogs.Location = new Point(7, 343);
+            dgvAddLogs.Margin = new Padding(4, 3, 4, 3);
+            dgvAddLogs.Name = "dgvAddLogs";
+            dgvAddLogs.ReadOnly = true;
+            dgvAddLogs.Size = new Size(1266, 396);
+            dgvAddLogs.TabIndex = 74;
+            dgvAddLogs.DataBindingComplete += dgvAddLogs_DataBindingComplete;
             // 
             // contextMenuStrip1
             // 
             contextMenuStrip1.Items.AddRange(new ToolStripItem[] { downloadAllRecordToolStripMenuItem, downloadAllRecordsToolStripMenuItem });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new Size(245, 80);
+            contextMenuStrip1.Size = new Size(258, 80);
             contextMenuStrip1.Opening += contextMenuStrip1_Opening;
             // 
             // downloadAllRecordToolStripMenuItem
             // 
+            downloadAllRecordToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { textToolStripMenuItem, excelToolStripMenuItem, wordToolStripMenuItem });
             downloadAllRecordToolStripMenuItem.Image = Properties.Resources.Notes_32;
             downloadAllRecordToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
             downloadAllRecordToolStripMenuItem.Name = "downloadAllRecordToolStripMenuItem";
-            downloadAllRecordToolStripMenuItem.Size = new Size(244, 38);
+            downloadAllRecordToolStripMenuItem.Size = new Size(257, 38);
             downloadAllRecordToolStripMenuItem.Text = "Download Full Record Details";
-            downloadAllRecordToolStripMenuItem.Click += downloadAllRecordToolStripMenuItem_Click;
+            // 
+            // textToolStripMenuItem
+            // 
+            textToolStripMenuItem.Name = "textToolStripMenuItem";
+            textToolStripMenuItem.Size = new Size(180, 22);
+            textToolStripMenuItem.Text = "Text";
+            textToolStripMenuItem.Click += textDownloadFull_Click;
+            // 
+            // excelToolStripMenuItem
+            // 
+            excelToolStripMenuItem.Name = "excelToolStripMenuItem";
+            excelToolStripMenuItem.Size = new Size(180, 22);
+            excelToolStripMenuItem.Text = "Excel";
+            excelToolStripMenuItem.Click += excelDownloadFull_Click;
+            // 
+            // wordToolStripMenuItem
+            // 
+            wordToolStripMenuItem.Name = "wordToolStripMenuItem";
+            wordToolStripMenuItem.Size = new Size(180, 22);
+            wordToolStripMenuItem.Text = "Word";
+            wordToolStripMenuItem.Click += wordDownloadFull_Click;
             // 
             // downloadAllRecordsToolStripMenuItem
             // 
+            downloadAllRecordsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { textToolStripMenuItem1, excelToolStripMenuItem1, wordToolStripMenuItem1 });
             downloadAllRecordsToolStripMenuItem.Image = Properties.Resources.Notes_32;
             downloadAllRecordsToolStripMenuItem.ImageScaling = ToolStripItemImageScaling.None;
             downloadAllRecordsToolStripMenuItem.Name = "downloadAllRecordsToolStripMenuItem";
-            downloadAllRecordsToolStripMenuItem.Size = new Size(244, 38);
-            downloadAllRecordsToolStripMenuItem.Text = "Download All Records Details";
-            downloadAllRecordsToolStripMenuItem.Click += downloadAllRecordsToolStripMenuItem_Click;
+            downloadAllRecordsToolStripMenuItem.Size = new Size(257, 38);
+            downloadAllRecordsToolStripMenuItem.Text = "Download Single Record Details";
+            // 
+            // textToolStripMenuItem1
+            // 
+            textToolStripMenuItem1.Name = "textToolStripMenuItem1";
+            textToolStripMenuItem1.Size = new Size(180, 22);
+            textToolStripMenuItem1.Text = "Text";
+            textToolStripMenuItem1.Click += textDownloadSingle_Click;
+            // 
+            // excelToolStripMenuItem1
+            // 
+            excelToolStripMenuItem1.Name = "excelToolStripMenuItem1";
+            excelToolStripMenuItem1.Size = new Size(180, 22);
+            excelToolStripMenuItem1.Text = "Excel";
+            excelToolStripMenuItem1.Click += excelDownloadSingle_Click;
+            // 
+            // wordToolStripMenuItem1
+            // 
+            wordToolStripMenuItem1.Name = "wordToolStripMenuItem1";
+            wordToolStripMenuItem1.Size = new Size(180, 22);
+            wordToolStripMenuItem1.Text = "Word";
+            wordToolStripMenuItem1.Click += wordDownloadSingle_Click;
             // 
             // lblTotalRecords
             // 
@@ -129,7 +177,7 @@
             // 
             cbFilterBy.Anchor = AnchorStyles.None;
             cbFilterBy.FormattingEnabled = true;
-            cbFilterBy.Items.AddRange(new object[] { "None", "Log ID", "Logged User ID", "Action", "Table Name" });
+            cbFilterBy.Items.AddRange(new object[] { "None", "AddLog ID", "AddLogged User ID", "Action", "Table Name" });
             cbFilterBy.Location = new Point(166, 296);
             cbFilterBy.Margin = new Padding(4, 3, 4, 3);
             cbFilterBy.Name = "cbFilterBy";
@@ -161,7 +209,7 @@
             label1.Name = "label1";
             label1.Size = new Size(214, 33);
             label1.TabIndex = 69;
-            label1.Text = "Operation Logs";
+            label1.Text = "Operation AddLogs";
             // 
             // pictureBox1
             // 
@@ -190,7 +238,7 @@
             // notifyIcon1
             // 
             notifyIcon1.BalloonTipIcon = ToolTipIcon.Info;
-            notifyIcon1.BalloonTipText = "Log FIle";
+            notifyIcon1.BalloonTipText = "AddLog FIle";
             notifyIcon1.BalloonTipTitle = "File Downloaded";
             notifyIcon1.Icon = (Icon)resources.GetObject("notifyIcon1.Icon");
             notifyIcon1.Text = "notifyIcon1";
@@ -207,7 +255,7 @@
             btncLose.UseVisualStyleBackColor = true;
             btncLose.Click += btncLose_Click;
             // 
-            // frmListOperationLogs
+            // frmListOperationAddLogs
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -216,18 +264,18 @@
             Controls.Add(btncLose);
             Controls.Add(cbAction);
             Controls.Add(txtFilterValue);
-            Controls.Add(dgvLogs);
+            Controls.Add(dgvAddLogs);
             Controls.Add(lblTotalRecords);
             Controls.Add(label3);
             Controls.Add(cbFilterBy);
             Controls.Add(label2);
             Controls.Add(label1);
             Controls.Add(pictureBox1);
-            Name = "frmListOperationLogs";
+            Name = "frmListOperationAddLogs";
             Tag = "MainTitle";
-            Text = "frmListOperationLogs";
-            Load += frmListOperationLogs_Load;
-            ((System.ComponentModel.ISupportInitialize)dgvLogs).EndInit();
+            Text = "frmListOperationAddLogs";
+            Load += frmListOperationAddLogs_Load;
+            ((System.ComponentModel.ISupportInitialize)dgvAddLogs).EndInit();
             contextMenuStrip1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
@@ -238,7 +286,7 @@
 
         private Button btnClose;
         private TextBox txtFilterValue;
-        private DataGridView dgvLogs;
+        private DataGridView dgvAddLogs;
         private Label lblTotalRecords;
         private Label label3;
         private ComboBox cbFilterBy;
@@ -252,5 +300,11 @@
         private ComboBox cbAction;
         private NotifyIcon notifyIcon1;
         private Button btncLose;
+        private ToolStripMenuItem textToolStripMenuItem;
+        private ToolStripMenuItem excelToolStripMenuItem;
+        private ToolStripMenuItem wordToolStripMenuItem;
+        private ToolStripMenuItem textToolStripMenuItem1;
+        private ToolStripMenuItem excelToolStripMenuItem1;
+        private ToolStripMenuItem wordToolStripMenuItem1;
     }
 }

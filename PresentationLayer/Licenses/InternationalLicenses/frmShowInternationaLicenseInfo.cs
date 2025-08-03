@@ -18,7 +18,7 @@ namespace PresentationLayer.Licenses.InternationalLicenses
         public frmShowInternationaLicenseInfo(int InternationalLicenseID)
         {
             InitializeComponent();
-            SetTheme(this);
+ 
             _InternationalLicenseID = InternationalLicenseID;
 
         }

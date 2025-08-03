@@ -39,13 +39,13 @@ namespace PresentationLayer.People
         public frmAddEditPerson()
         {
             InitializeComponent();
-            SetTheme(this);
+ 
             _Mode = enMode.AddNew;
         }
         public frmAddEditPerson(int PersonID)
         {
             InitializeComponent();
-            SetTheme(this);
+ 
             _PersonID = PersonID;
             _Mode = enMode.Update;
         }
@@ -106,7 +106,6 @@ namespace PresentationLayer.People
                 return;//To ensure that no code will run after 
             }
 
-            SetTitle();
             try
             {
                 if (_CurrentPerson.ImagePath != "")
@@ -120,7 +119,7 @@ namespace PresentationLayer.People
             }
             catch (Exception ex)
             {
-                WindownsEventLog.Log(ex);
+                logExceptions?.AddLog(ex);
             }
             llRemove.Visible = (_CurrentPerson.ImagePath != "");
 
@@ -136,14 +135,10 @@ namespace PresentationLayer.People
             txtLast.Text = _CurrentPerson.LastName;
             txtNationalNo.Text = _CurrentPerson.NationalNo;
             txtPhone.Text = _CurrentPerson.Phone;
+            lblPersonID.Text = _CurrentPerson.PersonID.ToString();
             txtAddress.Text = _CurrentPerson.Address;
             cbCountries.SelectedIndex = cbCountries.FindString(_CurrentPerson.Country.CountryName);
-            //Serialize Loaded Person .. First Undo
-            clsPerson person = new(_CurrentPerson);
-            MemoryStream stream = SerializeCurrentPersonState(person);
-            _stkUndo?.Push(stream);
-
-
+ 
         }
 
 
@@ -226,7 +221,7 @@ namespace PresentationLayer.People
             }
             catch (Exception ex)
             {
-                WindownsEventLog?.Log(ex);
+                logExceptions?.AddLog(ex);
                 MessageBox.Show("Error:An unexpected error occurred while saving. " +
                     "Please try again later.", "Save failed",
                      MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -281,7 +276,7 @@ namespace PresentationLayer.People
             }
             catch (FileNotFoundException ex)
             {
-                WindownsEventLog.Log(ex);
+                logExceptions?.AddLog(ex);
             }
         }
         void FillCountriesInComboBox()
@@ -558,7 +553,7 @@ namespace PresentationLayer.People
             }
             catch (Exception ex)
             {
-                WindownsEventLog.Log(ex);
+                logExceptions?.AddLog(ex);
             }
         }
 

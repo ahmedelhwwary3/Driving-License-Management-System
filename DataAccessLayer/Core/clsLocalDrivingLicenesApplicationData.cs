@@ -41,7 +41,7 @@ namespace DataAccessLayer.Core
             var parameters = new HashSet<SqlParameter>();
             parameters?.AddSQLParameter("@LicenseClassID", LicenseClassID);
             parameters?.AddSQLParameter("@ApplicationID", ApplicationID);
-            parameters?.AddLoggedUserID(LoggedUserID);
+            parameters?.LoggedUserID(LoggedUserID);
             object id = DBManager?.ExecuteScalar("sp_AddLocalDrivingLicenseApplication", parameters);
             return id.ToNullableInt32();
         }
@@ -53,7 +53,7 @@ namespace DataAccessLayer.Core
             parameters?.AddSQLParameter("@LocalDrivingLicenseApplicationID", LocalDrivingLicenseApplicationID);
             parameters?.AddSQLParameter("@LicenseClassID", LicenseClassID);
             parameters?.AddSQLParameter("@ApplicationID", ApplicationID);
-            parameters?.AddLoggedUserID(LoggedUserID);
+            parameters?.LoggedUserID(LoggedUserID);
             return DBManager?.ExecuteNonQuery("sp_UpdateLocalDrivingLicenseApplicationByID", parameters) ?? false;
         }
 
@@ -61,7 +61,7 @@ namespace DataAccessLayer.Core
         {
             var parameters = new HashSet<SqlParameter>();
             parameters?.AddSQLParameter("@LocalDrivingLicenseApplicationID", LocalDrivingLicenseApplicationID);
-            parameters?.AddLoggedUserID(LoggedUserID);
+            parameters?.LoggedUserID(LoggedUserID);
             return DBManager?.ExecuteNonQuery("sp_DeleteLocalDrivingLicenseApplicationByID", parameters) ?? false;
         }
 

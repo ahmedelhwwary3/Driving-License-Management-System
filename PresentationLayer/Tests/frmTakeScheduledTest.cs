@@ -23,7 +23,6 @@ namespace PresentationLayer.Tests
         public frmTakeScheduledTest(enTestType TestTypeID, int TestAppointmentID, int TestID = default)
         {
             InitializeComponent();
-            SetTheme(this);
 
             _TestTypeID = TestTypeID;
             _TestAppointmentID = TestAppointmentID;
@@ -140,7 +139,7 @@ namespace PresentationLayer.Tests
             {
                 MessageBox.Show("Error: An unexpected error occurred while saving.",
                     "Save failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog?.Log(ex);
+                logExceptions?.AddLog(ex);
             }
         }
 

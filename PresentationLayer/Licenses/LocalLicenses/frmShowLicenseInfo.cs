@@ -17,7 +17,7 @@ namespace PresentationLayer.Licenses.LocalLicenses
         public frmShowLicenseInfo(int LicenseID)
         {
             InitializeComponent();
-            SetTheme(this);
+      
             _LicenseID = LicenseID;
         }
 

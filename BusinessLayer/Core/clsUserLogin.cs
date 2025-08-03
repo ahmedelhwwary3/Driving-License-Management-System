@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BusinessLayer.Core
 {
-    [Description("Any Information of the user logins.")]
+    [clsDescription("Any Information of the user logins.")]
     public class clsUserLogin
     {
 

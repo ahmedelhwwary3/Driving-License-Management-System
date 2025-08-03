@@ -49,7 +49,7 @@ namespace DataAccessLayer.Core
             Parameters?.AddSQLParameter("@LastStatusDate", LastStatusDate);
             Parameters?.AddSQLParameter("@CreatedByUserID", CreatedByUserID);
             Parameters?.AddSQLParameter("@PaidFees", PaidFees);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
             object ID= DBManager?.ExecuteScalar("sp_AddApplication", Parameters);
             return ID.ToNullableInt32();
         }
@@ -66,14 +66,14 @@ namespace DataAccessLayer.Core
             Parameters?.AddSQLParameter("@LastStatusDate", LastStatusDate);
             Parameters?.AddSQLParameter("@CreatedByUserID", CreatedByUserID);
             Parameters?.AddSQLParameter("@PaidFees", PaidFees);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
             return DBManager.ExecuteNonQuery("sp_UpdateApplicationByID", Parameters);
         }
         public static bool DeleteApplicationByID(int ApplicationID, int LoggedUserID)
         {
             var Parameters = new HashSet<SqlParameter>();
             Parameters?.AddSQLParameter("@ApplicationID", ApplicationID);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
             return DBManager.ExecuteNonQuery("sp_UpdateApplicationByID", Parameters);
         }
         //For any Application Type(NewLocal-Renew-Retake-Release...)
@@ -110,7 +110,7 @@ namespace DataAccessLayer.Core
             Parameters?.AddSQLParameter("@ApplicationStatus", NewStatus);
             Parameters?.AddSQLParameter("@ApplicationID", ApplicationID);
             Parameters?.AddSQLParameter("@LastStatusDate", DateTime.Now);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
 
             return DBManager.ExecuteNonQuery("sp_UpdateApplicationStatusByID", Parameters);
         }

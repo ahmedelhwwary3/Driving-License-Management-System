@@ -19,7 +19,7 @@ namespace PresentationLayer.Tests
         public frmListTestAppointments(int LocalDrivingLicenseApplicationID, enTestType TestTypeID)
         {
             InitializeComponent();
-            SetTheme(this);
+  
             _LocalDrivingLicenseApplicationID = LocalDrivingLicenseApplicationID;
             _TestTypeID = TestTypeID;
         }
@@ -103,7 +103,7 @@ namespace PresentationLayer.Tests
             {
                 MessageBox.Show("Application not found!", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobalData.WindownsEventLog.Log(new Exception("Loading Application failed from DGV"));
+                clsGlobalData.logExceptions?.AddLog(new Exception("Loading Application failed from DGV"));
                 return;
             }
 
@@ -111,7 +111,7 @@ namespace PresentationLayer.Tests
             {
                 MessageBox.Show("Unexpected error occurred!", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobalData.WindownsEventLog.Log(new FormatException("Parsing TestAppointmentID failed."));
+                clsGlobalData.logExceptions?.AddLog(new FormatException("Parsing TestAppointmentID failed."));
                 return;
             }
 
@@ -141,7 +141,7 @@ namespace PresentationLayer.Tests
             {
                 MessageBox.Show("Unexpected error occurred!", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobalData.WindownsEventLog.Log(new FormatException("Parsing TestAppointmentID failed."));
+                clsGlobalData.logExceptions?.AddLog(new FormatException("Parsing TestAppointmentID failed."));
                 return;
             }
 

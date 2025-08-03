@@ -24,7 +24,7 @@ namespace DataAccessLayer.Core
         public static DataTable GetLogByLoggedUserID(int LoggedUserID)
         {
             var parameters = new HashSet<SqlParameter>();
-            parameters?.AddLoggedUserID(LoggedUserID);
+            parameters?.LoggedUserID(LoggedUserID);
             return DBManager?.ExecuteDataTable("sp_GetLogByLoggedUserID", parameters);
         }
 

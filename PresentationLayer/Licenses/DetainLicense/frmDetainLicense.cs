@@ -28,7 +28,7 @@ namespace PresentationLayer.Licenses.DetainLicense
         public frmDetainLicense()
         {
             InitializeComponent();
-            SetTheme(this);
+        
         }
 
         private void frmDetainLicense_Load(object sender, EventArgs e)
@@ -108,7 +108,7 @@ namespace PresentationLayer.Licenses.DetainLicense
             {
                 MessageBox.Show("An unexpected Error happened !", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobalData.WindownsEventLog.Log(new FormatException("Error while parsing txtFineFees to decimal ."));
+                clsGlobalData.logExceptions?.AddLog(new FormatException("Error while parsing txtFineFees to decimal ."));
                 return;
             }
 
@@ -136,7 +136,7 @@ namespace PresentationLayer.Licenses.DetainLicense
             }
             catch (Exception ex)
             {
-                WindownsEventLog?.Log(ex);
+                logExceptions?.AddLog(ex);
                 MessageBox.Show("An unexpected error occurred.", "Save failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

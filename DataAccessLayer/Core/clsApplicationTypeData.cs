@@ -36,7 +36,7 @@ namespace DataAccessLayer.Core
             var Parameters = new HashSet<SqlParameter>();       
             Parameters?.AddSQLParameter("@ApplicationTypeTitle", ApplicationTypeTitle);
             Parameters?.AddSQLParameter("@ApplicationFees", ApplicationTypeFees);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
 
             object result = DBManager?.ExecuteScalar("sp_AddApplicationType", Parameters);
             return result.ToNullableInt32();
@@ -48,7 +48,7 @@ namespace DataAccessLayer.Core
             Parameters?.AddSQLParameter("@ApplicationTypeTitle", ApplicationTypeTitle);
             Parameters?.AddSQLParameter("@ApplicationTypeID", ApplicationTypeID);
             Parameters?.AddSQLParameter("@ApplicationFees", ApplicationFees);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
 
             return DBManager?.ExecuteNonQuery("sp_UpdateApplicationTypeByID", Parameters) ?? false;
         }

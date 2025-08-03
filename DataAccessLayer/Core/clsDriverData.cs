@@ -38,7 +38,7 @@ namespace DataAccessLayer.Core
             Parameters?.AddSQLParameter("@CreatedByUserID", CreatedByUserID);
             Parameters?.AddSQLParameter("@CreatedDate", CreatedDate);
             Parameters?.AddSQLParameter("@PenaltyPoints", PenaltyPoints);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
             object id = DBManager?.ExecuteScalar("sp_AddDriver", Parameters);
             return id.ToNullableInt32();
         }
@@ -52,7 +52,7 @@ namespace DataAccessLayer.Core
             Parameters?.AddSQLParameter("@CreatedByUserID", CreatedByUserID);
             Parameters?.AddSQLParameter("@CreatedDate", CreatedDate);
             Parameters?.AddSQLParameter("@PenaltyPoints", PenaltyPoints);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
             return DBManager?.ExecuteNonQuery("sp_UpdateDriverByID", Parameters) ?? false;
         }
 
@@ -60,7 +60,7 @@ namespace DataAccessLayer.Core
         {
             var Parameters = new HashSet<SqlParameter>();
             Parameters?.AddSQLParameter("@DriverID", DriverID);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
             return DBManager?.ExecuteNonQuery("sp_DeleteDriverByID", Parameters) ?? false;
         }
 

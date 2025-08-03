@@ -22,7 +22,7 @@ namespace PresentationLayer.Users
 
         private void frmUpdateUsers_Load(object sender, EventArgs e)
         {
-            SetTheme(this);
+      
             RefreshForm();
         }
 
@@ -88,7 +88,7 @@ namespace PresentationLayer.Users
                     {
                         MessageBox.Show("Error: Error with modifying permissions!", "Error",
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        WindownsEventLog.Log(ex);
+                        logExceptions?.AddLog(ex);
                     }
                 };
             }
@@ -126,7 +126,7 @@ namespace PresentationLayer.Users
             }
             catch (Exception ex)
             {
-                WindownsEventLog.Log(ex);
+                logExceptions?.AddLog(ex);
             }
         }
 
@@ -156,7 +156,7 @@ namespace PresentationLayer.Users
             }
             catch (Exception ex)
             {
-                WindownsEventLog.Log(ex);
+                logExceptions?.AddLog(ex);
             }
         }
 

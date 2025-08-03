@@ -17,7 +17,6 @@ namespace PresentationLayer.Users
         public frmChangePassword(int userID)
         {
             InitializeComponent();
-            SetTheme(this);
             _UserID = userID;
         }
 
@@ -71,7 +70,7 @@ namespace PresentationLayer.Users
             {
                 MessageBox.Show("Error: Password change failed.",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog.Log(ex);
+                logExceptions?.AddLog(ex);
             }
         }
 

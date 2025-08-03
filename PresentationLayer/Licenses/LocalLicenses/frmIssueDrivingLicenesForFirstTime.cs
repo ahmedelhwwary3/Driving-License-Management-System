@@ -12,7 +12,7 @@ namespace PresentationLayer.Licenses.LocalLicenses
         public frmIssueDrivingLicenesForFirstTime(int LocalDrivingLicenseApplicationID)
         {
             InitializeComponent();
-            SetTheme(this);
+           
             _LocalDrivingLicenseApplicationID = LocalDrivingLicenseApplicationID;
         }
 

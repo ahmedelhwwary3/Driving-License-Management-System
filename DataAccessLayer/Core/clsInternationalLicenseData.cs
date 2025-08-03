@@ -40,7 +40,7 @@ namespace DataAccessLayer.Core
             Parameters?.AddSQLParameter("@IsActive", IsActive);
             Parameters?.AddSQLParameter("@CreatedByUserID", CreatedByUserID);
             Parameters?.AddSQLParameter("@PaidFees", PaidFees);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
 
             object ID = DBManager?.ExecuteScalar("sp_AddInternationalLicense", Parameters);
             return ID.ToNullableInt32();
@@ -69,7 +69,7 @@ namespace DataAccessLayer.Core
             Parameters?.AddSQLParameter("@IsActive", IsActive);
             Parameters?.AddSQLParameter("@CreatedByUserID", CreatedByUserID);
             Parameters?.AddSQLParameter("@PaidFees", PaidFees);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
 
             return DBManager?.ExecuteNonQuery("sp_UpdateInternationalLicenseByID", Parameters) ?? false;
         }

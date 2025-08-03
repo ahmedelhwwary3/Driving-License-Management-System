@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static PresentationLayer.Global.clsGlobalData;
-using static PresentationLayer.Helpers.Logger.clsRegistry;
+using static PresentationLayer.Helpers.AddLogs.Credentials.AddLogTypes.clsRegCredentialsLog;
 namespace PresentationLayer.Helpers.Colors
 {
     public struct stTheme
@@ -19,13 +19,14 @@ namespace PresentationLayer.Helpers.Colors
     public class clsThemeManager
     {
         public stTheme Values { get; private set; }
-        public enThemeMode Mode { get; set; }
+        internal enThemeMode Mode { get; set; }
         public clsThemeManager()
         {
-            Mode = GetUserThemeFromRegistry(out enThemeMode mode)?mode:enThemeMode.Dark;
+            logThemeModes.GetAddLog(out int ThemeMode);
+            Mode = (enThemeMode)ThemeMode;
             LoadTheme(Mode);
         }
-        public void LoadTheme(enThemeMode mode)
+        internal void LoadTheme(enThemeMode mode)
         {
             switch (mode)
             {

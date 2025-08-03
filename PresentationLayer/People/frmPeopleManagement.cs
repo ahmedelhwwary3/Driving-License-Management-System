@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using static PresentationLayer.Global.clsGlobalData;
 using static BusinessLayer.Core.clsUsersPermissions;
 using PresentationLayer.Helpers.BaseUI;
+using static PresentationLayer.Global.clsUtil;
 
 namespace PresentationLayer.People
 {
@@ -34,7 +35,7 @@ namespace PresentationLayer.People
         public frmPeopleManagement()
         {
             InitializeComponent();
-            SetTheme(this);
+    
         }
         void RefreshPageNumber()
             => lblPageNumber.Text = _PageNumber.ToString();
@@ -183,42 +184,56 @@ namespace PresentationLayer.People
         {
             string FilterColumn = GetFilterColumnDBName();
             string FilterValue = txtFilterValue.Text.Trim();
-            if (FilterColumn == "None")
+            try
             {
-                _PageNumber = 1;
-                _dtSubPeopleList.DefaultView.RowFilter = "";
-                dgvPeopleList.DataSource = _dtSubPeopleList;//will refresh subList using event
-                _TotalCount = _dtSubPeopleList.Rows.Count;
-                cbFilterBy.SelectedIndex = cbFilterBy.FindString("None");
+
+                if (FilterColumn == "None")
+                {
+                    _PageNumber = 1;
+                    _dtSubPeopleList.DefaultView.RowFilter = "";
+                    dgvPeopleList.DataSource = _dtSubPeopleList;//will refresh subList using event
+                    _TotalCount = _dtSubPeopleList.Rows.Count;
+                    cbFilterBy.SelectedIndex = cbFilterBy.FindString("None");
+                    RefreshListCount();
+                    return;
+
+                }
+                if (FilterValue == string.Empty)
+                {
+                    dgvPeopleList.DataSource = _dtSubPeopleList;//will refresh subList using event
+                    _TotalCount = _dtSubPeopleList.Rows.Count;
+                    _dtSubPeopleList.DefaultView.RowFilter = "";
+                    RefreshListCount();
+                    return;
+                }
+
+                if (_dtAllPeopleList.Rows.Count == 0)
+                    _dtAllPeopleList = clsPerson.GetAllPeopleList();
+
+                dgvPeopleList.DataSource = _dtAllPeopleList;
+                _TotalCount = _dtAllPeopleList.Rows.Count;
+                if (cbFilterBy.Text == "Person ID")
+                {
+                    _dtAllPeopleList.DefaultView.RowFilter =
+                            string.Format("[{0}] = {1}", FilterColumn, FilterValue);
+                }
+                else
+                {
+                    _dtAllPeopleList.DefaultView.RowFilter =
+                      string.Format("[{0}] LIKE '%{1}%'", FilterColumn, FilterValue);
+                }
                 RefreshListCount();
-                return;
 
             }
-            if (FilterValue == string.Empty)
+            catch (FormatException ex)
             {
-                dgvPeopleList.DataSource = _dtSubPeopleList;//will refresh subList using event
-                _TotalCount = _dtSubPeopleList.Rows.Count;
-                _dtSubPeopleList.DefaultView.RowFilter = "";
-                RefreshListCount();
-                return;
+                logExceptions?.AddLog(ex);
             }
-
-            if (_dtAllPeopleList.Rows.Count == 0)
-                _dtAllPeopleList = clsPerson.GetAllPeopleList();
-
-            dgvPeopleList.DataSource = _dtAllPeopleList;
-            _TotalCount = _dtAllPeopleList.Rows.Count;
-            if (cbFilterBy.Text == "Person ID")
+            catch (Exception ex)
             {
-                _dtAllPeopleList.DefaultView.RowFilter =
-                        string.Format("[{0}] = {1}", FilterColumn, FilterValue);
+                logExceptions?.AddLog(ex);
             }
-            else
-            {
-                _dtAllPeopleList.DefaultView.RowFilter =
-                  string.Format("[{0}] LIKE '%{1}%'", FilterColumn, FilterValue);
-            }
-            RefreshListCount();
+            
         }
         private void RefreshListCount()
             => lblTotalRecords.Text = _TotalCount.ToString();
@@ -264,18 +279,32 @@ namespace PresentationLayer.People
             string FilterColumn = "GendorCaption";
             string FilterValue = cbGendor.Text == "Male" ? "Male" : "Female";
             dgvPeopleList.DataSource = _dtAllPeopleList;
-            if (cbGendor.Text == "All")
+            try
             {
-                _dtAllPeopleList.DefaultView.RowFilter = "";
+
+                if (cbGendor.Text == "All")
+                {
+                    _dtAllPeopleList.DefaultView.RowFilter = "";
+                    RefreshListCount();
+                    return;
+
+                }
+                if (_dtAllPeopleList.Rows.Count == 0)
+                    _dtAllPeopleList = clsPerson.GetAllPeopleList();
+                dgvPeopleList.DataSource = _dtAllPeopleList;
+                _dtAllPeopleList.DefaultView.RowFilter = string.Format("[{0}] = '{1}'", FilterColumn, FilterValue);
                 RefreshListCount();
-                return;
 
             }
-            if (_dtAllPeopleList.Rows.Count == 0)
-                _dtAllPeopleList = clsPerson.GetAllPeopleList();
-            dgvPeopleList.DataSource = _dtAllPeopleList;
-            _dtAllPeopleList.DefaultView.RowFilter = string.Format("[{0}] = '{1}'", FilterColumn, FilterValue);
-            RefreshListCount();
+            catch (FormatException ex)
+            {
+                logExceptions?.AddLog(ex);
+            }
+            catch (Exception ex)
+            {
+                logExceptions?.AddLog(ex);
+            }
+           
 
         }
 
@@ -298,7 +327,7 @@ namespace PresentationLayer.People
             {
                 MessageBox.Show("Error:An Unexpected Error happened while loading User!", "Error",
                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog?.Log(new Exception($"Error when Loading Person Row from DGV."));
+                logExceptions?.AddLog(new Exception($"Error when Loading Person Row from DGV."));
                 return;
             }
 
@@ -306,7 +335,7 @@ namespace PresentationLayer.People
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
                   MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog?.Log(new Exception($"Error when Parsing PersonID from DGV Row."));
+                logExceptions?.AddLog(new Exception($"Error when Parsing PersonID from DGV Row."));
                 return;
             }
 
@@ -333,14 +362,14 @@ namespace PresentationLayer.People
             {
                 MessageBox.Show("Error:An Unexpected Error happened while loading Person !", "Error",
                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog?.Log(new Exception($"Error when Loading Person Row from DGV."));
+                logExceptions?.AddLog(new Exception($"Error when Loading Person Row from DGV."));
                 return;
             }
             if (!(dgvPeopleList.CurrentRow.Cells[1].Value is int PersonID))
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
                   MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog?.Log(new Exception($"Error when Parsing PersonID from DGV Row."));
+                logExceptions?.AddLog(new Exception($"Error when Parsing PersonID from DGV Row."));
                 return;
 
             }
@@ -361,7 +390,7 @@ namespace PresentationLayer.People
             {
                 MessageBox.Show("Error:An Unexpected Error happened while loading Person !", "Error",
                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog?.Log(new Exception($"Error when Loading Person Row from DGV."));
+                logExceptions?.AddLog(new Exception($"Error when Loading Person Row from DGV."));
                 return;
             }
 
@@ -369,7 +398,7 @@ namespace PresentationLayer.People
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
                            MessageBoxButtons.OK, MessageBoxIcon.Error);
-                WindownsEventLog?.Log(new Exception($"Error when Parsing PersonID from DGV Row."));
+                logExceptions?.AddLog(new Exception($"Error when Parsing PersonID from DGV Row."));
                 return;
             }
 
@@ -401,8 +430,19 @@ namespace PresentationLayer.People
         {
             if (!CheckUserAccess(GetPermissions("AddEdit")))
                 return;
-            MessageBox.Show("This Method is not implemented", "Stup",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            string Email = dgvPeopleList?.CurrentRow?.Cells[11].Value as string??null;
+            if (Email == null)
+            {
+                MessageBox.Show("Error:Email is not found !",
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            frmEmail frm =new frmEmail(Email);
+            frm?.Show();
+
+            //MessageBox.Show("This Method is not implemented", "Stup",
+            //    MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
 

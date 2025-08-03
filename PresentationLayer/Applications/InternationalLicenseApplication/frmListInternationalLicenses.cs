@@ -25,7 +25,7 @@ namespace PresentationLayer.Licenses.InternationalLicenses
         public frmListInternationalLicenses()
         {
             InitializeComponent();
-            SetTheme(this);
+ 
             dgvInternationalLicenses.DataBindingComplete += (sender, e)
                 => FormatDGVColumns();
         }
@@ -202,7 +202,7 @@ namespace PresentationLayer.Licenses.InternationalLicenses
             {
                 MessageBox.Show("Error:An unexpected error happened !","Error",
                     MessageBoxButtons.OK,MessageBoxIcon.Error);
-                   clsGlobalData.WindownsEventLog.Log(new FormatException("An unexpected error happened" +
+                   clsGlobalData.logExceptions?.AddLog(new FormatException("An unexpected error happened" +
                     " while parsing DriverID from DGV Cell 2 to int."));
                 return;
             }
@@ -220,7 +220,7 @@ namespace PresentationLayer.Licenses.InternationalLicenses
             {
                 MessageBox.Show("Error:An unexpected error happened !", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                   clsGlobalData.WindownsEventLog.Log(new FormatException("An unexpected error happened" +
+                   clsGlobalData.logExceptions?.AddLog(new FormatException("An unexpected error happened" +
                     " while parsing DriverID from DGV Cell 2 to int."));
                 return;
             }
@@ -244,7 +244,7 @@ namespace PresentationLayer.Licenses.InternationalLicenses
             {
                 MessageBox.Show("Error:An Unexpected Error happened !", "Error",
               MessageBoxButtons.OK, MessageBoxIcon.Error);
-                   clsGlobalData.WindownsEventLog.Log(new Exception($"Error when Loading Parsing InternationalLicenseID from DGV Row."));
+                   clsGlobalData.logExceptions?.AddLog(new Exception($"Error when Loading Parsing InternationalLicenseID from DGV Row."));
                 return;
             }
             clsInternationalLicense InternationalLicense = clsInternationalLicense.GetInternationalLicenseByID(InternationalLicenseID);

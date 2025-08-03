@@ -11,55 +11,71 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+using static PresentationLayer.Global.clsGlobalData;
+using static PresentationLayer.Global.clsUtil;
+using System.Net;
 
-namespace PresentationLayer.Login
+namespace PresentationLayer.AddLogin
 {
-    public partial class frmListOperationLogs : clsBaseForm
+    public partial class frmListOperationAddLogs : clsBaseForm
     {
         Task task;
-        public frmListOperationLogs()
+        List<clsOperationLog> _lstOperationAddLogs = new List<clsOperationLog>();
+        public enum enDownloadStyle
+        { Text, Word, Excel }
+        public enum enDownloadQuantity
+        { SingleRow, FullRows }
+        public frmListOperationAddLogs()
         {
             InitializeComponent();
-            SetTheme(this);
+ 
         }
         string path;
 
-        private DataTable _dtAllUsersLogs = new DataTable();
+        private DataTable _dtAllUsersAddLogs = new DataTable();
         private async Task<string> ConvertAllRecordsToTXTFile()
         {
             StringBuilder stBuilder = new StringBuilder();
             int count = 0;
 
-            foreach (DataRow Row in _dtAllUsersLogs.Rows)
+            foreach (DataRow Row in _dtAllUsersAddLogs.Rows)
             {
                 count++;
-                clsOperationLog RecordLog = await clsOperationLog.ConvertDataRowToObjectAsync(Row);
+                clsOperationLog RecordAddLog = await clsOperationLog.ConvertDataRowToObjectAsync(Row);
                 stBuilder.Append($"__________________ Record[{count}] __________________\n");
-                stBuilder.Append(RecordLog.ToString() ?? $" Record[{count}] N/A !\n\n");
+                stBuilder.Append(RecordAddLog.ToString() ?? $" Record[{count}] N/A !\n\n");
                 stBuilder.Append("________________________________________________\n\n");
             }
             return stBuilder.ToString();
         }
+        private async void ConvertAllRecordsToOperationAddLogObjects()
+        {
+            foreach (DataRow Row in _dtAllUsersAddLogs.Rows)
+            {
+                clsOperationLog RecordAddLog = await clsOperationLog.ConvertDataRowToObjectAsync(Row);
+                _lstOperationAddLogs?.Add(RecordAddLog);
+            }
+        }
 
         void RefreshList()
         {
-            _dtAllUsersLogs = clsOperationLog.GetAllOperationLogs();
-            dgvLogs.DataSource = _dtAllUsersLogs;
+            _dtAllUsersAddLogs = clsOperationLog.GetAllOperationLogs();
+            dgvAddLogs.DataSource = _dtAllUsersAddLogs;
             RefreshListCount();
 
         }
         private void RefreshListCount()
-            => lblTotalRecords.Text = dgvLogs.Rows.Count.ToString();
+            => lblTotalRecords.Text = dgvAddLogs.Rows.Count.ToString();
         string GetFilterColumnDBName()
         {
             switch (cbFilterBy.Text)
             {
-                case "Log ID":
+                case "AddLog ID":
                     {
-                        return "LogID";
+                        return "AddLogID";
 
                     }
-                case "Logged User ID":
+                case "AddLogged User ID":
                     {
                         return "LoggedUserID";
 
@@ -80,43 +96,70 @@ namespace PresentationLayer.Login
                     }
             }
         }
-        private void dgvLogs_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        private void dgvAddLogs_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
-            if (dgvLogs.Columns.Count == 7)
+            if (dgvAddLogs.Columns.Count == 7)
             {
-                dgvLogs.Columns[0].Width = 110;
-                dgvLogs.Columns[0].HeaderText = "Log ID";
+                dgvAddLogs.Columns[0].Width = 110;
+                dgvAddLogs.Columns[0].HeaderText = "AddLog ID";
 
-                dgvLogs.Columns[1].Width = 110;
-                dgvLogs.Columns[1].HeaderText = "Logged User ID";
+                dgvAddLogs.Columns[1].Width = 110;
+                dgvAddLogs.Columns[1].HeaderText = "AddLogged User ID";
 
-                dgvLogs.Columns[2].Width = 180;
-                dgvLogs.Columns[2].HeaderText = "Action";
+                dgvAddLogs.Columns[2].Width = 180;
+                dgvAddLogs.Columns[2].HeaderText = "Action";
 
-                dgvLogs.Columns[3].Width = 170;
-                dgvLogs.Columns[3].HeaderText = "Create Date";
+                dgvAddLogs.Columns[3].Width = 170;
+                dgvAddLogs.Columns[3].HeaderText = "Create Date";
 
-                dgvLogs.Columns[4].Width = 110;
-                dgvLogs.Columns[4].HeaderText = "Table Name";
-                dgvLogs.Columns[5].Visible = false;
-                dgvLogs.Columns[6].Visible = false;
+                dgvAddLogs.Columns[4].Width = 110;
+                dgvAddLogs.Columns[4].HeaderText = "Table Name";
+                dgvAddLogs.Columns[5].Visible = false;
+                dgvAddLogs.Columns[6].Visible = false;
             }
         }
-        void ResetSaveFileDialog()
+        void ResetSaveFileDialog(enDownloadStyle style)
         {
-            saveFileDialog1.Title = "Save Log File";
-            saveFileDialog1.DefaultExt = ".txt";
-            saveFileDialog1.FileName = "LogFile";
-            saveFileDialog1.InitialDirectory = "C:\\";
+            saveFileDialog1.Title = "Save AddLog File";
+            saveFileDialog1.FileName = "AddLogFile";
+            saveFileDialog1.InitialDirectory = "F:\\";
+            saveFileDialog1.Filter =
+                "Text Files (*.txt)|*.txt|" +
+                "Word Documents (*.docx)|*.docx|" +
+                "Excel Files (*.xlsx)|*.xlsx";
+            switch (style)
+            {
+                case enDownloadStyle.Text:
+                default:
+                    {
+                        saveFileDialog1.DefaultExt = "txt";
+                        saveFileDialog1.FilterIndex = 1;
+                        break;
+                    }
+                case enDownloadStyle.Word:
+                    {
+                        saveFileDialog1.DefaultExt = "docx";
+                        saveFileDialog1.FilterIndex = 2;
+                        break;
+                    }
+                case enDownloadStyle.Excel:
+                    {
+                        saveFileDialog1.DefaultExt = "xlsx";
+                        saveFileDialog1.FilterIndex = 3;
+                        break;
+                    }
+            }
+  
+             
         }
-        private void frmListOperationLogs_Load(object sender, EventArgs e)
+        private void frmListOperationAddLogs_Load(object sender, EventArgs e)
         {
-            task = Task.Run(() => _dtAllUsersLogs = clsOperationLog.GetAllOperationLogs());
-            SetTitle("Operation Logs");
+            task = Task.Run(() => _dtAllUsersAddLogs = clsOperationLog.GetAllOperationLogs());
+            SetTitle("Operation AddLogs");
             cbFilterBy.SelectedIndex = cbFilterBy.FindString("None");
             cbAction.Visible = false;
             Task.WaitAll(task);
-            dgvLogs.DataSource = _dtAllUsersLogs;
+            dgvAddLogs.DataSource = _dtAllUsersAddLogs;
             RefreshListCount();
         }
 
@@ -127,25 +170,25 @@ namespace PresentationLayer.Login
 
             if (txtFilterValue.Text.Trim() == "")
             {
-                _dtAllUsersLogs.DefaultView.RowFilter = "";
+                _dtAllUsersAddLogs.DefaultView.RowFilter = "";
                 RefreshListCount();
                 return;
             }
             if (FilterColumn == "None")
             {
-                _dtAllUsersLogs.DefaultView.RowFilter = "";
+                _dtAllUsersAddLogs.DefaultView.RowFilter = "";
                 cbFilterBy.SelectedIndex = cbFilterBy.FindString("None");
                 return;
             }
-            if (FilterColumn == "LogID" || FilterColumn == "LoggedUserID")
+            if (FilterColumn == "AddLogID" || FilterColumn == "LoggedUserID")
             {
-                _dtAllUsersLogs.DefaultView.RowFilter =
+                _dtAllUsersAddLogs.DefaultView.RowFilter =
                                     string.Format("[{0}] = {1}", FilterColumn,
                                      txtFilterValue.Text.Trim());
             }
             else
             {
-                _dtAllUsersLogs.DefaultView.RowFilter =
+                _dtAllUsersAddLogs.DefaultView.RowFilter =
                                 string.Format("[{0}] like '%{1}%'", FilterColumn,
                                  txtFilterValue.Text.Trim());
             }
@@ -155,7 +198,7 @@ namespace PresentationLayer.Login
         void CheckTXT_CBVisible()
         {
             txtFilterValue.Visible =
-              (cbFilterBy.Text != "None" && cbFilterBy.Text != "Action" && this.dgvLogs.Rows.Count != 0);
+              (cbFilterBy.Text != "None" && cbFilterBy.Text != "Action" && this.dgvAddLogs.Rows.Count != 0);
             cbAction.Visible = (cbFilterBy.Text == "Action");
         }
         private void cbFilterBy_SelectedIndexChanged(object sender, EventArgs e)
@@ -184,110 +227,115 @@ namespace PresentationLayer.Login
                 e.Handled = false;
                 return;
             }
-            if (cbFilterBy.Text == "Log ID" || cbFilterBy.Text == "Logged User ID")
+            if (cbFilterBy.Text == "AddLog ID" || cbFilterBy.Text == "AddLogged User ID")
                 e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
             else e.Handled = false;
         }
 
-        private void downloadAllRecordToolStripMenuItem_Click(object sender, EventArgs e)
+
+
+        async void Download(enDownloadStyle style, enDownloadQuantity quantity)
         {
-            if (dgvLogs.CurrentRow == null)
+            clsOperationLog AddLog = new clsOperationLog();
+            if (dgvAddLogs.CurrentRow == null)
             {
-                MessageBox.Show("Error:An Unexpected Error happened while loading Log !", "Error",
+                MessageBox.Show("Error:An Unexpected Error happened while loading AddLog !", "Error",
                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobalData.WindownsEventLog.Log(new Exception($"Error when Loading Log Row from DGV."));
+                logExceptions?.AddLog(new Exception($"Error when Loading AddLog Row from DGV."));
                 return;
             }
 
-            if (!(dgvLogs.CurrentRow.Cells[0].Value is int LogID))
+            if (quantity == enDownloadQuantity.SingleRow)
             {
-                MessageBox.Show("Error:An Unexpected Error happened !", "Error",
-                           MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobalData.WindownsEventLog.Log(new Exception($"Error when Parsing LogID from DGV Row."));
-                return;
+                if (!(dgvAddLogs.CurrentRow.Cells[0].Value is int AddLogID))
+                {
+                    MessageBox.Show("Error:An Unexpected Error happened !", "Error",
+                               MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    logExceptions?.AddLog(new Exception($"Error when Parsing AddLogID from DGV Row."));
+                    return;
+                }
+                AddLog = clsOperationLog.GetByLogID(AddLogID);
+                if (AddLog == null)
+                {
+                    MessageBox.Show("Error:AddLog Record is not found !", "Error",
+                               MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
             }
-            clsOperationLog Log = clsOperationLog.GetByLogID(LogID);
-            if (Log == null)
-            {
-                MessageBox.Show("Error:Log Record is not found !", "Error",
-                           MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            ResetSaveFileDialog();
+            ResetSaveFileDialog(style);
+
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
 
-                //We overrided the ToString() for Log class
                 try
                 {
                     path = saveFileDialog1.FileName;
-                    File.WriteAllText(path, Log.ToString());
+                    string data = "";
+                    if (quantity == enDownloadQuantity.SingleRow)
+                        data = AddLog.ToString();//I overrided ToString()
+                    else
+                        data = await ConvertAllRecordsToTXTFile();
+
+                    switch (style)
+                    {
+                        case enDownloadStyle.Text:
+                        default:
+                            {
+                                File.WriteAllText(path, data);
+                                break;
+                            }
+                        case enDownloadStyle.Word:
+                            {
+                                SaveDataAsWordFile(data,path);
+                                break;
+                            }
+                        case enDownloadStyle.Excel:
+                            {
+                                if(quantity == enDownloadQuantity.SingleRow)
+                                {
+                                    SaveDataAsExcelSheet(AddLog, path);
+                                }
+                                else
+                                {
+                                    ConvertAllRecordsToOperationAddLogObjects();
+                                    SaveDataAsExcelSheet(_lstOperationAddLogs, path);
+                                }
+                                break;
+                            }
+
+                    }
                     notifyIcon1.Visible = true;
                     notifyIcon1.ShowBalloonTip(3);
 
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error:An Unexpected Error happened while downloaing Log !"
+                    MessageBox.Show("Error:An Unexpected Error happened while downloaing AddLog !"
                         , "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    clsGlobalData.WindownsEventLog.Log(ex);
+                    logExceptions?.AddLog(ex);
                 }
 
             }
         }
-
-
 
         private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
         {
-            if (dgvLogs.CurrentRow == null || dgvLogs.Rows.Count == 0)
+            if (dgvAddLogs.CurrentRow == null || dgvAddLogs.Rows.Count == 0)
                 return;
         }
 
-        private async void downloadAllRecordsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (dgvLogs.CurrentRow == null)
-            {
-                MessageBox.Show("Error:An Unexpected Error happened while loading Log !", "Error",
-                       MessageBoxButtons.OK, MessageBoxIcon.Error);
-                clsGlobalData.WindownsEventLog.Log(new Exception($"Error when Loading Log Row from DGV."));
-                return;
-            }
-            ResetSaveFileDialog();
-            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-
-                //We overrided the ToString() for Log class
-                try
-                {
-                    string data = await ConvertAllRecordsToTXTFile();
-                    path = saveFileDialog1.FileName;
-                    notifyIcon1.Visible = true;
-                    File.WriteAllText(path, data);
-                    notifyIcon1.ShowBalloonTip(3);
-
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error:An Unexpected Error happened while downloaing Log !"
-                        , "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    clsGlobalData.WindownsEventLog.Log(ex);
-                }
-
-            }
-        }
 
         private void cbAction_SelectedIndexChanged(object sender, EventArgs e)
         {
             string FilterColumn = "Action";
             if (cbAction.Text == "All")
             {
-                _dtAllUsersLogs.DefaultView.RowFilter = "";
+                _dtAllUsersAddLogs.DefaultView.RowFilter = "";
                 RefreshListCount();
                 return;
 
             }
-            _dtAllUsersLogs.DefaultView.RowFilter =
+            _dtAllUsersAddLogs.DefaultView.RowFilter =
                         string.Format("[{0}] = '{1}'", FilterColumn,
                         cbAction.Text);
             RefreshListCount();
@@ -308,7 +356,7 @@ namespace PresentationLayer.Login
             }
             catch (Exception ex)
             {
-                clsGlobalData.WindownsEventLog.Log(ex);
+                logExceptions?.AddLog(ex);
                 MessageBox.Show("Error with openning File !", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -317,6 +365,36 @@ namespace PresentationLayer.Login
         private void btncLose_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void textDownloadFull_Click(object sender, EventArgs e)
+        {
+            Download(style: enDownloadStyle.Text, quantity: enDownloadQuantity.FullRows);
+        }
+
+        private void excelDownloadFull_Click(object sender, EventArgs e)
+        {
+            Download(style: enDownloadStyle.Excel, quantity: enDownloadQuantity.FullRows);
+        }
+
+        private void wordDownloadFull_Click(object sender, EventArgs e)
+        {
+            Download(style: enDownloadStyle.Word, quantity: enDownloadQuantity.FullRows);
+        }
+
+        private void textDownloadSingle_Click(object sender, EventArgs e)
+        {
+            Download(style: enDownloadStyle.Text, quantity: enDownloadQuantity.SingleRow);
+        }
+
+        private void excelDownloadSingle_Click(object sender, EventArgs e)
+        {
+            Download(style: enDownloadStyle.Excel, quantity: enDownloadQuantity.SingleRow);
+        }
+
+        private void wordDownloadSingle_Click(object sender, EventArgs e)
+        {
+            Download(style: enDownloadStyle.Word, quantity: enDownloadQuantity.SingleRow);
         }
     }
 }

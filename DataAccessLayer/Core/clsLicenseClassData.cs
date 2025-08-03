@@ -45,7 +45,7 @@ namespace DataAccessLayer.Core
             Parameters?.AddSQLParameter("@MinimumAllowedAge", MinimumAllowedAge);
             Parameters?.AddSQLParameter("@DefaultValidityLength", DefaultValidityLength);
             Parameters?.AddSQLParameter("@ClassFees", ClassFees);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
 
             object id = DBManager?.ExecuteScalar("sp_AddLicenseClass", Parameters);
             return id.ToNullableInt32();
@@ -61,7 +61,7 @@ namespace DataAccessLayer.Core
             Parameters?.AddSQLParameter("@MinimumAllowedAge", MinimumAllowedAge);
             Parameters?.AddSQLParameter("@DefaultValidityLength", DefaultValidityLength);
             Parameters?.AddSQLParameter("@ClassFees", ClassFees);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
 
             return DBManager?.ExecuteNonQuery("sp_UpdateLicenseClassByID", Parameters) ?? false;
         }
@@ -70,7 +70,7 @@ namespace DataAccessLayer.Core
         {
             var Parameters = new HashSet<SqlParameter>();
             Parameters?.AddSQLParameter("@LicenseClassID", LicenseClassID);
-            Parameters?.AddLoggedUserID(LoggedUserID);
+            Parameters?.LoggedUserID(LoggedUserID);
             return DBManager?.ExecuteNonQuery("sp_DeleteLicenseClassByID", Parameters) ?? false;
         }
     }

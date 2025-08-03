@@ -75,7 +75,7 @@ namespace DataAccessLayer.Core
             parameters?.AddSQLParameter("@Permissions", Permissions);
             parameters?.AddSQLParameter("@HierarchyID", HierarchyID);
             parameters?.AddSQLParameter("@ManagerID", ManagerID.HasValue ? (object)ManagerID : DBNull.Value);
-            parameters?.AddLoggedUserID(LoggedUserID);
+            parameters?.LoggedUserID(LoggedUserID);
 
             object id = DBManager?.ExecuteScalar("sp_AddNewUser", parameters);
             return id.ToNullableInt32();
@@ -92,7 +92,7 @@ namespace DataAccessLayer.Core
             parameters?.AddSQLParameter("@Permissions", Permissions);
             parameters?.AddSQLParameter("@HierarchyID", HierarchyID);
             parameters?.AddSQLParameter("@ManagerID", ManagerID.HasValue ? (object)ManagerID : DBNull.Value);
-            parameters?.AddLoggedUserID(LoggedUserID);
+            parameters?.LoggedUserID(LoggedUserID);
 
             return DBManager?.ExecuteNonQuery("sp_UpdateUserByID", parameters) ?? false;
         }
@@ -101,7 +101,7 @@ namespace DataAccessLayer.Core
         {
             var parameters = new HashSet<SqlParameter>();
             parameters?.AddSQLParameter("@UserID", UserID);
-            parameters?.AddLoggedUserID(LoggedUserID);
+            parameters?.LoggedUserID(LoggedUserID);
             return DBManager.ExecuteNonQuery("sp_DeleteUserByID", parameters) ;
         }
 

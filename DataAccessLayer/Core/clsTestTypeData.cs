@@ -46,7 +46,7 @@ namespace DataAccessLayer.Core
             parameters?.AddSQLParameter("@TestTypeTitle", TestTypeTitle);
             parameters?.AddSQLParameter("@TestTypeDescription", TestTypeDescription);
             parameters?.AddSQLParameter("@TestTypeFees", TestTypeFees);
-            parameters?.AddLoggedUserID(LoggedUserID);
+            parameters?.LoggedUserID(LoggedUserID);
 
             object id = DBManager?.ExecuteScalar("sp_AddTestType", parameters);
             return id.ToNullableInt32();
@@ -59,7 +59,7 @@ namespace DataAccessLayer.Core
             parameters?.AddSQLParameter("@TestTypeTitle", TestTypeTitle);
             parameters?.AddSQLParameter("@TestTypeDescription", TestTypeDescription);
             parameters?.AddSQLParameter("@TestTypeFees", TestTypeFees);
-            parameters?.AddLoggedUserID(LoggedUserID);
+            parameters?.LoggedUserID(LoggedUserID);
 
             return DBManager?.ExecuteNonQuery("sp_UpdateTestTypeByID", parameters) ?? false;
         }

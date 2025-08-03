@@ -627,9 +627,9 @@
             pbPersonImage.TabIndex = 63;
             pbPersonImage.TabStop = false;
             // 
-            // openFileDialog1
+            // openFileDiaAddLog1
             // 
-            openFileDialog1.FileName = "openFileDialog1";
+            openFileDialog1.FileName = "openFileDiaAddLog1";
             // 
             // errorProvider1
             // 

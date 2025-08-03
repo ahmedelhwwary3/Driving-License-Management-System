@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BusinessLayer.Core
 {
-    [Description("There are many CEOs but only 1 Admin in the system")]
+    [clsDescription("There are many CEOs but only 1 Admin in the system")]
     public class clsUsersHierarcky
     {
 

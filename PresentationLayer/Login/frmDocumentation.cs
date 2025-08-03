@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using static PresentationLayer.Global.clsUtil;
 
-namespace PresentationLayer.Login
+namespace PresentationLayer.AddLogin
 {
     public partial class frmDocumentation : clsBaseForm
     {
@@ -27,7 +27,7 @@ namespace PresentationLayer.Login
         public frmDocumentation()
         {
             InitializeComponent();
-            SetTheme(this);
+ 
         }
         private void frmDocumentation_Load(object sender, EventArgs e)
         {

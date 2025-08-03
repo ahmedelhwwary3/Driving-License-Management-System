@@ -106,7 +106,7 @@ namespace PresentationLayer.People
         }
 
         //(2) Another Event , this form is a subscriber
-        //This form will recieve the PersonID back from another form and implement this logic
+        //This form will recieve the PersonID back from another form and implement this AddLogic
         void RefreshCTRLWithDataBack(object sender, int PersonID)
         {
             cbFilterBy.SelectedText = "PersonID";
