@@ -1,122 +1,114 @@
-# 🚗🛂 Driving License Management System (DLMS)
+🚗🛂 Driving License Management System (DLMS)
+A robust, enterprise-grade desktop application for managing the entire lifecycle of driving licenses — from registration and testing to issuance, renewal, and auditing. Built with clean 3-tier architecture in C# (WinForms) and SQL Server, with modular design and real-world scalability.
 
-A full-featured, maintainable desktop application for managing all driver license operations — from registration and testing to issuance, renewal, and auditing — built with a clean 3-tier architecture in **C# (WinForms)** and **SQL Server**.
+🔧 Core Features
+🎯 Functional Capabilities
+Driver registration with validation and dynamic filtering.
 
----
+Full license lifecycle (issuance, renewal, replacement, violations).
 
-## 🔧 Core Features
+Role-based access control via bitwise flags (Admin, Editor, Viewer).
 
-### 🎯 Functional Capabilities
-- Driver registration with validation and dynamic data filtering.  
-- Full license lifecycle: local & international issuance, renewal, replacement, violation handling.  
-- Role-based access control (Admin, Editor, Viewer) using bitwise flags.  
-- User activity logging (Create, Edit, Delete, Login) with timestamps.  
-- File handling for storing driver images and exporting reports.
+File handling for driver photos and report exports.
 
-### 🔐 Security & Error Handling
-- Hashed passwords using SHA-256.  
-- Soft delete implementation (status flag instead of DELETE).  
-- Error logging via triggers to `ErrorLogs` table (SP name, line, message, parameters).  
-- Secure parameter handling with `SqlParameter` (handling nulls and direction).  
-- Local storage of user credentials & UI themes via Windows Registry.
+Outlook integration for employee email notifications.
 
----
+Export reports (CRUD operations, users, etc.) via API to Word/Excel.
 
-## 📈 Data Management & Performance
+🔐 Security & Stability
+SHA-256 password hashing.
 
-- Stored Procedures for all DB operations with output params & custom error handling.  
-- Pagination for large datasets using `ROW_NUMBER()` and `OFFSET-FETCH`.  
-- Efficient string normalization (e.g., `UPPER()` for usernames).  
-- **MVTF** pattern (Multi-Value Table Function) for reusable queries.  
-- `QUOTENAME()` usage to prevent SQL injection in dynamic SQL.
+Soft-delete logic (status flags instead of hard deletes).
 
----
+Error logging via triggers and centralized logging manager.
 
-## 🛠 Architecture
+Safe SQL handling using SqlParameter (null and direction-safe).
 
-- **UI Layer**: WinForms + modular `UserControls`.  
-- **Business Logic Layer**: Extension methods, casting utilities, serialization, reflection.  
-- **Data Access Layer**: `DBManager` + ADO.NET with stored procedures.  
-- **Database**: SQL Server with:
-  - Triggers  
-  - Views  
-  - Stored Procedures  
-  - Session Context (for tracking modified user)
+Local storage (user settings, themes) via Windows Registry.
 
----
+📈 Performance & Data Management
+All DB operations via Stored Procedures with output params & custom error flows.
 
-## 🧠 Advanced Engineering Highlights
+Efficient pagination (ROW_NUMBER() + OFFSET-FETCH).
 
-### ⚙ Transactions & Data Integrity
-- Atomic multi-step operations using `BEGIN TRANSACTION`:
-  - Automatically create driver when license is added.  
-  - Update license status/history upon issuance.
+MVTF (Multi-Value Table Functions) for reusable queries.
 
-### 🧾 Logging System
-- Multi-layered logging:  
-  - **Database Logs**  
-  - **Windows Event Log**  
-  - **Registry Entries**  
-  - **Text Files**  
-- Manifest used for permission elevation in Event Viewer.  
-- Central `Logger` classes ensure unified logging behavior.
+QUOTENAME() used for secure dynamic SQL generation.
 
-### 🔁 Undo/Redo & Reflection
-- Redo/Undo functionality using serialized state snapshots.  
-- Reflection used to inspect business-layer classes (only in DEBUG mode via `[Debug]` attribute).
+🏗 Architecture & Patterns
+3-Tier Architecture:
 
-### 🧩 Utility Libraries
-- `HashSet<SqlParameter>` helpers for duplicate-free parameters.  
-- Extension Methods for:
-  - Type casting  
-  - Scalar value retrieval  
-  - Parameter binding  
-- Utilities for image saving & operation log downloads.
+UI Layer: WinForms + modular UserControls
 
-### 🎨 UI Theming System
-- `ThemeManager` class + `IThemable` interface.  
-- 3 Modes:
-  - Admin  
-  - Dark  
-  - Default  
-- `SetTheme()` recursively applies styles across all controls and children.
+Business Logic Layer: Extension methods, serialization, validation
 
-### ➕ Bitwise Permission Logic
-- Role permissions stored as byte flags.  
-- Bitwise operations for:
-  - Adding/updating permissions  
-  - Verifying access  
-  - Shifting values dynamically
+Data Access Layer: ADO.NET + stored procedures
 
----
+Dependency Injection:
 
-## 🧪 Technologies Used
+Custom delegates passed via constructor injection to decouple business logic and improve testability.
 
-| Category     | Tools / Technologies                                  |
-|--------------|--------------------------------------------------------|
-| **Language** | C# (.NET Framework)                                    |
-| **Database** | SQL Server (SPs, Views, Triggers, Context, Temp Tables)|
-| **UI**       | WinForms                                               |
-| **Architecture** | 3-Tier (UI, BLL, DAL)                            |
-| **Tools**    | Visual Studio 2022, Windows Registry, Event Viewer     |
-| **Libraries**| ADO.NET, System.IO, Serialization, Reflection, etc.    |
+SOLID Principles:
 
----
+SRP, ISP, DIP applied across layers for maintainability.
 
-## 🚀 How to Run
+🧠 Engineering Highlights
+⚙ Transactions & Data Integrity
+Atomic operations using BEGIN TRANSACTION (e.g., license auto-creation after driver registration).
 
-1. Open the solution in **Visual Studio 2022**.  
-2. Restore or attach the provided SQL Server database.  
-3. Run the application.  
-4. Log in using one of the default users:
+License history and status tracking embedded in DB logic.
 
-| Role   | Username | Password |
-|--------|----------|----------|
-| Admin  | User1    | 1111     |
-| Editor | User2    | 2222     |
+🧾 Logging System
+Multi-layered logging:
 
----
+SQL Logs (ErrorLogs table via triggers)
 
-## 📂 Project Repository
+Windows Event Viewer (via manifest-elevated logging)
 
-- **GitHub**
+Registry entries
+
+Text files for auditing
+
+🎨 UI & Theming
+Custom ThemeManager + IThemable interface
+
+Three modes: Admin, Dark, Default
+
+Recursive styling applied across all nested controls
+
+➕ Role Permissions
+Roles managed via bitwise flags
+
+Fast checks using bitwise operations (Add, Check, Remove)
+
+🛠 Utilities & Helpers
+HashSet<SqlParameter> to prevent duplicates
+
+Delegates + reflection for flexible execution
+
+Undo/Redo state management using serialized snapshots
+
+Custom extension methods (type casting, param binding, result retrieval)
+
+🧪 Technologies Used
+Category	Tools / Technologies
+Language	C# (.NET Framework)
+Database	SQL Server (SPs, Views, Triggers, MVTF, Session Context)
+UI	WinForms
+Architecture	3-Tier (UI, BLL, DAL)
+Tools	Visual Studio 2022, Windows Registry, Outlook, Event Viewer
+Libraries	ADO.NET, System.IO, Reflection, Serialization, Office Interop, etc.
+
+🚀 How to Run
+Open solution in Visual Studio 2022.
+
+Attach the SQL Server database.
+
+Run the application.
+
+Use one of the default accounts:
+
+Role	Username	Password
+Admin	User1	1111
+Editor	User2	2222
+
